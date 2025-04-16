@@ -1,2 +1,5 @@
-pyaudio
-colorama
+pyaudio==0.2.13
+colorama==0.4.6
+sounddevice==0.4.6
+scipy==1.10.1
+pulsectl

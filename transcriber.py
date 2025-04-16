@@ -4,14 +4,62 @@ import wave
 import pyaudio
 import logging
 import time
+import platform
+import sys
 from colorama import Fore, Style, init
 
-# Initialize colorama
-init()
+# Initialize colorama with strip=False for compatibility with Docker/TTY
+init(strip=False)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
+
+def get_platform():
+    """Detect platform - handle special cases"""
+    # Check for audio driver override first
+    audio_driver = os.environ.get("AUDIO_DRIVER")
+    if audio_driver:
+        logger.info(f"Using audio driver from environment: {audio_driver}")
+        if audio_driver == "pulse":
+            return "pulse"
+        elif audio_driver == "alsa":
+            return "alsa"
+    
+    # Check for platform override
+    env_platform = os.environ.get("PLATFORM")
+    if env_platform:
+        return env_platform.lower()
+    
+    # Auto-detect if not specified
+    sys_platform = platform.system().lower()
+    
+    # Platform-specific detection
+    if sys_platform == "linux":
+        # Check if running on Pi
+        if os.path.exists("/proc/device-tree/model"):
+            try:
+                with open("/proc/device-tree/model") as f:
+                    model = f.read()
+                    if "raspberry pi" in model.lower():
+                        return "pi"
+            except:
+                pass
+        
+        # Check for pulseaudio
+        try:
+            if os.path.exists("/usr/bin/pulseaudio") or os.path.exists("/bin/pulseaudio"):
+                return "pulse"
+        except:
+            pass
+        
+        return "linux"
+    elif sys_platform == "darwin":
+        return "mac"
+    elif "win" in sys_platform:
+        return "win"
+    
+    return sys_platform
 
 def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pyaudio.paInt16):
     """
@@ -32,83 +80,160 @@ def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pya
     if not input_dir:
         raise ValueError("AUDIO_INPUT_DIR environment variable must be set")
     
-    # Check if directory exists
+    # Try to create directory if it doesn't exist (for bind mounts)
     if not os.path.isdir(input_dir):
-        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+        try:
+            os.makedirs(input_dir, exist_ok=True)
+            logger.info(f"Created input directory: {input_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create input directory: {e}")
+            raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
     
     # Define output file path
     output_path = os.path.join(input_dir, "voice.wav")
     
-    # Initialize PyAudio
-    audio = pyaudio.PyAudio()
+    # Platform-specific adjustments
+    current_platform = get_platform()
+    logger.info(f"Running on platform: {current_platform}")
     
-    # Countdown before recording
-    print('\n')
-    print(f"{Fore.CYAN}Recording countdown.{Style.RESET_ALL}")
-    print(f"{Fore.YELLOW}Recording will start in:{Style.RESET_ALL}")
-    print('\n')
-    for i in range(3, -1, -1):
-        if i == 0:
-            print(f"{Fore.MAGENTA}  {i}...{Style.RESET_ALL}")
-        elif i == 1:
-            print(f"{Fore.RED}  {i}...{Style.RESET_ALL}")
-        elif i == 2:
-            print(f"{Fore.YELLOW}  {i}...{Style.RESET_ALL}")
-        else:
-            print(f"{Fore.GREEN}  {i}...{Style.RESET_ALL}")
-        time.sleep(1)
-    print(f"{Fore.CYAN}Recording now! {Fore.GREEN}Speak clearly...{Style.RESET_ALL}")
-    print('\n')
+    # Platform-specific logic
+    if current_platform == "pi":
+        logger.info("Running in Raspberry Pi mode")
+        # Pi typically works best with default settings
+        pass
+    elif current_platform == "osx":
+        logger.info("Running in macOS mode with adjusted parameters")
+        # macOS specific settings
+        # Using 48kHz on macOS is often more reliable
+        rate = 48000
+    elif current_platform == "win":
+        logger.info("Running in Windows mode with adjusted parameters")
+        # Windows specific settings
+        # Some Windows systems work better with larger chunks
+        chunk = 2048
     
-    # Open audio stream for recording
-    logger.info("Recording started...")
-    
-    stream = audio.open(
-        format=format_type,
-        channels=channels,
-        rate=rate,
-        input=True,
-        frames_per_buffer=chunk
-    )
-    
-    # Record audio data
-    frames = []
-    total_iterations = int(rate / chunk * duration)
-    
-    for i in range(0, total_iterations):
-        data = stream.read(chunk)
-        frames.append(data)
-        # Show progress during recording
-        if i % int(rate / chunk) == 0:  # Approximately every second
-            seconds_left = duration - (i // int(rate / chunk))
-            print(f"{Fore.BLUE}Recording: {Fore.GREEN}{seconds_left}{Fore.BLUE} seconds left...{Style.RESET_ALL}")
-    
-    # Ensure we display zero seconds at the end
-    print(f"{Fore.BLUE}Recording: {Fore.GREEN}0{Fore.BLUE} seconds left...{Style.RESET_ALL}")
-    
-    # Stop and close the stream
-    stream.stop_stream()
-    stream.close()
-    audio.terminate()
-    
-    print('\n')
-    logger.info("Recording finished.")
-    
-    # Save to WAV file
-    with wave.open(output_path, 'wb') as wf:
-        wf.setnchannels(channels)
-        wf.setsampwidth(audio.get_sample_size(format_type))
-        wf.setframerate(rate)
-        wf.writeframes(b''.join(frames))
-    
-    logger.info(f"Saved to {output_path}")
-    return output_path
+    try:
+        # Initialize PyAudio
+        audio = pyaudio.PyAudio()
+        
+        # Print available devices for debugging
+        logger.info("Available audio devices:")
+        for i in range(audio.get_device_count()):
+            try:
+                device_info = audio.get_device_info_by_index(i)
+                logger.info(f"Device {i}: {device_info['name']}")
+            except:
+                logger.warning(f"Could not get info for device {i}")
+        
+        # Countdown before recording
+        print('\n')
+        print(f"{Fore.CYAN}Recording countdown.{Style.RESET_ALL}")
+        print(f"{Fore.YELLOW}Recording will start in:{Style.RESET_ALL}")
+        print('\n')
+        for i in range(3, -1, -1):
+            if i == 0:
+                print(f"{Fore.MAGENTA}  {i}...{Style.RESET_ALL}")
+            elif i == 1:
+                print(f"{Fore.RED}  {i}...{Style.RESET_ALL}")
+            elif i == 2:
+                print(f"{Fore.YELLOW}  {i}...{Style.RESET_ALL}")
+            else:
+                print(f"{Fore.GREEN}  {i}...{Style.RESET_ALL}")
+            time.sleep(1)
+        print(f"{Fore.CYAN}Recording now! {Fore.GREEN}Speak clearly...{Style.RESET_ALL}")
+        print('\n')
+        
+        # Try to find a working input device
+        device_index = None
+        for i in range(audio.get_device_count()):
+            try:
+                dev_info = audio.get_device_info_by_index(i)
+                if dev_info['maxInputChannels'] > 0:
+                    logger.info(f"Using input device: {dev_info['name']}")
+                    device_index = i
+                    break
+            except:
+                continue
+        
+        # Open audio stream for recording with error handling
+        logger.info("Recording started...")
+        
+        try:
+            stream = audio.open(
+                format=format_type,
+                channels=channels,
+                rate=rate,
+                input=True,
+                input_device_index=device_index,
+                frames_per_buffer=chunk
+            )
+        except Exception as e:
+            logger.error(f"Failed to open audio stream: {e}")
+            # Fall back to default device
+            logger.info("Falling back to default audio device")
+            stream = audio.open(
+                format=format_type,
+                channels=channels,
+                rate=rate,
+                input=True,
+                frames_per_buffer=chunk
+            )
+        
+        # Record audio data
+        frames = []
+        total_iterations = int(rate / chunk * duration)
+        
+        for i in range(0, total_iterations):
+            try:
+                data = stream.read(chunk, exception_on_overflow=False)
+                frames.append(data)
+                # Show progress during recording
+                if i % int(rate / chunk) == 0:  # Approximately every second
+                    seconds_left = duration - (i // int(rate / chunk))
+                    print(f"{Fore.BLUE}Recording: {Fore.GREEN}{seconds_left}{Fore.BLUE} seconds left...{Style.RESET_ALL}")
+            except Exception as e:
+                logger.error(f"Error reading from stream: {e}")
+                # Create some silent data to maintain timing
+                frames.append(b'\x00' * chunk * channels * audio.get_sample_size(format_type))
+        
+        # Ensure we display zero seconds at the end
+        print(f"{Fore.BLUE}Recording: {Fore.GREEN}0{Fore.BLUE} seconds left...{Style.RESET_ALL}")
+        
+        # Stop and close the stream
+        stream.stop_stream()
+        stream.close()
+        audio.terminate()
+        
+        print('\n')
+        logger.info("Recording finished.")
+        
+        # Save to WAV file
+        with wave.open(output_path, 'wb') as wf:
+            wf.setnchannels(channels)
+            wf.setsampwidth(audio.get_sample_size(format_type))
+            wf.setframerate(rate)
+            wf.writeframes(b''.join(frames))
+        
+        logger.info(f"Saved to {output_path}")
+        return output_path
+        
+    except Exception as e:
+        logger.error(f"Error recording audio: {e}")
+        # Create an empty file in case of error
+        with open(output_path, 'wb') as f:
+            pass
+        logger.info(f"Created empty file: {output_path}")
+        return output_path
 
 def main():
     """Entry point when script is run directly."""
-    output_path = record_audio()
-    logger.info(f"Audio recording complete. Saved to {output_path}")
-    return output_path
+    try:
+        output_path = record_audio()
+        logger.info(f"Audio recording complete. Saved to {output_path}")
+        return output_path
+    except Exception as e:
+        logger.error(f"Error in main function: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

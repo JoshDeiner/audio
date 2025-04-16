@@ -1,11 +1,71 @@
 version: '3'
 
+# Use .env file if it exists
+x-use-audio-config: &use-audio-config
+  env_file:
+    - ${AUDIO_CONFIG_FILE:-config/audio_config.env}
+
 services:
   audio-app:
     build: .
+    # Use relative path with bind mounts for better cross-platform compatibility
     volumes:
-      - /home/jd01/data-sources/input:/app/input
+      - ${AUDIO_INPUT_DIR:-./input}:/app/input
+      # Include platform-specific volume mappings
+      - ${PULSE_SOCKET_VOLUME:-/run/user/1000/pulse:/run/user/1000/pulse:ro}
+      - ${HOME_CONFIG_VOLUME:-${HOME}/.config/pulse:/root/.config/pulse:ro}
+      - ${MACHINE_ID_VOLUME:-/etc/machine-id:/etc/machine-id:ro}
+    # Only use devices when available (Linux/Pi)
     devices:
-      - "/dev/snd:/dev/snd"  # Required for audio device access
+      - /dev/snd:/dev/snd
+    # Privileged mode only if needed
+    privileged: ${PRIVILEGED_MODE:-false}
+    # Use audio config from platform_audio.sh
+    <<: *use-audio-config
     environment:
       - AUDIO_INPUT_DIR=/app/input
+      # Add platform detection env var (default is Raspberry Pi)
+      - PLATFORM=${PLATFORM:-pi}
+      # Audio driver from platform script
+      - AUDIO_DRIVER=${AUDIO_DRIVER:-alsa}
+      # PulseAudio server if available
+      - PULSE_SERVER=${PULSE_SERVER:-}
+    # Allow container to restart if it crashes
+    restart: unless-stopped
+    # Allow interactive use for recording
+    tty: true
+    stdin_open: true
+    # Network mode depends on platform
+    network_mode: ${NETWORK_MODE:-bridge}
+
+  # Mac-specific container
+  mac-audio-app:
+    build: .
+    profiles: ["mac"]
+    volumes:
+      - ${AUDIO_INPUT_DIR:-./input}:/app/input
+    environment:
+      - AUDIO_INPUT_DIR=/app/input
+      - PLATFORM=mac
+      - AUDIO_DRIVER=pulse
+      - PULSE_SERVER=tcp:host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    tty: true
+    stdin_open: true
+    
+  # Windows-specific container
+  win-audio-app:
+    build: .
+    profiles: ["win"]
+    volumes:
+      - ${AUDIO_INPUT_DIR:-./input}:/app/input
+    environment:
+      - AUDIO_INPUT_DIR=/app/input
+      - PLATFORM=win
+      - AUDIO_DRIVER=pulse
+      - PULSE_SERVER=tcp:host.docker.internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    tty: true
+    stdin_open: true
