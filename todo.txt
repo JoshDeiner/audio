@@ -1,0 +1,19 @@
+
+
+when you send audio from pyadui to whisper write new text output to the output directory
+
+log the results to make sure there is consistentcy
+
+if a message gets to the end of the one directional chain, return the dummy audio message
+
+add tests here
+
+
+=========================================================================================`
+
+
+extra
+-----------------------------------------------------------------------
+is there a better way than just writing to a text file in output
+
+can you follow a pattern similar to subscriber patter
