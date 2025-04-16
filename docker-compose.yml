@@ -1,0 +1,11 @@
+version: '3'
+
+services:
+  audio-app:
+    build: .
+    volumes:
+      - /home/jd01/data-sources/input:/app/input
+    devices:
+      - "/dev/snd:/dev/snd"  # Required for audio device access
+    environment:
+      - AUDIO_INPUT_DIR=/app/input
