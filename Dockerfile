@@ -2,10 +2,15 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-# Install system dependencies for PyAudio
+# Install system dependencies for PyAudio and ALSA
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
     portaudio19-dev \
+    python3-dev \
     python3-pyaudio \
+    alsa-utils \
+    libasound2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache

@@ -8,7 +8,7 @@ import logging
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-def record_audio(duration=5, rate=16000, chunk=1024, channels=1, format_type=pyaudio.paInt16):
+def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pyaudio.paInt16):
     """
     Record audio from microphone and save to a WAV file.
     
