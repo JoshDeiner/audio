@@ -30,8 +30,8 @@ services:
       - AUDIO_DRIVER=${AUDIO_DRIVER:-alsa}
       # PulseAudio server if available
       - PULSE_SERVER=${PULSE_SERVER:-}
-    # Allow container to restart if it crashes
-    restart: unless-stopped
+    # Don't automatically restart the container
+    restart: "no"
     # Allow interactive use for recording
     tty: true
     stdin_open: true
