@@ -23,6 +23,7 @@ COPY asound.conf /etc/asound.conf
 
 RUN pip install --no-cache-dir -r requirements.txt
 
+COPY . .
 
 # Layer 3: Directory structure (rarely changes)
 RUN mkdir -p /app/input && chmod 755 /app/input
