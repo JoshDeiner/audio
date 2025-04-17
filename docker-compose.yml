@@ -38,34 +38,3 @@ services:
     # Network mode depends on platform
     network_mode: ${NETWORK_MODE:-bridge}
 
-  # Mac-specific container
-  mac-audio-app:
-    build: .
-    profiles: ["mac"]
-    volumes:
-      - ${AUDIO_INPUT_DIR:-./input}:/app/input
-    environment:
-      - AUDIO_INPUT_DIR=/app/input
-      - PLATFORM=mac
-      - AUDIO_DRIVER=pulse
-      - PULSE_SERVER=tcp:host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    tty: true
-    stdin_open: true
-    
-  # Windows-specific container
-  win-audio-app:
-    build: .
-    profiles: ["win"]
-    volumes:
-      - ${AUDIO_INPUT_DIR:-./input}:/app/input
-    environment:
-      - AUDIO_INPUT_DIR=/app/input
-      - PLATFORM=win
-      - AUDIO_DRIVER=pulse
-      - PULSE_SERVER=tcp:host.docker.internal
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    tty: true
-    stdin_open: true
