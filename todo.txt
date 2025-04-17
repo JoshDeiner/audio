@@ -11,9 +11,6 @@ add tests here
 
 =========================================================================================`
 
+amazon q
 
-extra
------------------------------------------------------------------------
-is there a better way than just writing to a text file in output
-
-can you follow a pattern similar to subscriber patter
+whats a good way to test this application
