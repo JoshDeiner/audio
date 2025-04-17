@@ -1,11 +1,8 @@
 
 
-when you send audio from pyadui to whisper write new text output to the output directory
-
-log the results to make sure there is consistentcy
 
 clean up transcriber.py
+	* create ideas how to judge transcriber.py
 
-make sure it can run in container
 
 add test for transcriber function

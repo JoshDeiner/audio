@@ -3,4 +3,4 @@
 venv/
 input/
 prompt-results/
-output/*
+output/*.txt
