@@ -41,23 +41,7 @@ FROM audio-base AS audio-app
 WORKDIR /app
 
 # Layer 6: Entrypoint script (rarely changes)
-RUN echo '#!/bin/bash' > /app/entrypoint.sh && \
-    echo 'echo "Starting audio app with driver: $AUDIO_DRIVER"' >> /app/entrypoint.sh && \
-    echo '' >> /app/entrypoint.sh && \
-    echo '# Check if we are using PulseAudio' >> /app/entrypoint.sh && \
-    echo 'if [ "$AUDIO_DRIVER" = "pulse" ]; then' >> /app/entrypoint.sh && \
-    echo '    echo "Using PulseAudio driver"' >> /app/entrypoint.sh && \
-    echo '    # Wait for PulseAudio socket to be available' >> /app/entrypoint.sh && \
-    echo '    if [ -S /tmp/pulseaudio.socket ]; then' >> /app/entrypoint.sh && \
-    echo '        echo "PulseAudio socket found"' >> /app/entrypoint.sh && \
-    echo '    else' >> /app/entrypoint.sh && \
-    echo '        echo "Warning: PulseAudio socket not found at /tmp/pulseaudio.socket"' >> /app/entrypoint.sh && \
-    echo '    fi' >> /app/entrypoint.sh && \
-    echo 'fi' >> /app/entrypoint.sh && \
-    echo '' >> /app/entrypoint.sh && \
-    echo '# Execute the command passed to the script' >> /app/entrypoint.sh && \
-    echo 'exec "$@"' >> /app/entrypoint.sh && \
-    chmod +x /app/entrypoint.sh
+COPY cicd/entrypoint.sh /app/entrypoint.sh
 
 # Layer 7: Application code (changes most frequently)
 COPY . .
