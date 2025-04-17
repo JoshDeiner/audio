@@ -7,6 +7,10 @@ import time
 import platform
 import sys
 from colorama import Fore, Style, init
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Initialize colorama with strip=False for compatibility with Docker/TTY
 init(strip=False)
