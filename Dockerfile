@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     pulseaudio \
     pulseaudio-utils \
     libpulse-dev \
+    ffmpeg \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first to leverage Docker cache
@@ -24,14 +25,16 @@ RUN pip install --no-cache-dir -r requirements.txt \
 # Copy application files
 COPY . .
 
-# Create input directory
+# Create input and output directories
 RUN mkdir -p /app/input && chmod 777 /app/input
+RUN mkdir -p /app/output && chmod 777 /app/output
 
 # Configure ALSA
 COPY asound.conf /etc/asound.conf
 
 # Set environment variables
 ENV AUDIO_INPUT_DIR=/app/input
+ENV AUDIO_OUTPUT_DIR=/app/output
 # Fallback to null device if hardware not available
 ENV AUDIODEV=null
 

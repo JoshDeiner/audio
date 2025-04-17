@@ -6,6 +6,7 @@ import logging
 import time
 import platform
 import sys
+import whisper
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
 
@@ -229,12 +230,97 @@ def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pya
         logger.info(f"Created empty file: {output_path}")
         return output_path
 
+def transcribe_audio(audio_file_path, model_size=None):
+    """
+    Transcribe audio file using Whisper model.
+    
+    Args:
+        audio_file_path (str): Path to the audio file to transcribe
+        model_size (str): Whisper model size (tiny, base, small, medium, large)
+        
+    Returns:
+        str: Transcribed text
+    """
+    try:
+        # Get model size from environment variable or use default
+        if model_size is None:
+            model_size = os.environ.get("WHISPER_MODEL", "tiny").lower()  # Convert to lowercase
+        
+        logger.info(f"Loading Whisper model: {model_size}")
+        model = whisper.load_model(model_size)
+        
+        logger.info(f"Transcribing audio file: {audio_file_path}")
+        print(f"{Fore.CYAN}Transcribing audio...{Style.RESET_ALL}")
+        
+        # Transcribe the audio file
+        result = model.transcribe(audio_file_path)
+        
+        # Extract the transcribed text
+        transcription = result["text"]
+        
+        logger.info("Transcription complete")
+        return transcription
+    
+    except Exception as e:
+        logger.error(f"Error transcribing audio: {e}")
+        return f"Error during transcription: {str(e)}"
+
+def save_transcription(transcription_text):
+    """
+    Save transcription to a text file in the output directory.
+    
+    Args:
+        transcription_text (str): The transcribed text to save
+        
+    Returns:
+        str: Path to the saved transcription file
+    """
+    # Get the output directory from environment variable
+    output_dir = os.environ.get("AUDIO_OUTPUT_DIR")
+    if not output_dir:
+        raise ValueError("AUDIO_OUTPUT_DIR environment variable must be set")
+    
+    # Try to create directory if it doesn't exist
+    if not os.path.isdir(output_dir):
+        try:
+            os.makedirs(output_dir, exist_ok=True)
+            logger.info(f"Created output directory: {output_dir}")
+        except Exception as e:
+            logger.error(f"Failed to create output directory: {e}")
+            raise FileNotFoundError(f"Output directory does not exist: {output_dir}")
+    
+    # Define output file path
+    output_path = os.path.join(output_dir, "transcript.txt")
+    
+    try:
+        # Write transcription to file
+        with open(output_path, 'w') as f:
+            f.write(transcription_text)
+        
+        logger.info(f"Transcription saved to {output_path}")
+        return output_path
+    
+    except Exception as e:
+        logger.error(f"Error saving transcription: {e}")
+        raise
+
 def main():
     """Entry point when script is run directly."""
     try:
-        output_path = record_audio()
-        logger.info(f"Audio recording complete. Saved to {output_path}")
-        return output_path
+        # Record audio
+        audio_path = record_audio()
+        logger.info(f"Audio recording complete. Saved to {audio_path}")
+        
+        # Transcribe the audio
+        transcription = transcribe_audio(audio_path)
+        print(f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n")
+        
+        # Save the transcription
+        transcript_path = save_transcription(transcription)
+        print(f"{Fore.CYAN}Transcription saved to: {Fore.YELLOW}{transcript_path}{Style.RESET_ALL}")
+        
+        return audio_path, transcript_path
+    
     except Exception as e:
         logger.error(f"Error in main function: {e}")
         sys.exit(1)

@@ -1,5 +1,3 @@
-version: '3'
-
 # Use .env file if it exists
 x-use-audio-config: &use-audio-config
   env_file:
@@ -11,10 +9,13 @@ services:
     # Use relative path with bind mounts for better cross-platform compatibility
     volumes:
       - ${AUDIO_INPUT_DIR:-./input}:/app/input
+      - ${AUDIO_OUTPUT_DIR:-./output}:/app/output
       # Include platform-specific volume mappings
       - ${PULSE_SOCKET_VOLUME:-/run/user/1000/pulse:/run/user/1000/pulse:ro}
       - ${HOME_CONFIG_VOLUME:-${HOME}/.config/pulse:/root/.config/pulse:ro}
       - ${MACHINE_ID_VOLUME:-/etc/machine-id:/etc/machine-id:ro}
+      # Cache directory for Whisper models
+      - ${HOME}/.cache/whisper:/root/.cache/whisper
     # Only use devices when available (Linux/Pi)
     devices:
       - /dev/snd:/dev/snd
@@ -24,12 +25,16 @@ services:
     <<: *use-audio-config
     environment:
       - AUDIO_INPUT_DIR=/app/input
+      - AUDIO_OUTPUT_DIR=/app/output
       # Add platform detection env var (default is Raspberry Pi)
       - PLATFORM=${PLATFORM:-pi}
       # Audio driver from platform script
       - AUDIO_DRIVER=${AUDIO_DRIVER:-alsa}
       # PulseAudio server if available
       - PULSE_SERVER=${PULSE_SERVER:-}
+      # Set Whisper model size for Pi (tiny is recommended for Pi)
+      - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
+
     # Don't automatically restart the container
     restart: "no"
     # Allow interactive use for recording
@@ -37,4 +42,9 @@ services:
     stdin_open: true
     # Network mode depends on platform
     network_mode: ${NETWORK_MODE:-bridge}
+
+# Define volumes to ensure they exist
+volumes:
+  input:
+  output:
 
