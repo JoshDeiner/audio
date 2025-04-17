@@ -33,7 +33,7 @@ docker-build:
 
 docker-stop:
 	@echo "Stopping Docker containers..."
-	docker-compose down
+	docker-compose down --volumes
 
 local-run:
 	@echo "Running app locally..."

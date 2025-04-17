@@ -59,3 +59,4 @@ ENTRYPOINT ["/app/entrypoint.sh"]
 
 # Default command
 CMD ["python", "transcriber.py"]
+
