@@ -4,6 +4,9 @@ sounddevice==0.4.6
 scipy==1.10.1
 pulsectl
 python-dotenv
-openai-whisper
+faster-whisper
 torch
 numpy
+sounddevice
+scipy
+pulsectl

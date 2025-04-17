@@ -6,7 +6,7 @@ import logging
 import time
 import platform
 import sys
-import whisper
+from faster_whisper import WhisperModel
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
 
@@ -232,7 +232,7 @@ def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pya
 
 def transcribe_audio(audio_file_path, model_size=None):
     """
-    Transcribe audio file using Whisper model.
+    Transcribe audio file using faster-whisper model.
     
     Args:
         audio_file_path (str): Path to the audio file to transcribe
@@ -246,19 +246,26 @@ def transcribe_audio(audio_file_path, model_size=None):
         if model_size is None:
             model_size = os.environ.get("WHISPER_MODEL", "tiny").lower()  # Convert to lowercase
         
-        logger.info(f"Loading Whisper model: {model_size}")
-        model = whisper.load_model(model_size)
+        # Get compute type from environment or use default
+        compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "float32")
+        
+        # Get device from environment or use default (cuda if available, otherwise cpu)
+        device = os.environ.get("WHISPER_DEVICE", "auto")
+        
+        logger.info(f"Loading faster-whisper model: {model_size} (device: {device}, compute_type: {compute_type})")
+        model = WhisperModel(model_size, device=device, compute_type=compute_type)
         
         logger.info(f"Transcribing audio file: {audio_file_path}")
         print(f"{Fore.CYAN}Transcribing audio...{Style.RESET_ALL}")
         
         # Transcribe the audio file
-        result = model.transcribe(audio_file_path)
+        # The faster-whisper API returns segments and info
+        segments, info = model.transcribe(audio_file_path, beam_size=5)
         
-        # Extract the transcribed text
-        transcription = result["text"]
+        # Combine all segments into a single transcription
+        transcription = " ".join([segment.text for segment in segments])
         
-        logger.info("Transcription complete")
+        logger.info(f"Transcription complete (detected language: {info.language}, probability: {info.language_probability:.2f})")
         return transcription
     
     except Exception as e:
