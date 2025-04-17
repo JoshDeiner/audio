@@ -11,9 +11,9 @@ services:
       - ${AUDIO_INPUT_DIR:-./input}:/app/input
       - ${AUDIO_OUTPUT_DIR:-./output}:/app/output
       # Include platform-specific volume mappings
-      - ${PULSE_SOCKET_VOLUME:-/run/user/1000/pulse:/run/user/1000/pulse:ro}
-      - ${HOME_CONFIG_VOLUME:-${HOME}/.config/pulse:/root/.config/pulse:ro}
-      - ${MACHINE_ID_VOLUME:-/etc/machine-id:/etc/machine-id:ro}
+      - /run/user/$(id -u)/pulse:/run/pulse:ro
+      - ${HOME}/.config/pulse:/root/.config/pulse:ro
+      - /etc/machine-id:/etc/machine-id:ro
       # Cache directory for Whisper models
       - ${HOME}/.cache/whisper:/root/.cache/whisper
     # Only use devices when available (Linux/Pi)
@@ -31,7 +31,7 @@ services:
       # Audio driver from platform script
       - AUDIO_DRIVER=${AUDIO_DRIVER:-alsa}
       # PulseAudio server if available
-      - PULSE_SERVER=${PULSE_SERVER:-}
+      - PULSE_SERVER=unix:/run/pulse/native
       # Set Whisper model size for Pi (tiny is recommended for Pi)
       - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
 
