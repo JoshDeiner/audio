@@ -17,12 +17,12 @@ logger = logging.getLogger(__name__)
 
 class AudioRecordingService:
     """Service for recording audio from microphone."""
-    
+
     def __init__(self):
         """Initialize the audio recording service."""
         self.platform_service = PlatformDetectionService()
         self.file_service = FileService()
-        
+
     def record_audio(
         self,
         duration: int = 5,
@@ -32,81 +32,85 @@ class AudioRecordingService:
         format_type: int = pyaudio.paInt16,
     ) -> str:
         """Record audio from microphone and save to a WAV file.
-    
+
         Args:
             duration: Recording duration in seconds
             rate: Sample rate in Hz (16kHz for Whisper)
             chunk: Buffer size
             channels: Number of audio channels (1 for mono)
             format_type: Audio format (from pyaudio constants)
-    
+
         Returns:
             str: Path to the saved WAV file
-    
+
         Raises:
             AudioRecordingError: If recording or saving audio fails
             FileOperationError: If input directory cannot be created or accessed
         """
         # Validate and prepare input directory
         input_dir = self._prepare_input_directory()
-        
+
         # Define output file path
         output_path = os.path.join(input_dir, "voice.wav")
-        
+
         # Apply platform-specific adjustments
         rate, chunk = self._apply_platform_specific_settings(rate, chunk)
-        
+
         # Record and save audio
-        self._record_and_save_audio(output_path, duration, rate, chunk, channels, format_type)
-        
+        self._record_and_save_audio(
+            output_path, duration, rate, chunk, channels, format_type
+        )
+
         return output_path
 
     def _prepare_input_directory(self) -> str:
         """Prepare the input directory for audio recording.
-        
+
         Returns:
             str: Path to the input directory
-            
+
         Raises:
             FileOperationError: If directory cannot be created or accessed
         """
         input_dir = self.file_service.sanitize_path(os.environ.get("AUDIO_INPUT_DIR"))
         if not input_dir:
             raise FileOperationError("AUDIO_INPUT_DIR environment variable must be set")
-    
+
         try:
             return self.file_service.prepare_directory(input_dir)
         except FileOperationError as e:
             raise FileOperationError(f"Input directory error: {str(e)}")
 
-    def _apply_platform_specific_settings(self, rate: int, chunk: int) -> Tuple[int, int]:
+    def _apply_platform_specific_settings(
+        self, rate: int, chunk: int
+    ) -> Tuple[int, int]:
         """Apply platform-specific audio settings.
-        
+
         Args:
             rate: Original sample rate
             chunk: Original chunk size
-            
+
         Returns:
             Tuple[int, int]: Adjusted (rate, chunk) for the current platform
         """
         current_platform = self.platform_service.get_platform()
         logger.info(f"Running on platform: {current_platform}")
-    
+
         if current_platform == "pi":
             logger.info("Running in Raspberry Pi mode")
             # Pi typically works best with default settings
             return rate, chunk
-            
+
         if current_platform == "mac":
             logger.info("Running in macOS mode with adjusted parameters")
             # macOS specific settings - 48kHz is often more reliable
             return 48000, chunk
-            
+
         if current_platform == "win":
             logger.info("Running in Windows mode with adjusted parameters")
             # Windows specific settings - larger chunks often work better
             return rate, 2048
-            
+
         # Default for Linux and other platforms
         return rate, chunk
 
@@ -120,7 +124,7 @@ class AudioRecordingService:
         format_type: int,
     ) -> None:
         """Record audio from microphone and save to a WAV file.
-        
+
         Args:
             output_path: Path where the WAV file will be saved
             duration: Recording duration in seconds
@@ -128,23 +132,23 @@ class AudioRecordingService:
             chunk: Buffer size
             channels: Number of audio channels
             format_type: Audio format (from pyaudio constants)
-            
+
         Raises:
             AudioRecordingError: If recording or saving audio fails
         """
         audio = None
         stream = None
-        
+
         try:
             # Initialize PyAudio
             audio = pyaudio.PyAudio()
-            
+
             # Log available audio devices for debugging
             self._log_available_audio_devices(audio)
-            
+
             # Countdown before recording
             self._display_recording_countdown()
-            
+
             # Open audio stream
             stream = audio.open(
                 format=format_type,
@@ -153,15 +157,17 @@ class AudioRecordingService:
                 input=True,
                 frames_per_buffer=chunk,
             )
-            
+
             # Record audio
             frames = self._capture_audio_frames(stream, chunk, rate, duration)
-            
+
             # Save to WAV file
-            self._save_frames_to_wav(output_path, audio, frames, channels, rate, format_type)
-            
+            self._save_frames_to_wav(
+                output_path, audio, frames, channels, rate, format_type
+            )
+
             logger.info(f"Audio saved to {output_path}")
-            
+
         except (IOError, OSError) as e:
             logger.error(f"Error recording audio: {e}")
             raise AudioRecordingError(f"Failed to record audio: {e}")
@@ -178,7 +184,7 @@ class AudioRecordingService:
 
     def _log_available_audio_devices(self, audio: pyaudio.PyAudio) -> None:
         """Log information about available audio devices.
-        
+
         Args:
             audio: PyAudio instance
         """
@@ -211,26 +217,22 @@ class AudioRecordingService:
         print("\n")
 
     def _capture_audio_frames(
-        self,
-        stream: pyaudio.Stream, 
-        chunk: int, 
-        rate: int, 
-        duration: int
+        self, stream: pyaudio.Stream, chunk: int, rate: int, duration: int
     ) -> List[bytes]:
         """Capture audio frames from the stream.
-        
+
         Args:
             stream: PyAudio stream
             chunk: Buffer size
             rate: Sample rate
             duration: Recording duration in seconds
-            
+
         Returns:
             List[bytes]: List of captured audio frames
         """
         frames = []
         total_iterations = int(rate / chunk * duration)
-    
+
         for i in range(0, total_iterations):
             try:
                 data = stream.read(chunk, exception_on_overflow=False)
@@ -246,13 +248,13 @@ class AudioRecordingService:
                 logger.error(f"Error reading from stream: {e}")
                 # Create some silent data to maintain timing
                 frames.append(b"\x00" * chunk)
-    
+
         # Ensure we display zero seconds at the end
         print(
             f"{Fore.BLUE}Recording: {Fore.GREEN}0"
             f"{Fore.BLUE} seconds left...{Style.RESET_ALL}"
         )
-        
+
         return frames
 
     def _save_frames_to_wav(
@@ -265,7 +267,7 @@ class AudioRecordingService:
         format_type: int,
     ) -> None:
         """Save audio frames to a WAV file.
-        
+
         Args:
             output_path: Path where the WAV file will be saved
             audio: PyAudio instance
@@ -273,7 +275,7 @@ class AudioRecordingService:
             channels: Number of audio channels
             rate: Sample rate
             format_type: Audio format
-            
+
         Raises:
             AudioRecordingError: If saving the file fails
         """

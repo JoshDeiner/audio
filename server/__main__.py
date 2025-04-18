@@ -33,10 +33,10 @@ logger = logging.getLogger(__name__)
 
 def main() -> Tuple[str, str]:
     """Main entry point for the transcription tool.
-    
+
     Returns:
         Tuple[str, str]: Paths to the audio file and transcript file
-        
+
     Raises:
         SystemExit: If an error occurs during execution
     """
