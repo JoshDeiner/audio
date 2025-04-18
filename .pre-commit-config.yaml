@@ -3,22 +3,75 @@ repos:
     rev: v4.4.0
     hooks:
     -   id: trailing-whitespace
+        stages: [commit]
+        verbose: true
+        always_run: true
+        fail_fast: false
     -   id: end-of-file-fixer
+        stages: [commit]
+        verbose: true
+        always_run: true
+        fail_fast: false
     -   id: check-yaml
+        stages: [commit]
+        fail_fast: false
     -   id: check-added-large-files
+        stages: [commit]
+        fail_fast: false
 
 -   repo: https://github.com/pycqa/isort
     rev: 5.12.0
     hooks:
     -   id: isort
+        stages: [commit]
+        fail_fast: false
 
 -   repo: https://github.com/psf/black
     rev: 23.3.0
     hooks:
     -   id: black
+        stages: [commit]
+        fail_fast: false
 
 -   repo: https://github.com/pycqa/flake8
     rev: 6.0.0
     hooks:
     -   id: flake8
         additional_dependencies: [flake8-docstrings]
+        stages: [commit]
+        args: [--exit-zero]
+        fail_fast: false
+
+# Pre-push hooks with strict checking
+-   repo: local
+    hooks:
+    -   id: strict-flake8
+        name: Strict flake8 check
+        entry: flake8
+        language: system
+        types: [python]
+        stages: [push]
+
+    -   id: strict-mypy
+        name: Strict mypy check
+        entry: mypy
+        language: system
+        types: [python]
+        stages: [push]
+
+    -   id: strict-black
+        name: Strict black check
+        entry: black --check
+        language: system
+        types: [python]
+        stages: [push]
+
+    -   id: strict-isort
+        name: Strict isort check
+        entry: isort --check
+        language: system
+        types: [python]
+        stages: [push]
+
+# Set default stages
+default_stages: [commit]
