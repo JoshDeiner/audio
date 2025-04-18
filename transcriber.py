@@ -46,10 +46,10 @@ def sanitize_path(path: Optional[str]) -> str:
 
 def get_platform() -> str:
     """Detect platform and audio driver configuration.
-    
+
     This function determines the platform or audio driver to use for audio recording.
     It checks for environment variables first, then falls back to auto-detection.
-    
+
     Returns:
         str: Identifier for the platform or audio driver. Possible values:
             - "pulse": PulseAudio driver
@@ -59,7 +59,7 @@ def get_platform() -> str:
             - "mac": macOS
             - "win": Windows
             - Any other platform string as returned by platform.system()
-    
+
     Raises:
         No exceptions are raised as this function handles all errors internally.
     """
@@ -67,18 +67,18 @@ def get_platform() -> str:
     platform_from_env = _get_platform_from_env()
     if platform_from_env:
         return platform_from_env
-        
+
     # Auto-detect if not specified in environment
     return _detect_platform_automatically()
 
 
 def _get_platform_from_env() -> str:
     """Get platform or audio driver from environment variables.
-    
+
     Checks environment variables in order of priority:
     1. AUDIO_DRIVER - For specific audio driver configuration
     2. PLATFORM - For explicit platform specification
-    
+
     Returns:
         str: Platform or audio driver identifier, or empty string if not found
     """
@@ -86,72 +86,72 @@ def _get_platform_from_env() -> str:
     audio_driver = _get_valid_audio_driver_from_env()
     if audio_driver:
         return audio_driver
-    
+
     # Check for platform override (second priority)
     return _get_platform_override_from_env()
 
 
 def _get_valid_audio_driver_from_env() -> str:
     """Get valid audio driver from environment variable.
-    
+
     Returns:
         str: Valid audio driver name or empty string
     """
     audio_driver = os.environ.get("AUDIO_DRIVER", "").strip()
-    
+
     # Return early if no audio driver specified
     if not audio_driver:
         return ""
-        
+
     logger.info(f"Using audio driver from environment: {audio_driver}")
     audio_driver = audio_driver.lower()
-    
+
     # Return early if not a recognized audio driver
     if audio_driver not in ("pulse", "alsa"):
         logger.debug(f"Unrecognized audio driver: {audio_driver}")
         return ""
-        
+
     return audio_driver
 
 
 def _get_platform_override_from_env() -> str:
     """Get platform override from environment variable.
-    
+
     Returns:
         str: Platform name or empty string
     """
     env_platform = os.environ.get("PLATFORM", "")
     if not env_platform:
         return ""
-        
+
     return env_platform.lower()
 
 
 def _detect_platform_automatically() -> str:
     """Auto-detect platform based on system information.
-    
+
     Returns:
         str: Detected platform identifier
     """
     sys_platform = platform.system().lower()
-    
+
     if sys_platform == "linux":
         return _detect_linux_platform()
-    
+
     if sys_platform == "darwin":
         return "mac"
-        
+
     if sys_platform.startswith("win"):
         return "win"
-        
+
     return sys_platform
 
 
 def _detect_linux_platform() -> str:
     """Detect specific Linux platform or audio driver.
-    
+
     Helper function to determine the specific Linux platform or audio driver.
-    
+
     Returns:
         str: Linux platform identifier ("pi", "pulse", or "linux")
     """
@@ -159,27 +159,27 @@ def _detect_linux_platform() -> str:
     pi_platform = _check_for_raspberry_pi()
     if pi_platform:
         return pi_platform
-        
+
     # Then check for PulseAudio
     pulse_platform = _check_for_pulseaudio()
     if pulse_platform:
         return pulse_platform
-        
+
     # Default to generic Linux
     return "linux"
 
 
 def _check_for_raspberry_pi() -> str:
     """Check if running on a Raspberry Pi.
-    
+
     Returns:
         str: "pi" if running on Raspberry Pi, empty string otherwise
     """
     pi_model_path = "/proc/device-tree/model"
-    
+
     if not os.path.exists(pi_model_path):
         return ""
-        
+
     try:
         with open(pi_model_path) as f:
             model = f.read().lower()
@@ -193,12 +193,12 @@ def _check_for_raspberry_pi() -> str:
 
 def _check_for_pulseaudio() -> str:
     """Check if PulseAudio is installed.
-    
+
     Returns:
         str: "pulse" if PulseAudio is installed, empty string otherwise
     """
     pulse_paths = ["/usr/bin/pulseaudio", "/bin/pulseaudio"]
-    
+
     try:
         if not any(os.path.exists(path) for path in pulse_paths):
             return ""
@@ -220,22 +220,22 @@ def validate_audio_file(file_path: str) -> bool:
     if not os.path.exists(file_path):
         logger.error(f"Audio file not found: {file_path}")
         return False
-        
+
     try:
         with wave.open(file_path, "rb") as wf:
             # Check basic WAV file properties
             if wf.getnchannels() < 1:
                 logger.error(f"Invalid audio channels in {file_path}")
                 return False
-                
+
             if wf.getsampwidth() < 1:
                 logger.error(f"Invalid sample width in {file_path}")
                 return False
-                
+
             if wf.getframerate() < 1:
                 logger.error(f"Invalid frame rate in {file_path}")
                 return False
-                
+
             return True
     except wave.Error as e:
         logger.error(f"WAV file format error: {e}")
@@ -274,25 +274,25 @@ def record_audio(
     """
     # Validate and prepare input directory
     input_dir = _prepare_input_directory()
-    
+
     # Define output file path
     output_path = os.path.join(input_dir, "voice.wav")
-    
+
     # Apply platform-specific adjustments
     rate, chunk = _apply_platform_specific_settings(rate, chunk)
-    
+
     # Record and save audio
     _record_and_save_audio(output_path, duration, rate, chunk, channels, format_type)
-    
+
     return output_path
 
 
 def _prepare_input_directory() -> str:
     """Prepare the input directory for audio recording.
-    
+
     Returns:
         str: Path to the input directory
-        
+
     Raises:
         ValueError: If AUDIO_INPUT_DIR environment variable is not set
         FileNotFoundError: If directory cannot be created or accessed
@@ -315,11 +315,11 @@ def _prepare_input_directory() -> str:
 
 def _apply_platform_specific_settings(rate: int, chunk: int) -> Tuple[int, int]:
     """Apply platform-specific audio settings.
-    
+
     Args:
         rate: Original sample rate
         chunk: Original chunk size
-        
+
     Returns:
         Tuple[int, int]: Adjusted (rate, chunk) for the current platform
     """
@@ -330,17 +330,17 @@ def _apply_platform_specific_settings(rate: int, chunk: int) -> Tuple[int, int]:
         logger.info("Running in Raspberry Pi mode")
         # Pi typically works best with default settings
         return rate, chunk
-        
+
     if current_platform == "mac":
         logger.info("Running in macOS mode with adjusted parameters")
         # macOS specific settings - 48kHz is often more reliable
         return 48000, chunk
-        
+
     if current_platform == "win":
         logger.info("Running in Windows mode with adjusted parameters")
         # Windows specific settings - larger chunks often work better
         return rate, 2048
-        
+
     # Default for Linux and other platforms
     return rate, chunk
 
@@ -353,7 +353,7 @@ def _record_and_save_audio(
     format_type: int,
 ) -> None:
     """Record audio from microphone and save to a WAV file.
-    
+
     Args:
         output_path: Path where the WAV file will be saved
         duration: Recording duration in seconds
@@ -361,23 +361,23 @@ def _record_and_save_audio(
         chunk: Buffer size
         channels: Number of audio channels
         format_type: Audio format (from pyaudio constants)
-        
+
     Raises:
         IOError: If there's an error recording or saving audio
     """
     audio = None
     stream = None
-    
+
     try:
         # Initialize PyAudio
         audio = pyaudio.PyAudio()
-        
+
         # Log available audio devices for debugging
         _log_available_audio_devices(audio)
-        
+
         # Countdown before recording
         _display_recording_countdown()
-        
+
         # Open audio stream
         stream = audio.open(
             format=format_type,
@@ -386,15 +386,15 @@ def _record_and_save_audio(
             input=True,
             frames_per_buffer=chunk,
         )
-        
+
         # Record audio
         frames = _capture_audio_frames(stream, chunk, rate, duration)
-        
+
         # Save to WAV file
         _save_frames_to_wav(output_path, audio, frames, channels, rate, format_type)
-        
+
         logger.info(f"Audio saved to {output_path}")
-        
+
     except (IOError, OSError) as e:
         logger.error(f"Error recording audio: {e}")
         raise IOError(f"Failed to record audio: {e}")
@@ -412,7 +412,7 @@ def _record_and_save_audio(
 
 def _log_available_audio_devices(audio: pyaudio.PyAudio) -> None:
     """Log information about available audio devices.
-    
+
     Args:
         audio: PyAudio instance
     """
@@ -437,13 +437,13 @@ def _capture_audio_frames(
     stream: pyaudio.Stream, chunk: int, rate: int, duration: int
 ) -> list:
     """Capture audio frames from the stream.
-    
+
     Args:
         stream: PyAudio stream
         chunk: Buffer size
         rate: Sample rate
         duration: Recording duration in seconds
-        
+
     Returns:
         list: List of captured audio frames
     """
@@ -463,7 +463,7 @@ def _save_frames_to_wav(
     format_type: int,
 ) -> None:
     """Save audio frames to a WAV file.
-    
+
     Args:
         output_path: Path where the WAV file will be saved
         audio: PyAudio instance
@@ -471,16 +471,16 @@ def _save_frames_to_wav(
         channels: Number of audio channels
         rate: Sample rate
         format_type: Audio format
-        
+
     Raises:
         IOError: If there's an error saving the file
     """
     # Prepare WAV parameters
     wav_params = _prepare_wav_parameters(audio, channels, rate, format_type)
-    
+
     # Join frames into a single binary blob
     audio_data = _join_audio_frames(frames)
-    
+
     # Write to file
     _write_wav_file(output_path, wav_params, audio_data)
 
@@ -489,13 +489,13 @@ def _prepare_wav_parameters(
     audio: pyaudio.PyAudio, channels: int, rate: int, format_type: int
 ) -> Dict[str, int]:
     """Prepare WAV file parameters.
-    
+
     Args:
         audio: PyAudio instance
         channels: Number of audio channels
         rate: Sample rate
         format_type: Audio format
-        
+
     Returns:
         Dict[str, int]: Dictionary of WAV parameters
     """
@@ -508,10 +508,10 @@ def _prepare_wav_parameters(
 
 def _join_audio_frames(frames: list) -> bytes:
     """Join audio frames into a single binary blob.
-    
+
     Args:
         frames: List of audio frame data
-        
+
     Returns:
         bytes: Joined audio data
     """
@@ -520,12 +520,12 @@ def _join_audio_frames(frames: list) -> bytes:
 
 def _write_wav_file(output_path: str, wav_params: Dict[str, int], audio_data: bytes) -> None:
     """Write audio data to a WAV file.
-    
+
     Args:
         output_path: Path where the WAV file will be saved
         wav_params: Dictionary of WAV parameters
         audio_data: Binary audio data
-        
+
     Raises:
         IOError: If there's an error writing the file
     """
@@ -664,69 +664,69 @@ def transcribe_audio(audio_file_path: str, model_size: Optional[str] = None) -> 
     # Validate input file
     if not _is_valid_audio_file(audio_file_path):
         return "Error: Invalid or corrupted audio file"
-    
+
     # Get model configuration
     model_config = _get_whisper_model_config(model_size)
-    
+
     # Load and run the model
     try:
         return _run_whisper_transcription(audio_file_path, model_config)
 def _run_whisper_transcription(audio_file_path: str, model_config: Dict[str, str]) -> str:
     """Run the Whisper model transcription.
-    
+
     Args:
         audio_file_path: Path to the audio file
         model_config: Model configuration dictionary
-        
+
     Returns:
         str: Transcribed text
-        
+
     Raises:
         Exception: If transcription fails
     """
     logger.info(f"Loading Whisper model: {model_config['model_size']}")
     logger.info(f"Using compute type: {model_config['compute_type']}")
     logger.info(f"Using device: {model_config['device']}")
-    
+
     # Initialize the model
     model = WhisperModel(
         model_config['model_size'],
         device=model_config['device'],
         compute_type=model_config['compute_type'],
     )
-    
+
     # Run transcription
     logger.info(f"Transcribing audio file: {audio_file_path}")
     segments, _ = model.transcribe(audio_file_path, beam_size=5)
-    
+
     # Collect transcription segments
     transcription = ""
     for segment in segments:
         transcription += segment.text + " "
-    
+
     # Save transcription to output file
     output_file = _save_transcription_to_file(audio_file_path, transcription)
     logger.info(f"Transcription saved to: {output_file}")
-    
+
     return transcription.strip()
 
 
 def _save_transcription_to_file(audio_file_path: str, transcription: str) -> str:
     """Save transcription to a text file.
-    
+
     Args:
         audio_file_path: Path to the original audio file
         transcription: Transcribed text
-        
+
     Returns:
         str: Path to the saved transcription file
-        
+
     Raises:
         IOError: If saving fails
     """
     # Get output directory from environment or use default
     output_dir = sanitize_path(os.environ.get("AUDIO_OUTPUT_DIR", "output"))
-    
+
     # Create output directory if it doesn't exist
     if not os.path.isdir(output_dir):
         try:
@@ -736,13 +736,13 @@ def _save_transcription_to_file(audio_file_path: str, transcription: str) -> str
             logger.error(f"Failed to create output directory: {e}")
             # Fall back to current directory
             output_dir = "."
-    
+
     # Generate output filename based on input filename
     base_name = os.path.basename(audio_file_path)
     file_name = os.path.splitext(base_name)[0]
     timestamp = time.strftime("%Y%m%d-%H%M%S")
     output_file = os.path.join(output_dir, f"{file_name}_{timestamp}.txt")
-    
+
     # Save transcription to file
     try:
         with open(output_file, "w") as f:
@@ -753,19 +753,19 @@ def _save_transcription_to_file(audio_file_path: str, transcription: str) -> str
         raise IOError(f"Failed to save transcription: {e}")
 def sanitize_path(path: Optional[str]) -> str:
     """Sanitize and normalize a file path.
-    
+
     Args:
         path: Input path string, may be None
-        
+
     Returns:
         str: Sanitized path or empty string if input was None
     """
     if not path:
         return ""
-        
+
     # Expand user directory (~/...)
     path = os.path.expanduser(path)
-    
+
     # Normalize path separators and resolve relative paths
     return os.path.normpath(path)
 
@@ -776,15 +776,15 @@ def main() -> None:
         # Record audio
         print(f"{Fore.GREEN}Recording audio...{Style.RESET_ALL}")
         audio_file = record_audio(duration=5)
-        
+
         # Transcribe audio
         print(f"{Fore.GREEN}Transcribing audio...{Style.RESET_ALL}")
         transcription = transcribe_audio(audio_file)
-        
+
         # Print result
         print(f"\n{Fore.CYAN}Transcription:{Style.RESET_ALL}")
         print(f"{Fore.WHITE}{transcription}{Style.RESET_ALL}\n")
-        
+
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")
         sys.exit(0)
@@ -796,19 +796,19 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-    
+
     # Validate model size
     valid_sizes = ["tiny", "base", "small", "medium", "large"]
     if model_size not in valid_sizes:
         logger.warning(f"Invalid model size: {model_size}. Using 'tiny' instead.")
         model_size = "tiny"
-    
+
     # Get compute type from environment or use default
     compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "float32")
-    
+
     # Get device from environment or use default
     device = os.environ.get("WHISPER_DEVICE", "auto")
-    
+
     return {
         "model_size": model_size,
         "compute_type": compute_type,

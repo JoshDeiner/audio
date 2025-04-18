@@ -66,31 +66,31 @@ Service interfaces must be thoroughly documented:
 class TranscriptionService:
     """
     Service for transcribing audio files.
-    
+
     This service handles the processing of audio files and returns
     transcribed text using the faster-whisper model.
-    
+
     Attributes:
         model: The whisper model instance
         compute_type: The computation type (float16, float32)
         device: The device to use for computation (cpu, cuda)
     """
-    
+
     def transcribe(self, audio_path: str, language: Optional[str] = None) -> TranscriptionResult:
         """
         Transcribe an audio file to text.
-        
+
         Args:
             audio_path: Path to the audio file to transcribe
             language: Optional language code to use for transcription
-            
+
         Returns:
             TranscriptionResult object containing the transcribed text and metadata
-            
+
         Raises:
             FileNotFoundError: If the audio file does not exist
             TranscriptionError: If the transcription process fails
-            
+
         Example:
             ```python
             service = TranscriptionService()
@@ -163,7 +163,7 @@ except SomeError as e:
 ```python
 class TranscriptionError(AudioServiceError):
     """Raised when transcription fails."""
-    
+
     def __init__(self, message, error_code=None, details=None):
         super().__init__(message)
         self.error_code = error_code

@@ -125,13 +125,13 @@ def process_audio(file_path):
     # Guard clauses for validation
     if not os.path.exists(file_path):
         return "File not found"
-    
+
     if not file_path.endswith('.wav'):
         return "Not a WAV file"
-        
+
     if os.path.getsize(file_path) == 0:
         return "File is empty"
-    
+
     # Main logic (only executes if all validations pass)
     return process_result
 ```
@@ -147,7 +147,7 @@ def get_audio_driver():
         audio_driver = audio_driver.lower()
         if audio_driver in ("pulse", "alsa"):
             return audio_driver
-    
+
     # Default fallback logic...
 
 # ✅ Better
@@ -155,13 +155,13 @@ def get_audio_driver():
     audio_driver = os.environ.get("AUDIO_DRIVER")
     if not audio_driver:
         return get_default_driver()
-        
+
     logger.info(f"Using audio driver: {audio_driver}")
     audio_driver = audio_driver.lower()
-    
+
     if audio_driver not in ("pulse", "alsa"):
         return get_default_driver()
-        
+
     return audio_driver
 ```
 
@@ -174,8 +174,8 @@ if file.endswith('.wav') and os.path.getsize(file) > 0 and sample_rate == 16000:
 
 # ✅ Better
 def is_valid_audio_file(file_path, required_sample_rate):
-    return (file_path.endswith('.wav') and 
-            os.path.getsize(file_path) > 0 and 
+    return (file_path.endswith('.wav') and
+            os.path.getsize(file_path) > 0 and
             get_sample_rate(file_path) == required_sample_rate)
 
 if is_valid_audio_file(file, 16000):
@@ -229,7 +229,7 @@ def process_large_audio(audio_data):
     with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
         temp_path = temp_file.name
         temp_file.write(audio_data)
-    
+
     try:
         result = process_audio_file(temp_path)
         return result
@@ -242,13 +242,13 @@ def process_large_audio(audio_data):
 ```python
 class WhisperModelPool:
     """Pool of WhisperModel instances for efficient resource usage."""
-    
+
     def __init__(self, model_name, pool_size=2):
         self.pool = [
             WhisperModel(model_name) for _ in range(pool_size)
         ]
         self.lock = threading.Lock()
-    
+
     def acquire(self):
         """Get a model from the pool."""
         with self.lock:
@@ -257,7 +257,7 @@ class WhisperModelPool:
                 # Implementation depends on concurrency approach
                 pass
             return self.pool.pop()
-    
+
     def release(self, model):
         """Return a model to the pool."""
         with self.lock:
@@ -306,37 +306,37 @@ def submit_transcription_job(audio_file_path):
         "status": "pending",
         "created_at": datetime.utcnow().isoformat()
     }
-    
+
     # Store job metadata
     db.jobs.insert_one(job_data)
-    
+
     # Enqueue job for processing
     message_bus.publish(
         "transcription_jobs",
         {"job_id": job_id}
     )
-    
+
     return job_id
 
 # Consumer: Process transcription job
 def process_transcription_job(message):
     job_id = message["job_id"]
     job = db.jobs.find_one({"job_id": job_id})
-    
+
     if not job:
         logger.error(f"Job {job_id} not found")
         return
-    
+
     try:
         # Update job status
         db.jobs.update_one(
             {"job_id": job_id},
             {"$set": {"status": "processing"}}
         )
-        
+
         # Process the audio file
         result = transcription_service.transcribe(job["audio_path"])
-        
+
         # Update job with result
         db.jobs.update_one(
             {"job_id": job_id},
@@ -348,7 +348,7 @@ def process_transcription_job(message):
                 }
             }
         )
-        
+
         # Publish completion event
         message_bus.publish(
             "transcription_completed",
@@ -359,7 +359,7 @@ def process_transcription_job(message):
         )
     except Exception as e:
         logger.exception(f"Error processing job {job_id}")
-        
+
         # Update job with error
         db.jobs.update_one(
             {"job_id": job_id},
@@ -371,7 +371,7 @@ def process_transcription_job(message):
                 }
             }
         )
-        
+
         # Publish failure event
         message_bus.publish(
             "transcription_failed",
@@ -392,21 +392,21 @@ def transcribe_with_progress(audio_path, job_id):
     """Transcribe audio with progress reporting."""
     total_duration = get_audio_duration(audio_path)
     segments = []
-    
+
     # Process audio in segments
     for i, segment in enumerate(transcription_model.transcribe(audio_path)):
         segments.append(segment)
-        
+
         # Calculate and report progress
         current_time = segment.end
         progress = min(current_time / total_duration * 100, 100)
-        
+
         # Update job progress
         db.jobs.update_one(
             {"job_id": job_id},
             {"$set": {"progress": progress}}
         )
-        
+
         # Publish progress event
         message_bus.publish(
             "transcription_progress",
@@ -415,7 +415,7 @@ def transcribe_with_progress(audio_path, job_id):
                 "progress": progress
             }
         )
-    
+
     return combine_segments(segments)
 ```
 
@@ -426,28 +426,28 @@ Implement backpressure mechanisms to prevent system overload:
 ```python
 class RateLimitedQueue:
     """Queue with rate limiting to prevent overload."""
-    
+
     def __init__(self, max_items=100, process_rate=10):
         self.queue = queue.Queue(maxsize=max_items)
         self.process_rate = process_rate  # items per second
         self.last_processed = time.time()
-    
+
     def put(self, item, block=True, timeout=None):
         """Put an item in the queue with backpressure."""
         return self.queue.put(item, block=block, timeout=timeout)
-    
+
     def get(self, block=True, timeout=None):
         """Get an item from the queue with rate limiting."""
         item = self.queue.get(block=block, timeout=timeout)
-        
+
         # Apply rate limiting
         now = time.time()
         time_since_last = now - self.last_processed
         target_interval = 1.0 / self.process_rate
-        
+
         if time_since_last < target_interval:
             time.sleep(target_interval - time_since_last)
-        
+
         self.last_processed = time.time()
         return item
 ```

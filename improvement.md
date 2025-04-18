@@ -49,5 +49,3 @@ eas for Improvement
 
 The code shows good attention to documentation and type annotations, but needs structural improvements to fully align with the architecture and best practices defined in the qc
 folder.
-
-
