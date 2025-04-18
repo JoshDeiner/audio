@@ -44,36 +44,6 @@ services:
     # Network mode depends on platform
     network_mode: ${NETWORK_MODE:-bridge}
 
-  # Alternative service for running as a module
-  audio-module:
-    build: .
-    volumes:
-      - ${AUDIO_INPUT_DIR:-./input}:/app/input
-      - ${AUDIO_OUTPUT_DIR:-./output}:/app/output
-      # Include platform-specific volume mappings
-      - /run/user/$(id -u)/pulse:/run/pulse:ro
-      - ${HOME}/.config/pulse:/root/.config/pulse:ro
-      - /etc/machine-id:/etc/machine-id:ro
-      # Cache directory for Whisper models
-      - ${HOME}/.cache/whisper:/root/.cache/whisper
-    devices:
-      - /dev/snd:/dev/snd
-    privileged: ${PRIVILEGED_MODE:-false}
-    <<: *use-audio-config
-    environment:
-      - AUDIO_INPUT_DIR=/app/input
-      - AUDIO_OUTPUT_DIR=/app/output
-      - PLATFORM=${PLATFORM:-pi}
-      - AUDIO_DRIVER=${AUDIO_DRIVER:-alsa}
-      - PULSE_SERVER=unix:/run/pulse/native
-      - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
-    # Run as a Python module
-    command: python -m server
-    restart: "no"
-    tty: true
-    stdin_open: true
-    network_mode: ${NETWORK_MODE:-bridge}
-
 # Define volumes to ensure they exist
 volumes:
   input:
