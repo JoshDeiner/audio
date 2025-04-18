@@ -1,12 +1,8 @@
 #!/usr/bin/env python3
-"""Audio transcription module using faster-whisper.
+"""Audio transcription main entry point.
 
-This module provides functionality to record audio from a microphone
-and transcribe it using the faster-whisper model.
-
-The implementation follows a service-oriented architecture with clear
-separation of concerns between audio recording, transcription processing,
-and output management.
+This module provides the main entry point for the audio transcription tool,
+allowing users to record audio and transcribe it using the faster-whisper model.
 """
 import logging
 import sys
