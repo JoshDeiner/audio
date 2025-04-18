@@ -20,6 +20,12 @@ init(strip=False)
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
+def sanitize_path(path):
+    """Sanitize file path to prevent directory traversal"""
+    if not path:
+        return ""
+    return os.path.normpath(os.path.join('/', path)).lstrip('/')
+
 def get_platform():
     """Detect platform - handle special cases"""
     # Check for audio driver override first
@@ -66,6 +72,18 @@ def get_platform():
     
     return sys_platform
 
+def validate_audio_file(file_path):
+    """Validate that the file is a proper audio file"""
+    try:
+        with wave.open(file_path, 'rb') as wf:
+            # Check basic WAV file properties
+            if wf.getnchannels() < 1 or wf.getsampwidth() < 1 or wf.getframerate() < 1:
+                return False
+            return True
+    except Exception as e:
+        logger.error(f"Audio validation failed: {e}")
+        return False
+
 def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pyaudio.paInt16):
     """
     Record audio from microphone and save to a WAV file.
@@ -81,7 +99,7 @@ def record_audio(duration=5, rate=44100, chunk=1024, channels=1, format_type=pya
         str: Path to the saved WAV file
     """
     # Get the input directory from environment variable
-    input_dir = os.environ.get("AUDIO_INPUT_DIR")
+    input_dir = sanitize_path(os.environ.get("AUDIO_INPUT_DIR"))
     if not input_dir:
         raise ValueError("AUDIO_INPUT_DIR environment variable must be set")
     
@@ -242,6 +260,11 @@ def transcribe_audio(audio_file_path, model_size=None):
         str: Transcribed text
     """
     try:
+        # Validate the audio file before processing
+        if not validate_audio_file(audio_file_path):
+            logger.error(f"Invalid or corrupted audio file: {audio_file_path}")
+            return "Error: Invalid or corrupted audio file"
+            
         # Get model size from environment variable or use default
         if model_size is None:
             model_size = os.environ.get("WHISPER_MODEL", "tiny").lower()  # Convert to lowercase
@@ -283,7 +306,7 @@ def save_transcription(transcription_text):
         str: Path to the saved transcription file
     """
     # Get the output directory from environment variable
-    output_dir = os.environ.get("AUDIO_OUTPUT_DIR")
+    output_dir = sanitize_path(os.environ.get("AUDIO_OUTPUT_DIR"))
     if not output_dir:
         raise ValueError("AUDIO_OUTPUT_DIR environment variable must be set")
     
