@@ -1,0 +1,11 @@
+Please help me implement best practices in my Python repository:
+
+1. Apply PEP 8 style guidelines to ensure consistent code formatting
+2. Set up Black as an auto-formatter with recommended configuration
+3. Add isort for import sorting
+4. Implement flake8 for linting and code quality checks
+5. Create a pre-commit configuration to automate these checks
+6. Add type hints where appropriate
+7. Suggest any additional improvements for code organization and maintainability
+
+Please provide specific commands and configuration files needed to implement these changes.

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os
+#import os
 import wave
 import pyaudio
 import logging

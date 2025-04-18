@@ -2,9 +2,6 @@
 
 
 clean up transcriber.py
-	* create ideas how to judge transcriber.py (ie phase two of prompt tests)
-
-	* think of refactor ideas for how each function can be re-arranged
-		* create cli kickoff functionality so that audio-in and audio-out is decomplicated
-		* figure out developer experience for cli.
+	* think of refactor ideas for how each function can be re-arranged #2
+		* create cli kickoff functionality so that audio-in and audio-out is decomplicated #1
 
