@@ -1,0 +1,13 @@
+how should a file be tested semantically
+
+ideas
+
+ask the model to summarize what are the imports in the file doing
+
+summarize what are the functions and any global resources doing
+
+can they be expected to run without dependeneicnes?
+
+if they need dependencies, check the rest of the application for dependencies
+
+if they dont exist or there is some inconsistenty declare a flag or issue
