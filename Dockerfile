@@ -41,4 +41,6 @@ WORKDIR /app
 
 # Layer 7: Entrypoint configuration
 ENTRYPOINT ["/app/cicd/entrypoint.sh"]
-CMD ["python", "transcriber.py"]
+
+# Default to running the main.py file
+CMD ["python", "-m", "server"]

@@ -2,7 +2,6 @@
 
 
 clean up transcriber.py
-	* think of refactor ideas for how each function can be re-arranged #2
 		* create cli kickoff functionality so that audio-in and audio-out is decomplicated #1
 
 ----
@@ -11,4 +10,4 @@ create refactor script so that when model cjreates new code it is using standard
 
 create anti patterns prompt and make sure file is not applying it
 
-update per improvements.md
+make sure docker is working
