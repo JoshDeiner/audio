@@ -10,4 +10,3 @@ create refactor script so that when model cjreates new code it is using standard
 
 create anti patterns prompt and make sure file is not applying it
 
-make sure docker is working

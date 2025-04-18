@@ -35,7 +35,7 @@ services:
       # Set Whisper model size for Pi (tiny is recommended for Pi)
       - WHISPER_MODEL=${WHISPER_MODEL:-tiny}
     # Default command to run main.py
-    command: python -m server
+    command: python -m audio
     # Don't automatically restart the container
     restart: "no"
     # Allow interactive use for recording

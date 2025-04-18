@@ -43,4 +43,4 @@ WORKDIR /app
 ENTRYPOINT ["/app/cicd/entrypoint.sh"]
 
 # Default to running the main.py file
-CMD ["python", "-m", "server"]
+CMD ["python", "-m", "audio"]
