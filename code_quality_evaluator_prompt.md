@@ -1,10 +1,18 @@
 # Code Quality Evaluation Prompt
 
 ## Purpose
-Evaluate whether the provided code or code changes meet the established code standards defined in the QC folder, including best practices, style guidelines, and architectural principles.
+This prompt helps evaluate whether code or code changes meet the established code standards defined in the QC folder, including best practices, style guidelines, and architectural principles for the Audio Transcription Tool.
 
 ## Instructions
-You are a code quality expert tasked with evaluating code against our established standards. When presented with code or code changes, carefully analyze them against our quality standards and provide a detailed assessment.
+
+You are a code quality expert tasked with evaluating code against our established standards. When presented with code or code changes, carefully analyze them against our quality standards defined in the QC folder and provide a detailed assessment.
+
+First, review the following standards documents:
+1. `/home/jd01/audio/qc/BEST_PRACTICES.md`
+2. `/home/jd01/audio/qc/STYLE_GUIDE.md`
+3. `/home/jd01/audio/qc/ARCHITECTURE.md`
+
+Then, evaluate the provided code against these standards.
 
 ## Evaluation Criteria
 
@@ -13,6 +21,7 @@ You are a code quality expert tasked with evaluating code against our establishe
 - Is the code organized according to the layered architecture principles?
 - Does the file structure match our project organization guidelines?
 - Are classes and functions properly organized with appropriate separation of concerns?
+- Does it follow the service boundaries and single responsibility principle?
 
 ### 2. Naming Conventions and Style
 - Does the code follow the naming conventions specified in STYLE_GUIDE.md?
@@ -21,33 +30,38 @@ You are a code quality expert tasked with evaluating code against our establishe
   - `UPPER_SNAKE_CASE` for constants
   - Service-specific naming conventions for modules, classes, handlers, etc.
 - Is the code properly formatted according to our style guidelines?
-- Are imports organized according to our standards?
+- Are imports organized according to our standards (standard library, third-party, local)?
 
 ### 3. Documentation
 - Does the code include proper docstrings for modules, classes, and functions?
 - Do docstrings include all required elements (description, parameters, return values, exceptions, examples)?
 - Is the documentation clear, concise, and helpful?
+- Does it follow our documentation standards for modules, service interfaces, and APIs?
 
 ### 4. Error Handling
 - Does the code implement proper error handling patterns?
 - Are specific exceptions used rather than generic ones?
 - Does the code include appropriate context in exceptions?
 - Are retry patterns and circuit breakers implemented where appropriate?
+- Does it follow our exception hierarchy guidelines?
 
 ### 5. Type Annotations
 - Does the code use type annotations for all function definitions?
 - Are complex types properly defined using the typing module?
+- Are type annotations used consistently throughout the code?
 
 ### 6. Code Quality Patterns
 - Does the code implement the recommended control flow patterns?
 - Are guard clauses used to reduce nesting?
 - Is function decomposition used to improve readability?
 - Does the code avoid anti-patterns mentioned in our guidelines?
+- Does it use inversion of conditions appropriately?
 
 ### 7. Resource Management
 - Does the code properly manage resources like file handles and connections?
 - Is streaming processing used for large files where appropriate?
 - Are resource pools implemented for expensive resources?
+- Does it handle audio files efficiently according to our best practices?
 
 ### 8. Asynchronous Processing
 - If applicable, does the code implement proper asynchronous patterns?
@@ -57,9 +71,10 @@ You are a code quality expert tasked with evaluating code against our establishe
 
 ### 9. Architectural Alignment
 - Does the code align with the overall architecture described in ARCHITECTURE.md?
-- Does it maintain the separation of concerns between core components?
+- Does it maintain the separation of concerns between core components (Audio Recording, Transcription Engine, Output Management)?
 - Does it integrate properly with the configuration system?
 - Does it maintain cross-platform compatibility where required?
+- Does it follow the containerization guidelines if applicable?
 
 ## Output Format
 

@@ -8,8 +8,6 @@ clean up transcriber.py
 
 create refactor script so that when model cjreates new code it is using standards
 
-create anti patterns prompt and make sure file is not applying it
-
 run linters
 
 
