@@ -281,7 +281,7 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                 print(
                     f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}"
                 )
-                return output_path
+                return str(output_path)
 
         elif args.seed_type == "speech":
             if not args.dummy_text:
@@ -310,7 +310,7 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                 print(
                     f"{Fore.GREEN}Created speech WAV file: {output_path}{Style.RESET_ALL}"
                 )
-                return output_path
+                return str(output_path)
 
         elif args.seed_type == "multi-language":
             # Import create_multi_language_samples.py
@@ -331,7 +331,7 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                 print(
                     f"{Fore.GREEN}Created multi-language samples in: {output_path}{Style.RESET_ALL}"
                 )
-                return output_path
+                return str(output_path)
 
         elif args.seed_type == "test-suite":
             # Import create_test_suite.py
@@ -348,7 +348,7 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                 print(
                     f"{Fore.GREEN}Created test suite in: {output_path}{Style.RESET_ALL}"
                 )
-                return output_path
+                return str(output_path)
 
     except ImportError as e:
         print(f"{Fore.RED}Error importing seed module: {e}{Style.RESET_ALL}")

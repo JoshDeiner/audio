@@ -6,9 +6,7 @@ clean up transcriber.py
 
 ----
 
+clean up main file
 -----
-create dummy situations
 
-ie start with a wav file so you can write away from computer
-
-ie wav dummy file to text
+try out eleven lab experiment

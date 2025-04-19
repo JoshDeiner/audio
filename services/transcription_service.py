@@ -4,8 +4,8 @@ import os
 import time
 from typing import Dict, Optional
 
-from colorama import Fore, Style  # type: ignore
-from faster_whisper import WhisperModel  # type: ignore
+from colorama import Fore, Style
+from faster_whisper import WhisperModel
 
 from services.exceptions import FileOperationError, TranscriptionError
 from services.file_service import FileService
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class TranscriptionService:
     """Service for transcribing audio using faster-whisper."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the transcription service."""
         self.file_service = FileService()
 
