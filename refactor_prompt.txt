@@ -1,3 +1,0 @@
-can you help me further update my repo. do you think a style guide makes sense. and a best practice guide makese sense.
-
-https://google.github.io/styleguide/pyguide.html

@@ -11,3 +11,13 @@ create refactor script so that when model cjreates new code it is using standard
 create anti patterns prompt and make sure file is not applying it
 
 run linters
+
+
+-----
+create dummy situations
+
+ie start with a wav file so you can write away from computer
+
+ie wav dummy file to text
+
+
