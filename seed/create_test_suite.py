@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create Test Suite for Audio Transcription
+Create Test Suite for Audio Transcription.
 
 This script generates a comprehensive test suite of audio files for testing
 the audio transcription system, including various types of audio samples.
@@ -9,7 +9,6 @@ the audio transcription system, including various types of audio samples.
 import argparse
 import os
 import tempfile
-from pathlib import Path
 
 import librosa
 import numpy as np
@@ -18,14 +17,33 @@ from gtts import gTTS
 
 
 def create_sine_wave(duration=3.0, freq=440.0, sample_rate=16000):
-    """Create a sine wave audio signal."""
+    """
+    Create a sine wave audio signal.
+
+    Args:
+        duration: Duration of the audio in seconds
+        freq: Frequency of the sine wave in Hz
+        sample_rate: Sample rate in Hz
+
+    Returns:
+        Numpy array containing the audio data
+    """
     t = np.linspace(0, duration, int(sample_rate * duration), False)
     audio = 0.5 * np.sin(2 * np.pi * freq * t)
     return audio
 
 
 def create_speech_sample(text, lang="en"):
-    """Create a speech sample from text."""
+    """
+    Create a speech sample from text.
+
+    Args:
+        text: Text to convert to speech
+        lang: Language code for speech synthesis
+
+    Returns:
+        Tuple of (audio_data, sample_rate)
+    """
     # Create a temporary MP3 file using gTTS
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_mp3:
         temp_mp3_path = temp_mp3.name
@@ -46,7 +64,12 @@ def create_speech_sample(text, lang="en"):
 
 
 def create_test_suite(output_dir):
-    """Create a comprehensive test suite of audio files."""
+    """
+    Create a comprehensive test suite of audio files.
+
+    Args:
+        output_dir: Directory to save the test audio files
+    """
     # Ensure the output directory exists
     os.makedirs(output_dir, exist_ok=True)
 
@@ -62,7 +85,11 @@ def create_test_suite(output_dir):
     speech_samples = {
         "short": "This is a short test.",
         "medium": "This is a medium length test of the audio transcription system.",
-        "long": "This is a longer test of the audio transcription system. It contains multiple sentences with various words and phrases. The purpose is to test how well the system handles longer audio samples with more complex content.",
+        "long": (
+            "This is a longer test of the audio transcription system. "
+            "It contains multiple sentences with various words and phrases. "
+            "The purpose is to test how well the system handles longer audio samples."
+        ),
     }
 
     for name, text in speech_samples.items():
@@ -74,8 +101,13 @@ def create_test_suite(output_dir):
     # 3. Create speech samples with numbers and special terms
     special_samples = {
         "numbers": "The test includes numbers like 1, 2, 3, 42, and 100.",
-        "dates": "Today is April 19, 2025. The meeting is scheduled for May 5th at 3:30 PM.",
-        "technical": "AWS Lambda functions can be triggered by events from Amazon S3, DynamoDB, or API Gateway.",
+        "dates": (
+            "Today is April 19, 2025. The meeting is scheduled for May 5th at 3:30 PM."
+        ),
+        "technical": (
+            "AWS Lambda functions can be triggered by events from S3, "
+            "DynamoDB, or API Gateway."
+        ),
     }
 
     for name, text in special_samples.items():
@@ -102,12 +134,13 @@ def create_test_suite(output_dir):
             print(f"Error creating {lang_code} sample: {e}")
 
     print(f"\nTest suite created successfully in {output_dir}")
-    print(
-        f"Total samples created: {len(frequencies) + len(speech_samples) + len(special_samples) + len(languages)}"
-    )
+    total = len(frequencies) + len(speech_samples) + len(special_samples)
+    total += len(languages)
+    print(f"Total samples created: {total}")
 
 
 def main():
+    """Parse command line arguments and create a test suite."""
     parser = argparse.ArgumentParser(
         description="Create a test suite for audio transcription"
     )

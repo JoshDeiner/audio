@@ -31,7 +31,8 @@ class FileTranscriptionService:
         Args:
             file_path: Path to the audio file
             model_size: Whisper model size (tiny, base, small, medium, large)
-            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
+            language: Language code to use (e.g., 'en' for English).
+                If provided, skips language detection.
 
         Returns:
             str: Path to the transcription file
@@ -71,7 +72,8 @@ class FileTranscriptionService:
         Args:
             directory: Directory containing WAV files (defaults to AUDIO_INPUT_DIR)
             model_size: Whisper model size (tiny, base, small, medium, large)
-            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
+            language: Language code to use (e.g., 'en' for English).
+                If provided, skips language detection.
 
         Returns:
             List[str]: List of paths to transcription files

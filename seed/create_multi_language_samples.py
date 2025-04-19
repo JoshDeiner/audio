@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Create Multi-Language Speech Samples
+Create Multi-Language Speech Samples.
 
 This script generates WAV files with synthesized speech in multiple languages
-to test the audio transcription system's language detection and transcription capabilities.
+to test the audio transcription system's language detection capabilities.
 """
 
 import argparse
@@ -79,6 +79,7 @@ def create_all_language_samples(output_dir):
 
 
 def main():
+    """Parse command line arguments and create language samples."""
     parser = argparse.ArgumentParser(description="Create multi-language speech samples")
     parser.add_argument(
         "--output-dir",
@@ -105,7 +106,8 @@ def main():
         # Generate a specific language sample
         if args.language not in LANGUAGE_SAMPLES and not args.text:
             print(
-                f"Error: Language '{args.language}' not supported and no custom text provided."
+                f"Error: Language '{args.language}' not supported "
+                f"and no custom text provided."
             )
             print(f"Supported languages: {', '.join(LANGUAGE_SAMPLES.keys())}")
             return

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Create Dummy WAV Files for Testing
+Create Dummy WAV Files for Testing.
 
 This script generates dummy WAV files with sine waves at different frequencies
 to test the audio transcription system without needing a microphone.
@@ -47,6 +47,7 @@ def create_dummy_wav(output_path, duration=5.0, freq=440.0, sample_rate=16000):
 
 
 def main():
+    """Parse command line arguments and create a dummy WAV file."""
     parser = argparse.ArgumentParser(description="Create dummy WAV files for testing")
     parser.add_argument(
         "--output", "-o", default="input/dummy_sine.wav", help="Output file path"

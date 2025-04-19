@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Create Speech WAV Files for Testing
+Create Speech WAV Files for Testing.
 
-This script generates WAV files with synthesized speech using gTTS (Google Text-to-Speech)
+This script generates WAV files with synthesized speech using gTTS
 to test the audio transcription system without needing a microphone.
 """
 
@@ -12,7 +12,6 @@ import tempfile
 from pathlib import Path
 
 import librosa
-import numpy as np
 import soundfile as sf
 from gtts import gTTS
 
@@ -49,6 +48,7 @@ def create_speech_wav(text, output_path, lang="en"):
 
 
 def main():
+    """Parse command line arguments and create a speech WAV file."""
     parser = argparse.ArgumentParser(description="Create speech WAV files for testing")
     parser.add_argument("--text", "-t", required=True, help="Text to convert to speech")
     parser.add_argument(

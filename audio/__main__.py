@@ -12,6 +12,7 @@ separation of concerns between audio recording, transcription processing,
 and output management.
 """
 import argparse
+import importlib.util
 import logging
 import os
 import sys
@@ -72,6 +73,7 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     # Model options
+    # Line too long (89 > 88 characters)
     parser.add_argument(
         "--model",
         "-m",
@@ -80,6 +82,7 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     # Language option
+    # Line too long (99 > 88 characters)
     parser.add_argument(
         "--language",
         "-l",
@@ -87,16 +90,52 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     # Create dummy file options
+    # Line too long (89 > 88 characters)
     parser.add_argument(
         "--create-dummy",
         "-c",
         action="store_true",
         help="Create a dummy WAV file for testing",
     )
+    # Line too long (90 > 88 characters)
     parser.add_argument(
         "--dummy-text",
         metavar="TEXT",
         help="Text to use for speech synthesis (requires gtts and librosa)",
+    )
+    # Seed functionality options
+    seed_group = parser.add_argument_group("Seed functionality")
+    seed_group.add_argument(
+        "--seed",
+        action="store_true",
+        help="Use seed functionality to generate test audio files",
+    )
+    # Line too long (96 > 88 characters)
+    seed_group.add_argument(
+        "--seed-type",
+        choices=["sine", "speech", "multi-language", "test-suite"],
+        default="sine",
+        help="Type of seed audio to generate (default: sine)",
+    )
+    # Line too long (118 > 88 characters)
+    seed_group.add_argument(
+        "--output",
+        "-o",
+        metavar="PATH",
+        help="Output path for generated audio file",
+    )
+    seed_group.add_argument(
+        "--frequency",
+        type=float,
+        default=440.0,
+        help="Frequency in Hz for sine wave (default: 440.0)",
+    )
+    # Line too long (93 > 88 characters)
+    seed_group.add_argument(
+        "--sample-rate",
+        type=int,
+        default=16000,
+        help="Sample rate in Hz (default: 16000)",
     )
 
     return parser.parse_args()
@@ -152,6 +191,7 @@ def create_dummy_file(text: Optional[str] = None) -> str:
             # Fall back to sine wave
 
     # Create sine wave as fallback
+    # Line too long (103 > 88 characters)
     try:
         import numpy as np
         import soundfile as sf
@@ -169,11 +209,130 @@ def create_dummy_file(text: Optional[str] = None) -> str:
         print(f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}")
         return output_path
 
+    # Line too long (91 > 88 characters)
     except ImportError:
         print(
             f"{Fore.RED}Could not create dummy file. Install numpy and soundfile.{Style.RESET_ALL}"
         )
         sys.exit(1)
+
+
+def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
+    """Run seed functionality to generate test audio files.
+
+    Args:
+        args: Command line arguments
+
+    Returns:
+        Optional[str]: Path to the generated audio file, or None if no file was generated
+    """
+    # Check if seed scripts are available
+    seed_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "seed")
+    if not os.path.exists(seed_dir):
+        print(f"{Fore.RED}Error: Seed directory not found at {seed_dir}{Style.RESET_ALL}")
+        return None
+    # Determine output path
+    input_dir = os.environ.get("AUDIO_INPUT_DIR", "input")
+    os.makedirs(input_dir, exist_ok=True)
+    output_path = args.output
+    if not output_path:
+        if args.seed_type == "sine":
+            output_path = os.path.join(input_dir, "dummy_sine.wav")
+        elif args.seed_type == "speech":
+            output_path = os.path.join(input_dir, "dummy_speech.wav")
+        elif args.seed_type == "multi-language":
+            output_path = os.path.join(input_dir, "language_samples")
+            os.makedirs(output_path, exist_ok=True)
+        elif args.seed_type == "test-suite":
+            output_path = os.path.join(input_dir, "test_suite")
+            os.makedirs(output_path, exist_ok=True)
+    
+    # Import and run the appropriate seed script
+    try:
+        if args.seed_type == "sine":
+            # Import create_dummy_wav.py
+            spec = importlib.util.spec_from_file_location(
+                "create_dummy_wav",
+                os.path.join(seed_dir, "create_dummy_wav.py")
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Run the script with arguments
+                module.create_sine_wave(
+                    output_path=output_path,
+                    duration=args.duration,
+                    frequency=args.frequency,
+                    sample_rate=args.sample_rate
+                )
+                print(f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}")
+                return output_path
+        elif args.seed_type == "speech":
+            if not args.dummy_text:
+                print(f"{Fore.YELLOW}Warning: No text provided for speech synthesis. Using default.{Style.RESET_ALL}")
+                text = "This is a test of the audio transcription system."
+            else:
+                text = args.dummy_text
+            # Import create_speech_wav.py
+            spec = importlib.util.spec_from_file_location(
+                "create_speech_wav", 
+                os.path.join(seed_dir, "create_speech_wav.py")
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Run the script with arguments
+                module.create_speech_wav(
+                    text=text,
+                    output_path=output_path,
+                    language=args.language or "en"
+                )
+                print(f"{Fore.GREEN}Created speech WAV file: {output_path}{Style.RESET_ALL}")
+                return output_path
+        elif args.seed_type == "multi-language":
+            # Import create_multi_language_samples.py
+            spec = importlib.util.spec_from_file_location(
+                "create_multi_language_samples",
+                os.path.join(seed_dir, "create_multi_language_samples.py")
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Run the script with arguments
+                module.create_language_samples(
+                    output_dir=output_path,
+                    specific_language=args.language,
+                    custom_text=args.dummy_text
+                )
+                print(f"{Fore.GREEN}Created multi-language samples in: {output_path}{Style.RESET_ALL}")
+                return output_path
+        elif args.seed_type == "test-suite":
+            # Import create_test_suite.py
+            spec = importlib.util.spec_from_file_location(
+                "create_test_suite",
+                os.path.join(seed_dir, "create_test_suite.py")
+            )
+            if spec and spec.loader:
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                
+                # Run the script with arguments
+                module.create_test_suite(output_dir=output_path)
+                print(f"{Fore.GREEN}Created test suite in: {output_path}{Style.RESET_ALL}")
+                return output_path
+    
+    except ImportError as e:
+        print(f"{Fore.RED}Error importing seed module: {e}{Style.RESET_ALL}")
+        print("Make sure you have installed the required packages:")
+        print("pip install numpy soundfile gtts librosa")
+        return None
+    except Exception as e:
+        print(f"{Fore.RED}Error running seed functionality: {e}{Style.RESET_ALL}")
+        return None
+    return None
 
 
 def main() -> Union[Tuple[str, str], List[str], None]:
@@ -191,8 +350,18 @@ def main() -> Union[Tuple[str, str], List[str], None]:
     try:
         args = parse_arguments()
 
+        # Handle seed functionality if requested
+        if args.seed:
+            output_path = run_seed_functionality(args)
+            if not args.file and not args.dir and output_path:
+                # If only creating seed file and not transcribing, exit after creation
+                if os.path.isdir(output_path):
+                    return None
+                # Otherwise set the file to transcribe
+                args.file = output_path
+        
         # Create dummy file if requested
-        if args.create_dummy:
+        elif args.create_dummy:
             dummy_path = create_dummy_file(args.dummy_text)
             if not args.file and not args.dir:
                 # If only creating dummy file, exit after creation

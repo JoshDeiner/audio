@@ -31,7 +31,8 @@ class TranscriptionService:
         Args:
             audio_file_path: Path to the audio file to transcribe
             model_size: Whisper model size (tiny, base, small, medium, large)
-            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
+            language: Language code to use (e.g., 'en' for English).
+                If provided, skips language detection.
 
         Returns:
             str: Transcribed text
@@ -121,7 +122,8 @@ class TranscriptionService:
         Args:
             audio_file_path: Path to the audio file
             model_config: Model configuration dictionary
-            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
+            language: Language code to use (e.g., 'en' for English).
+                If provided, skips language detection.
 
         Returns:
             str: Transcribed text
