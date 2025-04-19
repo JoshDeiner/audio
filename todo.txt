@@ -6,8 +6,6 @@ clean up transcriber.py
 
 ----
 
-create refactor script so that when model cjreates new code it is using standards
-
 run linters
 
 

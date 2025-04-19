@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> Tuple[str, str]:
-    """Main entry point for the transcription tool.
+    """Execute the main transcription workflow.
 
     Returns:
         Tuple[str, str]: Paths to the audio file and transcript file

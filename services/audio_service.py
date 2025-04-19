@@ -3,7 +3,7 @@ import logging
 import os
 import time
 import wave
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import pyaudio  # type: ignore
 from colorama import Fore, Style  # type: ignore
