@@ -21,10 +21,10 @@ class FileTranscriptionService:
         self.transcription_service = TranscriptionService()
 
     def transcribe_file(
-        self, 
-        file_path: str, 
+        self,
+        file_path: str,
         model_size: Optional[str] = None,
-        language: Optional[str] = None
+        language: Optional[str] = None,
     ) -> str:
         """Transcribe a single audio file.
 
@@ -48,19 +48,23 @@ class FileTranscriptionService:
             raise FileOperationError(f"Invalid audio file: {file_path}")
 
         # Transcribe the file
-        print(f"{Fore.CYAN}Transcribing file: {Fore.YELLOW}{file_path}{Style.RESET_ALL}")
-        transcription = self.transcription_service.transcribe_audio(file_path, model_size, language)
-        
+        print(
+            f"{Fore.CYAN}Transcribing file: {Fore.YELLOW}{file_path}{Style.RESET_ALL}"
+        )
+        transcription = self.transcription_service.transcribe_audio(
+            file_path, model_size, language
+        )
+
         # The transcription_service already saves the file and returns the text
         print(f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n")
-        
+
         return transcription
 
     def transcribe_directory(
-        self, 
-        directory: Optional[str] = None, 
+        self,
+        directory: Optional[str] = None,
         model_size: Optional[str] = None,
-        language: Optional[str] = None
+        language: Optional[str] = None,
     ) -> List[str]:
         """Transcribe all WAV files in a directory.
 

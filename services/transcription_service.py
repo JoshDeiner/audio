@@ -21,7 +21,10 @@ class TranscriptionService:
         self.file_service = FileService()
 
     def transcribe_audio(
-        self, audio_file_path: str, model_size: Optional[str] = None, language: Optional[str] = None
+        self,
+        audio_file_path: str,
+        model_size: Optional[str] = None,
+        language: Optional[str] = None,
     ) -> str:
         """Transcribe audio file using faster-whisper model.
 
@@ -108,7 +111,10 @@ class TranscriptionService:
         }
 
     def _run_whisper_transcription(
-        self, audio_file_path: str, model_config: Dict[str, str], language: Optional[str] = None
+        self,
+        audio_file_path: str,
+        model_config: Dict[str, str],
+        language: Optional[str] = None,
     ) -> str:
         """Run the Whisper model transcription.
 
@@ -140,13 +146,15 @@ class TranscriptionService:
 
         # Set up transcription parameters
         transcription_options = {"beam_size": 5}
-        
+
         # If language is specified, use it to skip language detection
         if language:
             logger.info(f"Using specified language: {language}")
             transcription_options["language"] = language
-            print(f"{Fore.CYAN}Using language: {Fore.YELLOW}{language}{Style.RESET_ALL}")
-        
+            print(
+                f"{Fore.CYAN}Using language: {Fore.YELLOW}{language}{Style.RESET_ALL}"
+            )
+
         # Run transcription with the specified options
         segments, info = model.transcribe(audio_file_path, **transcription_options)
 
@@ -154,7 +162,9 @@ class TranscriptionService:
         transcription = " ".join([segment.text for segment in segments])
 
         if language:
-            logger.info(f"Transcription complete (using specified language: {language})")
+            logger.info(
+                f"Transcription complete (using specified language: {language})"
+            )
         else:
             logger.info(
                 f"Transcription complete (detected language: {info.language}, "
