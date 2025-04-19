@@ -72,9 +72,13 @@ class AudioRecordingService:
         Raises:
             FileOperationError: If directory cannot be created or accessed
         """
-        input_dir = self.file_service.sanitize_path(os.environ.get("AUDIO_INPUT_DIR"))
+        input_dir = self.file_service.sanitize_path(
+            os.environ.get("AUDIO_INPUT_DIR")
+        )
         if not input_dir:
-            raise FileOperationError("AUDIO_INPUT_DIR environment variable must be set")
+            raise FileOperationError(
+                "AUDIO_INPUT_DIR environment variable must be set"
+            )
 
         try:
             return self.file_service.prepare_directory(input_dir)

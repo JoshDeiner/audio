@@ -48,9 +48,14 @@ def create_dummy_wav(output_path, duration=5.0, freq=440.0, sample_rate=16000):
 
 def main():
     """Parse command line arguments and create a dummy WAV file."""
-    parser = argparse.ArgumentParser(description="Create dummy WAV files for testing")
+    parser = argparse.ArgumentParser(
+        description="Create dummy WAV files for testing"
+    )
     parser.add_argument(
-        "--output", "-o", default="input/dummy_sine.wav", help="Output file path"
+        "--output",
+        "-o",
+        default="input/dummy_sine.wav",
+        help="Output file path",
     )
     parser.add_argument(
         "--duration", "-d", type=float, default=5.0, help="Duration in seconds"
@@ -59,7 +64,11 @@ def main():
         "--frequency", "-f", type=float, default=440.0, help="Frequency in Hz"
     )
     parser.add_argument(
-        "--sample-rate", "-sr", type=int, default=16000, help="Sample rate in Hz"
+        "--sample-rate",
+        "-sr",
+        type=int,
+        default=16000,
+        help="Sample rate in Hz",
     )
 
     args = parser.parse_args()
@@ -68,7 +77,9 @@ def main():
     output_path = Path(args.output)
     os.makedirs(output_path.parent, exist_ok=True)
 
-    create_dummy_wav(args.output, args.duration, args.frequency, args.sample_rate)
+    create_dummy_wav(
+        args.output, args.duration, args.frequency, args.sample_rate
+    )
 
 
 if __name__ == "__main__":

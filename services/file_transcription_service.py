@@ -57,7 +57,9 @@ class FileTranscriptionService:
         )
 
         # The transcription_service already saves the file and returns the text
-        print(f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n")
+        print(
+            f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n"
+        )
 
         return transcription
 
@@ -97,17 +99,23 @@ class FileTranscriptionService:
         ]
 
         if not wav_files:
-            print(f"{Fore.YELLOW}No WAV files found in {directory}{Style.RESET_ALL}")
+            print(
+                f"{Fore.YELLOW}No WAV files found in {directory}{Style.RESET_ALL}"
+            )
             return []
 
         # Transcribe each file
         transcriptions = []
         for wav_file in wav_files:
             try:
-                transcription = self.transcribe_file(wav_file, model_size, language)
+                transcription = self.transcribe_file(
+                    wav_file, model_size, language
+                )
                 transcriptions.append(transcription)
             except Exception as e:
                 logger.error(f"Error transcribing {wav_file}: {e}")
-                print(f"{Fore.RED}Error transcribing {wav_file}: {e}{Style.RESET_ALL}")
+                print(
+                    f"{Fore.RED}Error transcribing {wav_file}: {e}{Style.RESET_ALL}"
+                )
 
         return transcriptions

@@ -94,6 +94,8 @@ class FileService:
                 logger.info(f"Created directory: {dir_path}")
             except (IOError, OSError) as e:
                 logger.error(f"Failed to create directory: {e}")
-                raise FileOperationError(f"Failed to create directory: {dir_path}")
+                raise FileOperationError(
+                    f"Failed to create directory: {dir_path}"
+                )
 
         return dir_path

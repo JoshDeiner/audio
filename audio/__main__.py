@@ -60,7 +60,10 @@ def parse_arguments() -> argparse.Namespace:
         "--file", "-f", metavar="FILE", help="Transcribe a specific audio file"
     )
     mode_group.add_argument(
-        "--dir", "-d", metavar="DIR", help="Transcribe all WAV files in a directory"
+        "--dir",
+        "-d",
+        metavar="DIR",
+        help="Transcribe all WAV files in a directory",
     )
 
     # Recording options
@@ -103,6 +106,7 @@ def parse_arguments() -> argparse.Namespace:
         metavar="TEXT",
         help="Text to use for speech synthesis (requires gtts and librosa)",
     )
+
     # Seed functionality options
     seed_group = parser.add_argument_group("Seed functionality")
     seed_group.add_argument(
@@ -163,7 +167,9 @@ def create_dummy_file(text: Optional[str] = None) -> str:
             from gtts import gTTS
 
             # Create a temporary MP3 file
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_mp3:
+            with tempfile.NamedTemporaryFile(
+                suffix=".mp3", delete=False
+            ) as temp_mp3:
                 temp_mp3_path = temp_mp3.name
 
             # Generate speech
@@ -190,7 +196,6 @@ def create_dummy_file(text: Optional[str] = None) -> str:
             print("Install with: pip install gtts librosa soundfile")
             # Fall back to sine wave
 
-    # Create sine wave as fallback
     # Line too long (103 > 88 characters)
     try:
         import numpy as np
@@ -206,7 +211,9 @@ def create_dummy_file(text: Optional[str] = None) -> str:
         output_path = os.path.join(input_dir, "dummy_sine.wav")
         sf.write(output_path, audio, sample_rate)
 
-        print(f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}")
+        print(
+            f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}"
+        )
         return output_path
 
     # Line too long (91 > 88 characters)
@@ -228,14 +235,17 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
     """
     # Check if seed scripts are available
     seed_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "seed")
+
     if not os.path.exists(seed_dir):
         print(
             f"{Fore.RED}Error: Seed directory not found at {seed_dir}{Style.RESET_ALL}"
         )
         return None
+
     # Determine output path
     input_dir = os.environ.get("AUDIO_INPUT_DIR", "input")
     os.makedirs(input_dir, exist_ok=True)
+
     output_path = args.output
     if not output_path:
         if args.seed_type == "sine":
@@ -254,7 +264,8 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
         if args.seed_type == "sine":
             # Import create_dummy_wav.py
             spec = importlib.util.spec_from_file_location(
-                "create_dummy_wav", os.path.join(seed_dir, "create_dummy_wav.py")
+                "create_dummy_wav",
+                os.path.join(seed_dir, "create_dummy_wav.py"),
             )
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)
@@ -271,6 +282,7 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                     f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}"
                 )
                 return output_path
+
         elif args.seed_type == "speech":
             if not args.dummy_text:
                 print(
@@ -279,9 +291,11 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                 text = "This is a test of the audio transcription system."
             else:
                 text = args.dummy_text
+
             # Import create_speech_wav.py
             spec = importlib.util.spec_from_file_location(
-                "create_speech_wav", os.path.join(seed_dir, "create_speech_wav.py")
+                "create_speech_wav",
+                os.path.join(seed_dir, "create_speech_wav.py"),
             )
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)
@@ -289,12 +303,15 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
 
                 # Run the script with arguments
                 module.create_speech_wav(
-                    text=text, output_path=output_path, language=args.language or "en"
+                    text=text,
+                    output_path=output_path,
+                    language=args.language or "en",
                 )
                 print(
                     f"{Fore.GREEN}Created speech WAV file: {output_path}{Style.RESET_ALL}"
                 )
                 return output_path
+
         elif args.seed_type == "multi-language":
             # Import create_multi_language_samples.py
             spec = importlib.util.spec_from_file_location(
@@ -315,10 +332,12 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
                     f"{Fore.GREEN}Created multi-language samples in: {output_path}{Style.RESET_ALL}"
                 )
                 return output_path
+
         elif args.seed_type == "test-suite":
             # Import create_test_suite.py
             spec = importlib.util.spec_from_file_location(
-                "create_test_suite", os.path.join(seed_dir, "create_test_suite.py")
+                "create_test_suite",
+                os.path.join(seed_dir, "create_test_suite.py"),
             )
             if spec and spec.loader:
                 module = importlib.util.module_from_spec(spec)
@@ -337,8 +356,11 @@ def run_seed_functionality(args: argparse.Namespace) -> Optional[str]:
         print("pip install numpy soundfile gtts librosa")
         return None
     except Exception as e:
-        print(f"{Fore.RED}Error running seed functionality: {e}{Style.RESET_ALL}")
+        print(
+            f"{Fore.RED}Error running seed functionality: {e}{Style.RESET_ALL}"
+        )
         return None
+
     return None
 
 
@@ -380,7 +402,11 @@ def main() -> Union[Tuple[str, str], List[str], None]:
         if args.file:
             # File transcription mode
             file_service = FileTranscriptionService()
-            return [file_service.transcribe_file(args.file, args.model, args.language)]
+            return [
+                file_service.transcribe_file(
+                    args.file, args.model, args.language
+                )
+            ]
 
         elif args.dir:
             # Directory transcription mode

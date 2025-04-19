@@ -96,7 +96,9 @@ class TranscriptionService:
         # Validate model size
         valid_sizes = ["tiny", "base", "small", "medium", "large"]
         if model_size not in valid_sizes:
-            logger.warning(f"Invalid model size: {model_size}. Using 'tiny' instead.")
+            logger.warning(
+                f"Invalid model size: {model_size}. Using 'tiny' instead."
+            )
             model_size = "tiny"
 
         # Get compute type from environment or use default
@@ -158,7 +160,9 @@ class TranscriptionService:
             )
 
         # Run transcription with the specified options
-        segments, info = model.transcribe(audio_file_path, **transcription_options)
+        segments, info = model.transcribe(
+            audio_file_path, **transcription_options
+        )
 
         # Collect transcription segments
         transcription = " ".join([segment.text for segment in segments])
@@ -203,7 +207,9 @@ class TranscriptionService:
             base_name = os.path.basename(audio_file_path)
             file_name = os.path.splitext(base_name)[0]
             timestamp = time.strftime("%Y%m%d-%H%M%S")
-            output_file = os.path.join(output_dir, f"{file_name}_{timestamp}.txt")
+            output_file = os.path.join(
+                output_dir, f"{file_name}_{timestamp}.txt"
+            )
 
             # Save transcription to file
             with open(output_file, "w") as f:

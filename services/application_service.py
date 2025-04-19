@@ -40,8 +40,12 @@ class ApplicationService:
             logger.info(f"Audio recording complete. Saved to {audio_path}")
 
             # Transcribe the audio
-            transcription = self.transcription_service.transcribe_audio(audio_path)
-            print(f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n")
+            transcription = self.transcription_service.transcribe_audio(
+                audio_path
+            )
+            print(
+                f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n"
+            )
 
             # Get the path to the saved transcription
             transcript_path = os.path.join(

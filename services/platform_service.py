@@ -38,7 +38,9 @@ class PlatformDetectionService:
             str: Platform or audio driver identifier, or empty string if not found
         """
         # Check for audio driver override (highest priority)
-        audio_driver = PlatformDetectionService._get_valid_audio_driver_from_env()
+        audio_driver = (
+            PlatformDetectionService._get_valid_audio_driver_from_env()
+        )
         if audio_driver:
             return audio_driver
 

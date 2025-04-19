@@ -31,6 +31,7 @@ repos:
     hooks:
     -   id: black
         stages: [commit]
+        args: [--line-length=79]
         fail_fast: false
 
 -   repo: https://github.com/pycqa/flake8
@@ -61,7 +62,7 @@ repos:
 
     -   id: strict-black
         name: Strict black check
-        entry: black --check
+        entry: black --check --line-length=79
         language: system
         types: [python]
         stages: [push]

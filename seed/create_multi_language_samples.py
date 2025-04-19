@@ -80,7 +80,9 @@ def create_all_language_samples(output_dir):
 
 def main():
     """Parse command line arguments and create language samples."""
-    parser = argparse.ArgumentParser(description="Create multi-language speech samples")
+    parser = argparse.ArgumentParser(
+        description="Create multi-language speech samples"
+    )
     parser.add_argument(
         "--output-dir",
         "-o",

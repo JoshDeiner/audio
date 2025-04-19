@@ -49,13 +49,20 @@ def create_speech_wav(text, output_path, lang="en"):
 
 def main():
     """Parse command line arguments and create a speech WAV file."""
-    parser = argparse.ArgumentParser(description="Create speech WAV files for testing")
-    parser.add_argument("--text", "-t", required=True, help="Text to convert to speech")
+    parser = argparse.ArgumentParser(
+        description="Create speech WAV files for testing"
+    )
+    parser.add_argument(
+        "--text", "-t", required=True, help="Text to convert to speech"
+    )
     parser.add_argument(
         "--output", "-o", default="input/speech.wav", help="Output file path"
     )
     parser.add_argument(
-        "--language", "-l", default="en", help="Language code (e.g., 'en', 'fr', 'es')"
+        "--language",
+        "-l",
+        default="en",
+        help="Language code (e.g., 'en', 'fr', 'es')",
     )
 
     args = parser.parse_args()
