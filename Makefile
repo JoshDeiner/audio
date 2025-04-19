@@ -1,4 +1,4 @@
-.PHONY: help setup docker-run local-run docker-build docker-stop clean
+.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-suite
 
 # Default Python interpreter and pip
 PYTHON := python3
@@ -9,12 +9,23 @@ help:
 	@echo "Audio Recording App Makefile"
 	@echo ""
 	@echo "Available commands:"
-	@echo "  make setup         - Install dependencies and create virtual environment"
-	@echo "  make docker-run    - Run the application in Docker"
-	@echo "  make local-run     - Run the application locally"
-	@echo "  make docker-build  - Rebuild the Docker image"
-	@echo "  make docker-stop   - Stop any running Docker containers"
-	@echo "  make clean         - Remove temporary files and virtual environment"
+	@echo "  make setup              - Install dependencies and create virtual environment"
+	@echo "  make docker-run         - Run the application in Docker"
+	@echo "  make local-run          - Run the application locally"
+	@echo "  make docker-build       - Rebuild the Docker image"
+	@echo "  make docker-stop        - Stop any running Docker containers"
+	@echo "  make clean              - Remove temporary files and virtual environment"
+	@echo ""
+	@echo "Testing commands:"
+	@echo "  make test-dummy         - Create a dummy sine wave file and transcribe it"
+	@echo "  make test-dummy-speech  - Create a dummy speech file with text and transcribe it"
+	@echo "  make test-dummy-en      - Create a dummy speech file and transcribe with English language"
+	@echo "  make test-file FILE=path - Transcribe a specific audio file"
+	@echo "  make test-file-en FILE=path - Transcribe a specific file with English language"
+	@echo "  make test-dir DIR=path   - Transcribe all WAV files in a directory"
+	@echo "  make test-dir-en DIR=path - Transcribe all WAV files in a directory with English language"
+	@echo "  make test-suite         - Create a comprehensive test suite of audio samples"
+	@echo "  make test-languages     - Create samples in multiple languages"
 	@echo ""
 
 setup:
@@ -41,7 +52,7 @@ local-run:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && AUDIO_INPUT_DIR=$(PWD)/input $(PYTHON) transcriber.py
+	. $(VENV)/bin/activate && AUDIO_INPUT_DIR=$(PWD)/input $(PYTHON) -m audio
 
 clean:
 	@echo "Cleaning up..."
@@ -50,3 +61,100 @@ clean:
 	find . -type d -name "__pycache__" -exec rm -rf {} +
 	find . -type f -name "*.pyc" -delete
 	@echo "Cleanup complete"
+
+# Testing commands for dummy files and transcription
+
+test-dummy:
+	@echo "Creating and transcribing a dummy sine wave file..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) seed/create_dummy_wav.py --output input/dummy_sine.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_sine.wav
+
+test-dummy-speech:
+	@echo "Creating and transcribing a dummy speech file..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) seed/create_speech_wav.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_speech.wav
+
+test-dummy-en:
+	@echo "Creating and transcribing a dummy speech file with English language specified..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) seed/create_speech_wav.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_speech.wav --language en
+
+test-file:
+	@echo "Transcribing file: $(FILE)"
+	@if [ -z "$(FILE)" ]; then \
+		echo "Error: Please specify a file with FILE=path"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE)
+
+test-dir:
+	@echo "Transcribing all WAV files in directory: $(DIR)"
+	@if [ -z "$(DIR)" ]; then \
+		echo "Error: Please specify a directory with DIR=path"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --dir $(DIR)
+
+# Additional test commands with language specification
+
+test-file-en:
+	@echo "Transcribing file with English language: $(FILE)"
+	@if [ -z "$(FILE)" ]; then \
+		echo "Error: Please specify a file with FILE=path"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE) --language en
+
+test-dir-en:
+	@echo "Transcribing all WAV files in directory with English language: $(DIR)"
+	@if [ -z "$(DIR)" ]; then \
+		echo "Error: Please specify a directory with DIR=path"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio --dir $(DIR) --language en
+
+# Advanced test suite generation
+
+test-suite:
+	@echo "Creating a comprehensive test suite of audio samples..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) seed/create_test_suite.py --output-dir input/test_suite
+
+test-languages:
+	@echo "Creating samples in multiple languages..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) seed/create_multi_language_samples.py --output-dir input/language_samples

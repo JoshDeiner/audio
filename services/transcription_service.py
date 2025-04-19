@@ -21,13 +21,14 @@ class TranscriptionService:
         self.file_service = FileService()
 
     def transcribe_audio(
-        self, audio_file_path: str, model_size: Optional[str] = None
+        self, audio_file_path: str, model_size: Optional[str] = None, language: Optional[str] = None
     ) -> str:
         """Transcribe audio file using faster-whisper model.
 
         Args:
             audio_file_path: Path to the audio file to transcribe
             model_size: Whisper model size (tiny, base, small, medium, large)
+            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
 
         Returns:
             str: Transcribed text
@@ -46,7 +47,7 @@ class TranscriptionService:
         # Load and run the model
         try:
             transcription = self._run_whisper_transcription(
-                audio_file_path, model_config
+                audio_file_path, model_config, language
             )
 
             # Save transcription to output file
@@ -107,13 +108,14 @@ class TranscriptionService:
         }
 
     def _run_whisper_transcription(
-        self, audio_file_path: str, model_config: Dict[str, str]
+        self, audio_file_path: str, model_config: Dict[str, str], language: Optional[str] = None
     ) -> str:
         """Run the Whisper model transcription.
 
         Args:
             audio_file_path: Path to the audio file
             model_config: Model configuration dictionary
+            language: Language code to use (e.g., 'en' for English). If provided, skips language detection.
 
         Returns:
             str: Transcribed text
@@ -136,15 +138,28 @@ class TranscriptionService:
         logger.info(f"Transcribing audio file: {audio_file_path}")
         print(f"{Fore.CYAN}Transcribing audio...{Style.RESET_ALL}")
 
-        segments, info = model.transcribe(audio_file_path, beam_size=5)
+        # Set up transcription parameters
+        transcription_options = {"beam_size": 5}
+        
+        # If language is specified, use it to skip language detection
+        if language:
+            logger.info(f"Using specified language: {language}")
+            transcription_options["language"] = language
+            print(f"{Fore.CYAN}Using language: {Fore.YELLOW}{language}{Style.RESET_ALL}")
+        
+        # Run transcription with the specified options
+        segments, info = model.transcribe(audio_file_path, **transcription_options)
 
         # Collect transcription segments
         transcription = " ".join([segment.text for segment in segments])
 
-        logger.info(
-            f"Transcription complete (detected language: {info.language}, "
-            f"probability: {info.language_probability:.2f})"
-        )
+        if language:
+            logger.info(f"Transcription complete (using specified language: {language})")
+        else:
+            logger.info(
+                f"Transcription complete (detected language: {info.language}, "
+                f"probability: {info.language_probability:.2f})"
+            )
 
         return transcription.strip()
 

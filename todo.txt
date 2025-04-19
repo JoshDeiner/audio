@@ -6,9 +6,6 @@ clean up transcriber.py
 
 ----
 
-run linters
-
-
 -----
 create dummy situations
 

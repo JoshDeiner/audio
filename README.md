@@ -6,6 +6,8 @@ A Python-based tool for recording audio and transcribing it using the faster-whi
 
 - Record audio from microphone
 - Transcribe audio using faster-whisper
+- Transcribe existing audio files (for testing without a microphone)
+- Create dummy audio files for testing
 - Save transcriptions to text files
 - Cross-platform support (Linux, macOS, Windows, Raspberry Pi)
 
@@ -52,10 +54,99 @@ WHISPER_DEVICE=auto
 
 ## Usage
 
-Run the transcriber:
+### Using Make Commands
+
+The easiest way to use the tool is with the provided Make commands:
 
 ```bash
-python transcriber.py
+# Run the app in recording mode
+make local-run
+
+# Create and transcribe a dummy sine wave file
+make test-dummy
+
+# Create and transcribe a dummy speech file
+make test-dummy-speech
+
+# Create and transcribe a dummy speech file with English language specified
+make test-dummy-en
+
+# Transcribe a specific file
+make test-file FILE=input/audio.wav
+
+# Transcribe a specific file with English language specified
+make test-file-en FILE=input/audio.wav
+
+# Transcribe all WAV files in a directory
+make test-dir DIR=input
+```
+
+Run `make help` to see all available commands.
+
+### Using Python Module Directly
+
+#### Recording and Transcribing
+
+Run the transcriber in recording mode (default):
+
+```bash
+python -m audio
+```
+
+Specify recording duration:
+
+```bash
+python -m audio --duration 10
+```
+
+#### Transcribing Existing Files
+
+Transcribe a specific WAV file:
+
+```bash
+python -m audio --file input/audio.wav
+```
+
+Transcribe all WAV files in a directory:
+
+```bash
+python -m audio --dir input
+```
+
+#### Specifying Language (Skip Detection)
+
+Specify the language to skip detection and speed up transcription:
+
+```bash
+python -m audio --file input/audio.wav --language en
+```
+
+#### Testing with Dummy Files
+
+Create a dummy sine wave file and transcribe it:
+
+```bash
+python -m audio --create-dummy
+```
+
+Create a dummy speech file with specific text and transcribe it:
+
+```bash
+python -m audio --create-dummy --dummy-text "This is a test of the transcription system."
+```
+
+Just create a dummy file without transcribing:
+
+```bash
+python -m audio --create-dummy --dummy-text "Hello world" --file ""
+```
+
+#### Model Selection
+
+Specify the Whisper model to use:
+
+```bash
+python -m audio --model medium
 ```
 
 ## Development
