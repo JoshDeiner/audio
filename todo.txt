@@ -7,7 +7,7 @@ clean up transcriber.py
 ----
 
 clean up main file
-look at mypy issues #1 
+look at mypy issues #1
 -----
 
 try out eleven lab experiment
