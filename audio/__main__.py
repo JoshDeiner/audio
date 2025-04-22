@@ -19,9 +19,10 @@ from typing import List, Optional, Tuple, Union
 
 from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
-from utilities.argument_parser import parse_arguments
+from audio.utilities.argument_parser import parse_arguments
 
-from dummy import create_dummy_file, run_seed_functionality
+from dummy import create_dummy_file, seed_functionality
+from dummy.seed_functionality import run_seed_functionality
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
@@ -61,12 +62,6 @@ def main() -> Union[Tuple[str, str], List[str], None]:
                 return None
             if not args.file and not args.dir:
                 args.file = output_path
-
-        if args.create_dummy:
-            dummy_path = create_dummy_file(args.dummy_text)
-            if not args.file and not args.dir:
-                return None
-            args.file = dummy_path
 
         mode = (
             "file" if args.file else
