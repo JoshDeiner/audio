@@ -32,5 +32,3 @@ python record_dummy_wav.py
 python record_dummy_wav.py --duration 3 --output tests/assets/custom_clip.wav
 
 ```
-
-
