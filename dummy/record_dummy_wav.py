@@ -1,6 +1,6 @@
+import numpy as np
 import sounddevice as sd
 from scipy.io.wavfile import write
-import numpy as np
 
 
 def record_wav(filename="dummy_speech.wav", duration=5, samplerate=16000):
