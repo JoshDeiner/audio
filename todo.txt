@@ -9,4 +9,3 @@ clean up transcriber.py
 clean up main file
 
 try out eleven lab experiment
-
