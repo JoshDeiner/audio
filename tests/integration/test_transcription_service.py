@@ -13,7 +13,9 @@ class TestFileTranscriptionIntegration:
         # Arrange
         service = FileTranscriptionService()
         # Using absolute path from project root
-        input_file = Path(__file__).parent.parent / "assets" / "dummy_speech.wav"
+        input_file = (
+            Path(__file__).parent.parent / "assets" / "dummy_speech.wav"
+        )
         assert input_file.exists(), f"Missing test asset: {input_file}"
 
         output_dir = tmp_path / "output"
@@ -21,9 +23,7 @@ class TestFileTranscriptionIntegration:
 
         # Act
         transcription = service.transcribe_file(
-            file_path=str(input_file),
-            model_size="tiny",
-            language="en"
+            file_path=str(input_file), model_size="tiny", language="en"
         )
 
         # Assert
@@ -35,4 +35,3 @@ class TestFileTranscriptionIntegration:
 
         latest_file = max(output_files, key=os.path.getctime)
         assert latest_file.read_text() == transcription
-

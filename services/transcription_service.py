@@ -147,7 +147,9 @@ class TranscriptionService:
             )
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
-            raise TranscriptionError(f"Failed to load Whisper model. Check if the model cache directory is properly mounted: {e}")
+            raise TranscriptionError(
+                f"Failed to load Whisper model. Check if the model cache directory is properly mounted: {e}"
+            )
 
         # Run transcription
         logger.info(f"Transcribing audio file: {audio_file_path}")

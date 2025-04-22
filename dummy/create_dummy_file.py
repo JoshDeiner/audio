@@ -34,7 +34,9 @@ def create_dummy_file(text: Optional[str] = None) -> str:
     if text:
         try:
             # Create a temporary MP3 file using context manager for proper cleanup
-            with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as temp_mp3:
+            with tempfile.NamedTemporaryFile(
+                suffix=".mp3", delete=False
+            ) as temp_mp3:
                 temp_mp3_path = temp_mp3.name
 
                 # Generate speech
@@ -49,11 +51,15 @@ def create_dummy_file(text: Optional[str] = None) -> str:
             # Clean up temp file after processing
             os.unlink(temp_mp3_path)
 
-            print(f"{Fore.GREEN}Created speech WAV file: {output_path}{Style.RESET_ALL}")
+            print(
+                f"{Fore.GREEN}Created speech WAV file: {output_path}{Style.RESET_ALL}"
+            )
             return output_path
 
         except (ImportError, NameError):
-            print(f"{Fore.YELLOW}Speech synthesis packages not available.{Style.RESET_ALL}")
+            print(
+                f"{Fore.YELLOW}Speech synthesis packages not available.{Style.RESET_ALL}"
+            )
             print("Install with: pip install gtts librosa soundfile")
             # Fall back to sine wave
 
@@ -69,9 +75,13 @@ def create_dummy_file(text: Optional[str] = None) -> str:
         output_path = os.path.join(input_dir, "dummy_sine.wav")
         sf.write(output_path, audio, sample_rate)
 
-        print(f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}")
+        print(
+            f"{Fore.GREEN}Created sine wave WAV file: {output_path}{Style.RESET_ALL}"
+        )
         return output_path
 
     except (ImportError, NameError):
-        print(f"{Fore.RED}Could not create dummy file. Install numpy and soundfile.{Style.RESET_ALL}")
+        print(
+            f"{Fore.RED}Could not create dummy file. Install numpy and soundfile.{Style.RESET_ALL}"
+        )
         sys.exit(1)
