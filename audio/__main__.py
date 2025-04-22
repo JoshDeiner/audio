@@ -11,17 +11,17 @@ The implementation follows a service-oriented architecture with clear
 separation of concerns between audio recording, transcription processing,
 and output management.
 """
+import argparse
 import logging
 import os
 import sys
-import argparse
 from typing import List, Optional, Tuple, Union
 
 from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
 from utilities.argument_parser import parse_arguments
-from dummy import create_dummy_file, run_seed_functionality
 
+from dummy import create_dummy_file, run_seed_functionality
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
