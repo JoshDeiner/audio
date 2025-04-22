@@ -11,17 +11,14 @@ The implementation follows a service-oriented architecture with clear
 separation of concerns between audio recording, transcription processing,
 and output management.
 """
-import argparse
 import logging
-import os
 import sys
-from typing import List, Optional, Tuple, Union
+from typing import List, Tuple, Union
 
 from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
 
 from audio.utilities.argument_parser import parse_arguments
-from dummy import create_dummy_file
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
@@ -47,20 +44,12 @@ def main() -> Union[Tuple[str, str], List[str], None]:
         Union[Tuple[str, str], List[str], None]:
             - Tuple: For recording mode, returns paths to audio and transcript files
             - List: For file or directory transcription, returns list of transcript texts
-            - None: If only dummy/seed file is created and no transcription is performed
 
     Raises:
         SystemExit: If an error or user interruption occurs
     """
     try:
         args = parse_arguments()
-
-        if args.seed:
-            output_path = run_seed_functionality(args)
-            if not output_path or os.path.isdir(output_path):
-                return None
-            if not args.file and not args.dir:
-                args.file = output_path
 
         mode = (
             "file" if args.file else
@@ -88,7 +77,6 @@ def main() -> Union[Tuple[str, str], List[str], None]:
                 print(f"\n{Fore.RED}Unknown mode: {mode}{Style.RESET_ALL}")
                 logger.error(f"Unknown mode: {mode}")
                 sys.exit(1)
-
 
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")

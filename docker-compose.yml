@@ -14,8 +14,8 @@ services:
       - /run/user/$(id -u)/pulse:/run/pulse:ro
       - ${HOME}/.config/pulse:/root/.config/pulse:ro
       - /etc/machine-id:/etc/machine-id:ro
-      # Cache directory for Whisper models
-      - ${HOME}/.cache/whisper:/root/.cache/whisper
+      # Cache directory for Hugging Face models
+      - ${HOME}/.cache/huggingface:/root/.cache/huggingface
     # Only use devices when available (Linux/Pi)
     devices:
       - /dev/snd:/dev/snd

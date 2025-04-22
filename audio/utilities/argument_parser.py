@@ -67,64 +67,6 @@ def add_transcription_arguments(parser: argparse.ArgumentParser) -> None:
     )
 
 
-def add_test_file_arguments(parser: argparse.ArgumentParser) -> None:
-    """Add test file generation arguments to the parser.
-
-    Args:
-        parser: The argument parser to add arguments to
-    """
-    group = parser.add_argument_group("Test file generation")
-    group.add_argument(
-        "--create-dummy",
-        "-c",
-        action="store_true",
-        help="Create a dummy WAV file for testing",
-    )
-    group.add_argument(
-        "--dummy-text",
-        metavar="TEXT",
-        help="Text to use for speech synthesis (requires gtts and librosa)",
-    )
-
-
-def add_seed_arguments(parser: argparse.ArgumentParser) -> None:
-    """Add seed functionality arguments to the parser.
-
-    Args:
-        parser: The argument parser to add arguments to
-    """
-    group = parser.add_argument_group("Seed functionality")
-    group.add_argument(
-        "--seed",
-        action="store_true",
-        help="Use seed functionality to generate test audio files",
-    )
-    group.add_argument(
-        "--seed-type",
-        choices=["sine", "speech", "multi-language", "test-suite"],
-        default="sine",
-        help="Type of seed audio to generate (default: sine)",
-    )
-    group.add_argument(
-        "--output",
-        "-o",
-        metavar="PATH",
-        help="Output path for generated audio file",
-    )
-    group.add_argument(
-        "--frequency",
-        type=float,
-        default=440.0,
-        help="Frequency in Hz for sine wave (default: 440.0)",
-    )
-    group.add_argument(
-        "--sample-rate",
-        type=int,
-        default=16000,
-        help="Sample rate in Hz (default: 16000)",
-    )
-
-
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments.
 
@@ -138,7 +80,5 @@ def parse_arguments() -> argparse.Namespace:
     add_mode_arguments(parser)
     add_recording_arguments(parser)
     add_transcription_arguments(parser)
-    add_test_file_arguments(parser)
-    add_seed_arguments(parser)
 
     return parser.parse_args()

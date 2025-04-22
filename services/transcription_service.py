@@ -137,12 +137,17 @@ class TranscriptionService:
         logger.info(f"Using compute type: {model_config['compute_type']}")
         logger.info(f"Using device: {model_config['device']}")
 
-        # Initialize the model
-        model = WhisperModel(
-            model_config["model_size"],
-            device=model_config["device"],
-            compute_type=model_config["compute_type"],
-        )
+        try:
+            # Initialize the model
+            model = WhisperModel(
+                model_config["model_size"],
+                device=model_config["device"],
+                compute_type=model_config["compute_type"],
+                download_root="/root/.cache/huggingface/hub",
+            )
+        except Exception as e:
+            logger.error(f"Failed to load Whisper model: {e}")
+            raise TranscriptionError(f"Failed to load Whisper model. Check if the model cache directory is properly mounted: {e}")
 
         # Run transcription
         logger.info(f"Transcribing audio file: {audio_file_path}")

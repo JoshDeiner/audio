@@ -1,5 +1,5 @@
 # Stage 1: Base image with system dependencies
-FROM python:3.9-slim AS audio-base
+FROM python:3.10-slim AS audio-base
 
 WORKDIR /app
 
@@ -38,6 +38,9 @@ ENV AUDIODEV=null
 FROM audio-base AS audio-app
 
 WORKDIR /app
+
+# Layer 5: Download model before runtime
+RUN python -c "from faster_whisper import WhisperModel; WhisperModel('tiny', download_root='/root/.cache/huggingface/hub')" || echo "Model will be downloaded at runtime"
 
 # Layer 7: Entrypoint configuration
 ENTRYPOINT ["/app/cicd/entrypoint.sh"]
