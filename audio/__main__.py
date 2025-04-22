@@ -68,23 +68,33 @@ def main() -> Union[Tuple[str, str], List[str], None]:
                 return None
             args.file = dummy_path
 
-        if args.file:
-            transcription_service = FileTranscriptionService()
-            return [
-                transcription_service.transcribe_file(
-                    args.file, args.model, args.language
+        mode = (
+            "file" if args.file else
+            "dir" if args.dir else
+            "record"
+        )
+
+        match mode:
+            case "file":
+                transcription_service = FileTranscriptionService()
+                return [
+                    transcription_service.transcribe_file(
+                        args.file, args.model, args.language
+                    )
+                ]
+            case "dir":
+                transcription_service = FileTranscriptionService()
+                return transcription_service.transcribe_directory(
+                    args.dir, args.model, args.language
                 )
-            ]
+            case "record":
+                recording_service = ApplicationService()
+                return recording_service.run(duration=args.duration)
+            case _:
+                print(f"\n{Fore.RED}Unknown mode: {mode}{Style.RESET_ALL}")
+                logger.error(f"Unknown mode: {mode}")
+                sys.exit(1)
 
-        if args.dir:
-            transcription_service = FileTranscriptionService()
-            return transcription_service.transcribe_directory(
-                args.dir, args.model, args.language
-            )
-
-        # Default: recording mode
-        recording_service = ApplicationService()
-        return recording_service.run(duration=args.duration)
 
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")
