@@ -11,7 +11,6 @@ The implementation follows a service-oriented architecture with clear
 separation of concerns between audio recording, transcription processing,
 and output management.
 """
-import argparse
 import importlib.util
 import logging
 import os
@@ -24,6 +23,7 @@ from dotenv import load_dotenv
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
+from utilities.argument_parser import parse_arguments
 
 # Load environment variables from .env file
 load_dotenv()
@@ -36,113 +36,6 @@ logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
-
-
-def parse_arguments() -> argparse.Namespace:
-    """Parse command line arguments.
-
-    Returns:
-        argparse.Namespace: Parsed arguments
-    """
-    parser = argparse.ArgumentParser(
-        description="Audio transcription tool using faster-whisper"
-    )
-
-    # Mode selection
-    mode_group = parser.add_mutually_exclusive_group()
-    mode_group.add_argument(
-        "--record",
-        "-r",
-        action="store_true",
-        help="Record audio from microphone (default mode)",
-    )
-    mode_group.add_argument(
-        "--file", "-f", metavar="FILE", help="Transcribe a specific audio file"
-    )
-    mode_group.add_argument(
-        "--dir",
-        "-d",
-        metavar="DIR",
-        help="Transcribe all WAV files in a directory",
-    )
-
-    # Recording options
-    parser.add_argument(
-        "--duration",
-        "-t",
-        type=int,
-        default=5,
-        help="Recording duration in seconds (default: 5)",
-    )
-
-    # Model options
-    # Line too long (89 > 88 characters)
-    parser.add_argument(
-        "--model",
-        "-m",
-        choices=["tiny", "base", "small", "medium", "large"],
-        help="Whisper model size (default: from .env or 'tiny')",
-    )
-
-    # Language option
-    # Line too long (99 > 88 characters)
-    parser.add_argument(
-        "--language",
-        "-l",
-        help="Language code to use (e.g., 'en' for English). Skips language detection.",
-    )
-
-    # Create dummy file options
-    # Line too long (89 > 88 characters)
-    parser.add_argument(
-        "--create-dummy",
-        "-c",
-        action="store_true",
-        help="Create a dummy WAV file for testing",
-    )
-    # Line too long (90 > 88 characters)
-    parser.add_argument(
-        "--dummy-text",
-        metavar="TEXT",
-        help="Text to use for speech synthesis (requires gtts and librosa)",
-    )
-
-    # Seed functionality options
-    seed_group = parser.add_argument_group("Seed functionality")
-    seed_group.add_argument(
-        "--seed",
-        action="store_true",
-        help="Use seed functionality to generate test audio files",
-    )
-    # Line too long (96 > 88 characters)
-    seed_group.add_argument(
-        "--seed-type",
-        choices=["sine", "speech", "multi-language", "test-suite"],
-        default="sine",
-        help="Type of seed audio to generate (default: sine)",
-    )
-    # Line too long (118 > 88 characters)
-    seed_group.add_argument(
-        "--output",
-        "-o",
-        metavar="PATH",
-        help="Output path for generated audio file",
-    )
-    seed_group.add_argument(
-        "--frequency",
-        type=float,
-        default=440.0,
-        help="Frequency in Hz for sine wave (default: 440.0)",
-    )
-    # Line too long (93 > 88 characters)
-    seed_group.add_argument(
-        "--sample-rate",
-        type=int,
-        default=16000,
-        help="Sample rate in Hz (default: 16000)",
-    )
-
-    return parser.parse_args()
 
 
 def create_dummy_file(text: Optional[str] = None) -> str:
