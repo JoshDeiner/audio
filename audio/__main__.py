@@ -40,71 +40,62 @@ logger = logging.getLogger(__name__)
 
 
 def main() -> Union[Tuple[str, str], List[str], None]:
-    """Execute the main transcription workflow based on command line arguments.
+    """
+    Execute the main transcription workflow based on command line arguments.
 
     Returns:
         Union[Tuple[str, str], List[str], None]:
-            - For recording: Paths to the audio file and transcript file
-            - For file transcription: List of transcription texts
-            - None if creating dummy files only
+            - Tuple: For recording mode, returns paths to audio and transcript files
+            - List: For file or directory transcription, returns list of transcript texts
+            - None: If only dummy/seed file is created and no transcription is performed
 
     Raises:
-        SystemExit: If an error occurs during execution
+        SystemExit: If an error or user interruption occurs
     """
     try:
         args = parse_arguments()
 
-        # Handle seed functionality if requested
         if args.seed:
             output_path = run_seed_functionality(args)
-            if not args.file and not args.dir and output_path:
-                # If only creating seed file and not transcribing, exit after creation
-                if os.path.isdir(output_path):
-                    return None
-                # Otherwise set the file to transcribe
+            if not output_path or os.path.isdir(output_path):
+                return None
+            if not args.file and not args.dir:
                 args.file = output_path
 
-        # Create dummy file if requested
-        elif args.create_dummy:
+        if args.create_dummy:
             dummy_path = create_dummy_file(args.dummy_text)
             if not args.file and not args.dir:
-                # If only creating dummy file, exit after creation
                 return None
-            # Otherwise, set the file to transcribe to the dummy file
             args.file = dummy_path
 
-        # Determine mode and execute appropriate workflow
         if args.file:
-            # File transcription mode
-            file_service = FileTranscriptionService()
+            transcription_service = FileTranscriptionService()
             return [
-                file_service.transcribe_file(
+                transcription_service.transcribe_file(
                     args.file, args.model, args.language
                 )
             ]
 
-        elif args.dir:
-            # Directory transcription mode
-            file_service = FileTranscriptionService()
-            return file_service.transcribe_directory(
+        if args.dir:
+            transcription_service = FileTranscriptionService()
+            return transcription_service.transcribe_directory(
                 args.dir, args.model, args.language
             )
 
-        else:
-            # Default: recording mode
-            app_service = ApplicationService()
-            return app_service.run(duration=args.duration)
+        # Default: recording mode
+        recording_service = ApplicationService()
+        return recording_service.run(duration=args.duration)
 
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")
         sys.exit(0)
-    except (AudioServiceError, FileOperationError) as e:
-        print(f"\n{Fore.RED}Error: {e}{Style.RESET_ALL}")
-        logger.error(f"Application error: {e}")
+    except (AudioServiceError, FileOperationError) as error:
+        print(f"\n{Fore.RED}Error: {error}{Style.RESET_ALL}")
+        logger.error(f"Application error: {error}")
         sys.exit(1)
-    except Exception as e:
-        print(f"\n{Fore.RED}Unexpected error: {e}{Style.RESET_ALL}")
-        logger.error(f"Unexpected error: {e}")
+    except Exception as error:
+        print(f"\n{Fore.RED}Unexpected error: {error}{Style.RESET_ALL}")
+        logger.error(f"Unexpected error: {error}")
         sys.exit(1)
 
 
