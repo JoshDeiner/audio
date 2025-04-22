@@ -15,16 +15,19 @@ def add_mode_arguments(parser: argparse.ArgumentParser) -> None:
     """
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
-        "--record", "-r", action="store_true",
-        help="Record audio from microphone (default mode)"
+        "--record",
+        "-r",
+        action="store_true",
+        help="Record audio from microphone (default mode)",
     )
     mode_group.add_argument(
-        "--file", "-f", metavar="FILE",
-        help="Transcribe a specific audio file"
+        "--file", "-f", metavar="FILE", help="Transcribe a specific audio file"
     )
     mode_group.add_argument(
-        "--dir", "-d", metavar="DIR",
-        help="Transcribe all WAV files in a directory"
+        "--dir",
+        "-d",
+        metavar="DIR",
+        help="Transcribe all WAV files in a directory",
     )
 
 
@@ -36,8 +39,11 @@ def add_recording_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Recording options")
     group.add_argument(
-        "--duration", "-t", type=int, default=5,
-        help="Recording duration in seconds (default: 5)"
+        "--duration",
+        "-t",
+        type=int,
+        default=5,
+        help="Recording duration in seconds (default: 5)",
     )
 
 
@@ -49,13 +55,15 @@ def add_transcription_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Transcription options")
     group.add_argument(
-        "--model", "-m",
+        "--model",
+        "-m",
         choices=["tiny", "base", "small", "medium", "large"],
-        help="Whisper model size (default: from .env or 'tiny')"
+        help="Whisper model size (default: from .env or 'tiny')",
     )
     group.add_argument(
-        "--language", "-l",
-        help="Language code to use (e.g., 'en' for English). Skips language detection."
+        "--language",
+        "-l",
+        help="Language code to use (e.g., 'en' for English). Skips language detection.",
     )
 
 
@@ -67,12 +75,15 @@ def add_test_file_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Test file generation")
     group.add_argument(
-        "--create-dummy", "-c", action="store_true",
-        help="Create a dummy WAV file for testing"
+        "--create-dummy",
+        "-c",
+        action="store_true",
+        help="Create a dummy WAV file for testing",
     )
     group.add_argument(
-        "--dummy-text", metavar="TEXT",
-        help="Text to use for speech synthesis (requires gtts and librosa)"
+        "--dummy-text",
+        metavar="TEXT",
+        help="Text to use for speech synthesis (requires gtts and librosa)",
     )
 
 
@@ -84,26 +95,33 @@ def add_seed_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Seed functionality")
     group.add_argument(
-        "--seed", action="store_true",
-        help="Use seed functionality to generate test audio files"
+        "--seed",
+        action="store_true",
+        help="Use seed functionality to generate test audio files",
     )
     group.add_argument(
         "--seed-type",
         choices=["sine", "speech", "multi-language", "test-suite"],
         default="sine",
-        help="Type of seed audio to generate (default: sine)"
+        help="Type of seed audio to generate (default: sine)",
     )
     group.add_argument(
-        "--output", "-o", metavar="PATH",
-        help="Output path for generated audio file"
+        "--output",
+        "-o",
+        metavar="PATH",
+        help="Output path for generated audio file",
     )
     group.add_argument(
-        "--frequency", type=float, default=440.0,
-        help="Frequency in Hz for sine wave (default: 440.0)"
+        "--frequency",
+        type=float,
+        default=440.0,
+        help="Frequency in Hz for sine wave (default: 440.0)",
     )
     group.add_argument(
-        "--sample-rate", type=int, default=16000,
-        help="Sample rate in Hz (default: 16000)"
+        "--sample-rate",
+        type=int,
+        default=16000,
+        help="Sample rate in Hz (default: 16000)",
     )
 
 

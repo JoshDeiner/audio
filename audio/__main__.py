@@ -19,11 +19,11 @@ from typing import List, Optional, Tuple, Union
 
 from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
+from utilities.argument_parser import parse_arguments
 
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
-from utilities.argument_parser import parse_arguments
 
 # Load environment variables from .env file
 load_dotenv()
