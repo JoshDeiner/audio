@@ -102,10 +102,10 @@ class TranscriptionService:
             model_size = "tiny"
 
         # Get compute type from environment or use default
-        compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "float32")
+        compute_type = os.environ.get("WHISPER_COMPUTE_TYPE", "int8")
 
         # Get device from environment or use default
-        device = os.environ.get("WHISPER_DEVICE", "auto")
+        device = os.environ.get("WHISPER_DEVICE", "cpu")
 
         return {
             "model_size": model_size,
@@ -143,7 +143,6 @@ class TranscriptionService:
                 model_config["model_size"],
                 device=model_config["device"],
                 compute_type=model_config["compute_type"],
-                download_root="/root/.cache/huggingface/hub",
             )
         except Exception as e:
             logger.error(f"Failed to load Whisper model: {e}")
