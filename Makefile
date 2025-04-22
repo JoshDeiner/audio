@@ -1,4 +1,4 @@
-.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model
+.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model test test-unit test-integration
 
 # Default Python interpreter and pip
 PYTHON := python3
@@ -234,30 +234,6 @@ test-dir-model:
 
 # Advanced test suite generation with seed functionality
 
-test-seed-sine:
-	@echo "Creating a sine wave audio file using seed functionality..."
-	@if [ ! -d "$(VENV)" ]; then \
-		echo "Virtual environment not found. Running setup first..."; \
-		$(MAKE) setup; \
-	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --seed --seed-type sine --frequency 440.0 --duration 5.0
-
-test-seed-speech:
-	@echo "Creating a speech audio file using seed functionality..."
-	@if [ ! -d "$(VENV)" ]; then \
-		echo "Virtual environment not found. Running setup first..."; \
-		$(MAKE) setup; \
-	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --seed --seed-type speech --dummy-text "This is a test of the audio transcription system using seed functionality."
-
-test-seed-multi:
-	@echo "Creating multi-language samples using seed functionality..."
-	@if [ ! -d "$(VENV)" ]; then \
-		echo "Virtual environment not found. Running setup first..."; \
-		$(MAKE) setup; \
-	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --seed --seed-type multi-language
-
 test-seed-suite:
 	@echo "Creating a comprehensive test suite using seed functionality..."
 	@if [ ! -d "$(VENV)" ]; then \
@@ -282,3 +258,16 @@ test-languages:
 		$(MAKE) setup; \
 	fi
 	. $(VENV)/bin/activate && $(PYTHON) seed/create_multi_language_samples.py --output-dir input/language_samples
+
+# Test commands for running unit and integration tests
+
+# Default
+test: test-unit test-integration
+
+# Unit tests only
+test-unit:
+	pytest tests/unit
+
+# Integration tests only
+test-integration:
+	pytest tests/integration

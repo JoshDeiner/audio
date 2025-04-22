@@ -21,8 +21,7 @@ from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
 
 from audio.utilities.argument_parser import parse_arguments
-from dummy import create_dummy_file, seed_functionality
-from dummy.seed_functionality import run_seed_functionality
+from dummy import create_dummy_file
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService

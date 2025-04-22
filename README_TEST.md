@@ -1,6 +1,6 @@
-# Testing the Audio Transcription Tool with Dummy Files
+# Testing the Audio Transcription Tool
 
-This guide explains how to test the audio transcription tool using dummy WAV files instead of recording audio in real-time. This is useful for development and testing when you're away from a microphone or in an environment where recording isn't possible.
+This guide explains how to test the audio transcription tool using various methods.
 
 ## Setup
 
@@ -18,6 +18,38 @@ This guide explains how to test the audio transcription tool using dummy WAV fil
    WHISPER_COMPUTE_TYPE=float32
    WHISPER_DEVICE=auto
    ```
+
+## Automated Unit Tests
+
+Run the pytest unit tests to verify WAV-to-text transcription functionality:
+
+```bash
+python -m pytest tests/test_transcription.py -v
+```
+
+This test:
+- Reads a sample WAV file (`input/dummy_speech.wav`)
+- Converts it to text using the Whisper model
+- Verifies the transcription exists and has more than 5 characters
+- Confirms that an output text file was created with matching content
+
+### Test Options
+
+- `-v`: Verbose mode - shows detailed test progress
+- `--capture=no`: Shows print output during test execution
+
+### Sample Test Output
+
+```
+============================= test session starts ==============================
+platform linux -- Python 3.11.2, pytest-7.3.1, pluggy-1.5.0
+rootdir: /home/jd01/audio
+collected 1 item
+
+tests/test_transcription.py::TestTranscription::test_file_transcription PASSED [100%]
+
+============================== 1 passed in 4.64s ===============================
+```
 
 ## Testing Options
 

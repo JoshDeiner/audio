@@ -21,15 +21,16 @@ python -m audio --seed --seed-type test-suite
 You can also use the Make commands for seed functionality:
 
 ```bash
-# Create a sine wave audio file
-make test-seed-sine
 
-# Create a speech audio file
-make test-seed-speech
 
-# Create multi-language samples
-make test-seed-multi
+create a dummy wav file
 
-# Create a comprehensive test suite
-make test-seed-suite
+# Record from your microphone and save as dummy_speech.wav
+python record_dummy_wav.py
+
+# Optional: Customize duration and output file
+python record_dummy_wav.py --duration 3 --output tests/assets/custom_clip.wav
+
 ```
+
+

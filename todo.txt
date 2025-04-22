@@ -6,5 +6,4 @@ clean up transcriber.py
 
 ----
 
-create test case for dummy test file to text
 try out eleven lab experiment
