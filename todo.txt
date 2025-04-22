@@ -8,8 +8,3 @@ clean up transcriber.py
 
 try out eleven lab experiment
 
-fix voice model download
-
-fix normal run
-
-https://github.com/SYSTRAN/faster-whisper
