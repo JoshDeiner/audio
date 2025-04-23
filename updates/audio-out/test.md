@@ -2,11 +2,11 @@ Test: test_tts_then_stt_matches_original_text
 
 Arrange:
     original_text = "The quick brown fox jumps over the lazy dog"
-    
+
     # Initialize services
     tts_service = TextToSpeechService()
     stt_service = SpeechToTextService()
-    
+
     # Optional: staging path for saving audio
     temp_audio_path = "/tmp/test_audio.wav"
 
@@ -35,4 +35,3 @@ Considerations:
     - Audio synthesis and recognition are dependent on model performance and system setup.
     - Test may be flaky if TTS or STT models are inconsistent or hardware is under load.
     - Consider logging intermediate transcription and audio path for debugging.
-

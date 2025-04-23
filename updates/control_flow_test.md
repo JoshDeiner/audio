@@ -30,4 +30,3 @@ Write pytest-style pseudocode for the following test cases:
    - Ensure playback is skipped if --play is False or not passed
 
 Make the tests isolated, mocking external I/O, and use monkeypatch or unittest.mock to simulate service behavior. Each test should include Arrange, Act, and Assert phases in pseudocode form.
-

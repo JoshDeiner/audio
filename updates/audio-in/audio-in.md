@@ -27,11 +27,11 @@ Optional arguments (already supported):
 The `audio-in` mode runs the following pipeline:
 
 1. **Capture Audio**
-   - Service: `AudioCaptureService`  
+   - Service: `AudioCaptureService`
    - Captures microphone input and returns a WAV buffer or path.
 
 2. **Transcribe Audio**
-   - Service: `SpeechToTextService`  
+   - Service: `SpeechToTextService`
    - Uses Whisper to convert audio to text.
 
 3. **Output Result**
@@ -55,4 +55,3 @@ Optional:
 
 
 ```
-

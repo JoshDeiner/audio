@@ -13,4 +13,3 @@ Also:
 - Do not call real audio or transcription services.
 
 Keep the test self-contained and focused on verifying controller logic.
-
