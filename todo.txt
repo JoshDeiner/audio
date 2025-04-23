@@ -1,9 +1,17 @@
 
 
 
-clean up transcriber.py
-		* create cli kickoff functionality so that audio-in and audio-out is decomplicated #1
 
 ----
 
 try out eleven lab experiment
+
+
+
+get audio-out functionality working
+
+add no-audio for testing environment
+
+
+
+work on audio -in updates

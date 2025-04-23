@@ -66,6 +66,29 @@ def add_transcription_arguments(parser: argparse.ArgumentParser) -> None:
         help="Language code to use (e.g., 'en' for English). Skips language detection.",
     )
 
+def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
+    """Add audio-out related arguments to the parser.
+
+    Args:
+        parser: The argument parser to add arguments to
+    """
+    group = parser.add_argument_group("Audio output options")
+    group.add_argument(
+        "--text",
+        type=str,
+        help="Optional text to synthesize into audio (used in audio-out mode)",
+    )
+    group.add_argument(
+        "--output",
+        type=str,
+        help="Optional output path for synthesized audio file",
+    )
+    group.add_argument(
+        "--play",
+        action="store_true",
+        help="Play the synthesized audio after generation",
+    )
+    
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments.
@@ -80,5 +103,7 @@ def parse_arguments() -> argparse.Namespace:
     add_mode_arguments(parser)
     add_recording_arguments(parser)
     add_transcription_arguments(parser)
+    add_audio_out_arguments(parser) 
 
     return parser.parse_args()
+

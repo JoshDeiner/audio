@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
-"""Audio transcription module using faster-whisper.
+"""Audio processing module for transcription and synthesis.
 
-This module provides functionality to record audio from a microphone
-and transcribe it using the faster-whisper model.
+This module provides functionality to:
+1. Record audio from a microphone and transcribe it 
+2. Transcribe existing audio files
+3. Synthesize text into speech and play it back
 
-It also supports transcribing existing audio files for testing and
-development when recording is not possible.
-
-The implementation follows a service-oriented architecture with clear
-separation of concerns between audio recording, transcription processing,
-and output management.
+It follows a service-oriented architecture with clear separation of concerns
+between audio recording, transcription processing, synthesis, and output management.
 """
 import logging
 import sys
@@ -19,6 +17,7 @@ from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
 
 from audio.utilities.argument_parser import parse_arguments
+from audio.audio_pipeline_controller import AudioPipelineController
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
@@ -36,14 +35,15 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def main() -> Union[Tuple[str, str], List[str], None]:
+def main() -> Union[Tuple[str, str], List[str], str, None]:
     """
-    Execute the main transcription workflow based on command line arguments.
+    Execute the main workflow based on command line arguments.
 
     Returns:
-        Union[Tuple[str, str], List[str], None]:
+        Union[Tuple[str, str], List[str], str, None]:
             - Tuple: For recording mode, returns paths to audio and transcript files
             - List: For file or directory transcription, returns list of transcript texts
+            - str: For audio synthesis, returns path to output audio file
 
     Raises:
         SystemExit: If an error or user interruption occurs
@@ -51,6 +51,18 @@ def main() -> Union[Tuple[str, str], List[str], None]:
     try:
         args = parse_arguments()
 
+        # Check for audio-out mode
+        if args.text is not None or args.output is not None or args.play:
+            # Audio output pipeline
+            config = {
+                "text": args.text,
+                "output_path": args.output,
+                "play_audio": args.play if args.play is not None else True,
+            }
+            controller = AudioPipelineController(config)
+            return controller.handle_audio_out()
+        
+        # Otherwise, use existing audio-in modes
         mode = (
             "file" if args.file else
             "dir" if args.dir else
@@ -59,12 +71,14 @@ def main() -> Union[Tuple[str, str], List[str], None]:
 
         match mode:
             case "file":
-                transcription_service = FileTranscriptionService()
-                return [
-                    transcription_service.transcribe_file(
-                        args.file, args.model, args.language
-                    )
-                ]
+                config = {
+                    "audio_path": args.file,
+                    "model": args.model,
+                    "language": args.language,
+                    "save_transcript": True
+                }
+                controller = AudioPipelineController(config)
+                return controller.handle_audio_in()
             case "dir":
                 transcription_service = FileTranscriptionService()
                 return transcription_service.transcribe_directory(
