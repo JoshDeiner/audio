@@ -12,12 +12,16 @@ update audio out to accept audio out cli argument and use better flags to mutate
 
 1. source flag a. text or filesystem
 
-this is okay however you want this to need audio out. cant use audio in.
-python -m audio-out --text 'sdfh' --play
-python -m audio-out --input-file --play
+a) update file resolver to take in txt file.
+	test to make sure works
 
-create data-source input to replace text argument.
 files to update : controller, main, argumentparser.
-create function that tells data type
 
+update flag so that you can pass in cli flag and audio is not passed from machine.
+	create --cli flag so that audio isnt transmitted only text is. this is obviously weird. because im planning to duplicate efforts and go from text - audo -text
+
+	cli flag. this raises a job that ten passes audio again through a stt service and then writes to a output directory
+
+attah functionality to audio out flag
+----
 work on audio -in updates
