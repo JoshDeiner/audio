@@ -61,10 +61,16 @@ class AudioPipelineController:
             logging.warning("No source text found in config.")
             return "no text found"
 
-        if os.path.isfile(source):
+        # If it's not a file path, return as is
+        if not os.path.isfile(source):
+            return source
+            
+        # Try to read the file
+        try:
             return FileService.read_text(source)
-
-        return source
+        except Exception as e:
+            logging.error(f"Failed to read source file: {e}")
+            return "error reading file"
 
     def handle_audio_out(self) -> str:
         """Handle audio output (synthesis) pipeline.

@@ -192,6 +192,28 @@ class FileService:
         return os.path.join(output_dir, f"audio_out_{timestamp}.wav")
 
     @staticmethod
+    def read_text(file_path: str) -> str:
+        """Read text from a file.
+
+        Args:
+            file_path: Path to the text file
+
+        Returns:
+            str: The text content of the file
+
+        Raises:
+            FileOperationError: If reading fails
+        """
+        try:
+            with open(file_path, "r") as f:
+                content = f.read().strip()
+            logger.info(f"Text read from: {file_path}")
+            return content
+        except Exception as e:
+            logger.error(f"Failed to read text file: {e}")
+            raise FileOperationError(f"Failed to read text file: {e}")
+
+    @staticmethod
     def load_latest_transcription() -> Optional[str]:
         """Load the latest transcription file.
 
