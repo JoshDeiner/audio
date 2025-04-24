@@ -1,5 +1,6 @@
 """Audio pipeline controller for the audio package."""
 import logging
+import os
 from typing import Dict, Optional
 
 from services.audio_playback_service import AudioPlaybackService
@@ -48,21 +49,51 @@ class AudioPipelineController:
 
         return transcription
 
+def resolve_text_source(self) -> str:
+    """Resolves the input source text from config or environment.
+
+    Returns:
+        str: The resolved text content
+    """
+    # Prefer config text if set
+    source = self.config.get("datasource") 
+    if not source:
+        logging.warning("No source text found in config.")
+        return "no text found"
+
+    if os.path.isfile(source):
+        return FileService.read_text(source)
+    
+    return source
+
+
     def handle_audio_out(self) -> str:
         """Handle audio output (synthesis) pipeline.
+
 
         Returns:
             str: Path to the output audio file
         """
         # Get text from config, latest transcription, or default
-        text = (
-            self.config.get("text")
-            or self._get_latest_transcription()
-            or "Hello, world!"
-        )
+        #text = (
+        #    self.config.get("text")
+        #    or self._get_latest_transcription()
+        #    or "Hello, world!"
+        #)
+        text = self.resolve_text_source()
+
+        if not text or text == "no text found":
+            logger.warning("No valid text to synthesize.")
+            return
 
         # Synthesize audio
-        audio_data = TextToSpeechService.synthesize(text)
+        try:
+            audio_data = TextToSpeechService.synthesize(text)
+        except Exception as e:
+            logger.error(f"Error synthesizing audio: {e}")
+        return
+
+        #audio_data = TextToSpeechService.synthesize(text)
 
         # Save audio to file
         output_path = (
@@ -70,17 +101,26 @@ class AudioPipelineController:
             or FileService.generate_temp_output_path()
         )
 
-        self.file_service.save(audio_data, output_path)
+        try:
+            self.file_service.save(audio_data, output_path)
+        except Exception as e:
+            logger.error(f"Error saving audio file: {e}")
+            return f"Error saving audio file: {e}"
 
         # Play audio if enabled
         if self.config.get("play_audio", True):
-            AudioPlaybackService.play(audio_data)
+            try:
+                AudioPlaybackService.play(audio_data)
+            except Exception as e:
+                logger.error(f"Error playing audio: {e}")
+                return f"Error playing audio: {e}"
 
         # Return text instead of path if flagged (for testing or debugging)
         if self.config.get("return_text_output", False):
             return text
 
         return output_path
+
 
     def _get_latest_transcription(self) -> Optional[str]:
         """Get the latest transcription from files.

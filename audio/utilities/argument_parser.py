@@ -75,7 +75,7 @@ def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Audio output options")
     group.add_argument(
-        "--text",
+        "--datasource",
         type=str,
         help="Optional text to synthesize into audio (used in audio-out mode)",
     )

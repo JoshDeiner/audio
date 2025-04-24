@@ -52,10 +52,10 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
         args = parse_arguments()
 
         # Check for audio-out mode
-        if args.text is not None or args.output is not None or args.play:
+        if args.datasource is not None or args.output is not None or args.play:
             # Audio output pipeline
             config = {
-                "text": args.text,
+                "datasource": args.datasource,
                 "output_path": args.output,
                 "play_audio": args.play if args.play is not None else True,
                 "return_text_output": args.return_text_output,
@@ -74,7 +74,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             "file" if args.file else
             "dir" if args.dir else
             "record" if args.record else
-            "audio_out" if args.text or args.output or args.play or args.return_text_output else
+            "audio_out" if args.datasource or args.output or args.play or args.return_text_output else
             None
         )
 
@@ -98,7 +98,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 return recording_service.run(duration=args.duration)
             case "audio_out":
                 config = {
-                  "text": args.text,
+                  "datasource": args.datasource,
                   "output_path": args.output,
                   "play_audio": args.play if args.play is not None else True,
                   "return_text_output": args.return_text_output,
