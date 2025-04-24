@@ -1,7 +1,7 @@
 """Text to speech service for audio synthesis."""
+import io
 import logging
 import os
-import io
 import tempfile
 from typing import Dict, Optional, Tuple
 
