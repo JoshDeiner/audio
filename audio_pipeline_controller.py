@@ -1,7 +1,7 @@
 """Controller for managing audio processing pipeline."""
-from services.text_to_speech_service import TextToSpeechService
-from services.file_service import FileService
 from services.audio_playback_service import AudioPlaybackService
+from services.file_service import FileService
+from services.text_to_speech_service import TextToSpeechService
 from services.transcription_service import TranscriptionService
 
 

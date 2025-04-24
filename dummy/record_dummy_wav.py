@@ -1,6 +1,7 @@
 import argparse
-import numpy as np
 import os
+
+import numpy as np
 import sounddevice as sd
 from scipy.io.wavfile import write
 
