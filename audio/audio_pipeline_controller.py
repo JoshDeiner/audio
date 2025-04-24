@@ -65,13 +65,17 @@ class AudioPipelineController:
         output_path = (
             self.config.get("output_path") or 
             FileService.generate_temp_output_path()
-        )
-        
+            )
+
         self.file_service.save(audio_data, output_path)
-        
+
         # Play audio if enabled
         if self.config.get("play_audio", True):
             AudioPlaybackService.play(audio_data)
+
+        # Return text instead of path if flagged (for testing or debugging)
+        if self.config.get("return_text_output", False):
+            return text
             
         return output_path
         

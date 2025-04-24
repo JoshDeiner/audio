@@ -58,16 +58,25 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 "text": args.text,
                 "output_path": args.output,
                 "play_audio": args.play if args.play is not None else True,
+                "return_text_output": args.return_text_output,
+
             }
             controller = AudioPipelineController(config)
-            return controller.handle_audio_out()
+            result = controller.handle_audio_out()
+
+            if args.return_text_output:
+                print(f"Synthesized text output: {result}")
+            return result
         
         # Otherwise, use existing audio-in modes
+
         mode = (
             "file" if args.file else
             "dir" if args.dir else
-            "record"
-        )
+            "record" if args.record else
+            "audio_out" if args.text or args.output or args.play or args.return_text_output else
+            None
+        )   
 
         match mode:
             case "file":
@@ -87,6 +96,18 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             case "record":
                 recording_service = ApplicationService()
                 return recording_service.run(duration=args.duration)
+            case "audio_out":
+                config = {
+                  "text": args.text,
+                  "output_path": args.output,
+                  "play_audio": args.play if args.play is not None else True,
+                  "return_text_output": args.return_text_output,
+                }
+                controller = AudioPipelineController(config)
+                result = controller.handle_audio_out()
+                if args.return_text_output:
+                    print(f"Synthesized text output: {result}")
+                return result
             case _:
                 print(f"\n{Fore.RED}Unknown mode: {mode}{Style.RESET_ALL}")
                 logger.error(f"Unknown mode: {mode}")

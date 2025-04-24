@@ -10,7 +10,6 @@ try out eleven lab experiment
 
 get audio-out functionality working
 
-add no-audio for testing environment
 
 
 

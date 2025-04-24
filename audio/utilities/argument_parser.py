@@ -88,6 +88,12 @@ def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Play the synthesized audio after generation",
     )
+    group.add_argument(
+        "--return-text-output",
+        action="store_true",
+        help="Return synthesized text instead of audio path (for testing/debugging)",
+    )
+
     
 
 def parse_arguments() -> argparse.Namespace:
