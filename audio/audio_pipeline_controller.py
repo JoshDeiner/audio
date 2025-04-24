@@ -49,12 +49,11 @@ class AudioPipelineController:
 
         return transcription
 
-
     def resolve_text_source(self) -> str:
         """Resolves the input source text from config or environment.
 
-            Returns:
-                str: The resolved text content
+        Returns:
+            str: The resolved text content
         """
         # Prefer config text if set
         source = self.config.get("datasource")
