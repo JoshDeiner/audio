@@ -52,7 +52,8 @@ class FileTranscriptionService:
 
         # Transcribe the file
         print(
-            f"{Fore.CYAN}Transcribing file: {Fore.YELLOW}{file_path}{Style.RESET_ALL}"
+            f"{Fore.CYAN}Transcribing file: "
+            f"{Fore.YELLOW}{file_path}{Style.RESET_ALL}"
         )
         transcription = self.transcription_service.transcribe_audio(
             file_path, model_size, language
@@ -60,7 +61,8 @@ class FileTranscriptionService:
 
         # The transcription_service already saves the file and returns the text
         print(
-            f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n{transcription}\n"
+            f"\n{Fore.GREEN}Transcription:{Style.RESET_ALL}\n"
+            f"{transcription}\n"
         )
 
         return transcription
@@ -133,13 +135,15 @@ class FileTranscriptionService:
         if not audio_files:
             logger.warning(f"No audio files found in {input_dir}")
             print(
-                f"{Fore.YELLOW}No audio files found in {input_dir}{Style.RESET_ALL}"
+                f"{Fore.YELLOW}No audio files found in "
+                f"{input_dir}{Style.RESET_ALL}"
             )
             return []
 
         logger.info(f"Found {len(audio_files)} audio files to process")
         print(
-            f"{Fore.CYAN}Processing {len(audio_files)} audio files with {num_processes} processes...{Style.RESET_ALL}"
+            f"{Fore.CYAN}Processing {len(audio_files)} audio files with "
+            f"{num_processes} processes...{Style.RESET_ALL}"
         )
 
         # Create process pool
@@ -172,7 +176,8 @@ class FileTranscriptionService:
                         if error:
                             failed_files.append((file_path, str(error)))
                             print(
-                                f"{Fore.RED}Error processing {file_path}: {error}{Style.RESET_ALL}"
+                                f"{Fore.RED}Error processing {file_path}: "
+                                f"{error}{Style.RESET_ALL}"
                             )
                         else:
                             successful_transcriptions.append(transcription)
@@ -180,7 +185,8 @@ class FileTranscriptionService:
                     except Exception as e:
                         logger.error(f"Error retrieving result: {e}")
                         print(
-                            f"{Fore.RED}Error retrieving result: {e}{Style.RESET_ALL}"
+                            f"{Fore.RED}Error retrieving result: "
+                            f"{e}{Style.RESET_ALL}"
                         )
                         pbar.update(1)
 
@@ -191,27 +197,30 @@ class FileTranscriptionService:
         except Exception as e:
             logger.error(f"Error in parallel processing: {e}")
             print(
-                f"{Fore.RED}Error in parallel processing: {e}{Style.RESET_ALL}"
+                f"{Fore.RED}Error in parallel processing: "
+                f"{e}{Style.RESET_ALL}"
             )
             # Try to clean up if possible
             try:
                 pool.terminate()
                 pool.join()
-            except:
+            except Exception:
                 pass
 
         # Report results
         print(
-            f"{Fore.GREEN}Successfully processed {len(successful_transcriptions)} files{Style.RESET_ALL}"
+            f"{Fore.GREEN}Successfully processed "
+            f"{len(successful_transcriptions)} files{Style.RESET_ALL}"
         )
         if failed_files:
             print(
-                f"{Fore.YELLOW}Failed to process {len(failed_files)} files{Style.RESET_ALL}"
+                f"{Fore.YELLOW}Failed to process "
+                f"{len(failed_files)} files{Style.RESET_ALL}"
             )
             for file_path, error in failed_files:
-                print(f"{Fore.RED}- {file_path}: {error}{Style.RESET_ALL}")
+                print(f"{Fore.RED}- {file_path}: " f"{error}{Style.RESET_ALL}")
 
-        print(f"{Fore.CYAN}Finished processing all files{Style.RESET_ALL}")
+        print(f"{Fore.CYAN}Finished processing all files" f"{Style.RESET_ALL}")
         return successful_transcriptions
 
     def transcribe_directory(
@@ -265,7 +274,8 @@ class FileTranscriptionService:
 
         if not wav_files:
             print(
-                f"{Fore.YELLOW}No WAV files found in {directory}{Style.RESET_ALL}"
+                f"{Fore.YELLOW}No WAV files found in "
+                f"{directory}{Style.RESET_ALL}"
             )
             return []
 
@@ -280,7 +290,8 @@ class FileTranscriptionService:
             except Exception as e:
                 logger.error(f"Error transcribing {wav_file}: {e}")
                 print(
-                    f"{Fore.RED}Error transcribing {wav_file}: {e}{Style.RESET_ALL}"
+                    f"{Fore.RED}Error transcribing {wav_file}: "
+                    f"{e}{Style.RESET_ALL}"
                 )
 
         return transcriptions
