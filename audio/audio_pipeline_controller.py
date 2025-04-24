@@ -49,6 +49,7 @@ class AudioPipelineController:
 
         return transcription
 
+
 def resolve_text_source(self) -> str:
     """Resolves the input source text from config or environment.
 
@@ -56,16 +57,15 @@ def resolve_text_source(self) -> str:
         str: The resolved text content
     """
     # Prefer config text if set
-    source = self.config.get("datasource") 
+    source = self.config.get("datasource")
     if not source:
         logging.warning("No source text found in config.")
         return "no text found"
 
     if os.path.isfile(source):
         return FileService.read_text(source)
-    
-    return source
 
+    return source
 
     def handle_audio_out(self) -> str:
         """Handle audio output (synthesis) pipeline.
@@ -75,11 +75,11 @@ def resolve_text_source(self) -> str:
             str: Path to the output audio file
         """
         # Get text from config, latest transcription, or default
-        #text = (
+        # text = (
         #    self.config.get("text")
         #    or self._get_latest_transcription()
         #    or "Hello, world!"
-        #)
+        # )
         text = self.resolve_text_source()
 
         if not text or text == "no text found":
@@ -93,7 +93,7 @@ def resolve_text_source(self) -> str:
             logger.error(f"Error synthesizing audio: {e}")
         return
 
-        #audio_data = TextToSpeechService.synthesize(text)
+        # audio_data = TextToSpeechService.synthesize(text)
 
         # Save audio to file
         output_path = (
@@ -120,7 +120,6 @@ def resolve_text_source(self) -> str:
             return text
 
         return output_path
-
 
     def _get_latest_transcription(self) -> Optional[str]:
         """Get the latest transcription from files.

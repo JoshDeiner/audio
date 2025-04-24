@@ -16,7 +16,7 @@ this is okay however you want this to need audio out. cant use audio in.
 python -m audio-out --text 'sdfh' --play
 python -m audio-out --input-file --play
 
-create data-source input to replace text argument. 
+create data-source input to replace text argument.
 files to update : controller, main, argumentparser.
 create function that tells data type
 
