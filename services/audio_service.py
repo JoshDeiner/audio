@@ -5,8 +5,8 @@ import time
 import wave
 from typing import List, Tuple
 
-import pyaudio  # type: ignore
-from colorama import Fore, Style  # type: ignore
+import pyaudio
+from colorama import Fore, Style
 
 from services.exceptions import AudioRecordingError, FileOperationError
 from services.file_service import FileService
@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class AudioRecordingService:
     """Service for recording audio from microphone."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the audio recording service."""
         self.platform_service = PlatformDetectionService()
         self.file_service = FileService()

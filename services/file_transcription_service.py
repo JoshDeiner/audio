@@ -4,7 +4,7 @@ import multiprocessing
 import os
 from typing import List, Optional, Tuple
 
-from colorama import Fore, Style  # type: ignore
+from colorama import Fore, Style
 from tqdm import tqdm  # type: ignore
 
 from services.exceptions import FileOperationError
@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class FileTranscriptionService:
     """Service for transcribing audio files without recording."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the file transcription service."""
         self.file_service = FileService()
         self.transcription_service = TranscriptionService()
@@ -175,10 +175,11 @@ class FileTranscriptionService:
                     try:
                         file_path, transcription, error = r.get()
                         if error:
-                            failed_files.append((file_path, str(error)))
+                            error_str = str(error)
+                            failed_files.append((file_path, error_str))
                             print(
                                 f"{Fore.RED}Error processing {file_path}: "
-                                f"{error}{Style.RESET_ALL}"
+                                f"{error_str}{Style.RESET_ALL}"
                             )
                         else:
                             successful_transcriptions.append(transcription)
@@ -218,11 +219,12 @@ class FileTranscriptionService:
                 f"{Fore.YELLOW}Failed to process "
                 f"{len(failed_files)} files{Style.RESET_ALL}"
             )
-            for file_path, error in failed_files:
-                print(f"{Fore.RED}- {file_path}: " f"{error}{Style.RESET_ALL}")
+            for file_path, error_msg in failed_files:
+                print(f"{Fore.RED}- {file_path}: " f"{error_msg}{Style.RESET_ALL}")
 
         print(f"{Fore.CYAN}Finished processing all files" f"{Style.RESET_ALL}")
-        return successful_transcriptions
+        # Convert to List[str] as required by the return type
+        return [t for t in successful_transcriptions if t is not None]
 
     def transcribe_directory(
         self,

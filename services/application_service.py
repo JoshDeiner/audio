@@ -4,7 +4,7 @@ import os
 import time
 from typing import Tuple
 
-from colorama import Fore, Style  # type: ignore
+from colorama import Fore, Style
 
 from services.audio_service import AudioRecordingService
 from services.exceptions import AudioServiceError
@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 class ApplicationService:
     """Main application service that orchestrates the workflow."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the application service."""
         self.recording_service = AudioRecordingService()
         self.transcription_service = TranscriptionService()

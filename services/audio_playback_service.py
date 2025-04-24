@@ -23,7 +23,7 @@ class AudioPlaybackService:
             if isinstance(audio_data, tuple) and len(audio_data) == 2:
                 data, sample_rate = audio_data
             else:
-                data = audio_data
+                data = audio_data  # type: ignore
                 sample_rate = 16000  # Default sample rate
 
             logger.info(
