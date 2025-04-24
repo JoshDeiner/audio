@@ -4,7 +4,6 @@ from typing import Tuple, Union
 
 import numpy as np
 import sounddevice as sd
-import soundfile as sf
 
 logger = logging.getLogger(__name__)
 

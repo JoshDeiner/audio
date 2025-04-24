@@ -81,7 +81,8 @@ class FileTranscriptionService:
         """
         file_path, model_size, language = args
         try:
-            # Transcribe without printing status (will be handled by progress reporting)
+            # Transcribe without printing status
+            # (will be handled by progress reporting)
             transcription = self.transcription_service.transcribe_audio(
                 file_path, model_size, language
             )

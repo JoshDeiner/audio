@@ -3,7 +3,7 @@ import io
 import logging
 import os
 import tempfile
-from typing import Dict, Optional, Tuple
+from typing import Optional, Tuple
 
 import numpy as np
 import soundfile as sf
