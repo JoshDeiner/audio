@@ -3,6 +3,8 @@ import logging
 from typing import Tuple, Union
 
 import numpy as np
+import sounddevice as sd
+import soundfile as sf
 
 logger = logging.getLogger(__name__)
 
@@ -26,10 +28,10 @@ class AudioPlaybackService:
                 
             logger.info(f"Playing audio: {len(data)/sample_rate:.2f}s at {sample_rate}Hz")
             
-            # In a real implementation, this would use a library like sounddevice
-            # For now, we'll just log that we would play the audio
-            logger.info("Audio playback simulated (no actual playback in this implementation)")
-            print("Playing audio... (simulated)")
+            # Play audio using sounddevice
+            sd.play(data, sample_rate)
+            sd.wait()  # Wait until audio playback is done
+            logger.info("Audio playback completed")
             
         except Exception as e:
             logger.error(f"Error playing audio: {e}")
