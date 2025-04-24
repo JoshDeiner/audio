@@ -2,7 +2,7 @@
 """Audio processing module for transcription and synthesis.
 
 This module provides functionality to:
-1. Record audio from a microphone and transcribe it 
+1. Record audio from a microphone and transcribe it
 2. Transcribe existing audio files
 3. Synthesize text into speech and play it back
 
@@ -16,8 +16,8 @@ from typing import List, Tuple, Union
 from colorama import Fore, Style, init  # type: ignore
 from dotenv import load_dotenv
 
-from audio.utilities.argument_parser import parse_arguments
 from audio.audio_pipeline_controller import AudioPipelineController
+from audio.utilities.argument_parser import parse_arguments
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
@@ -67,7 +67,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             if args.return_text_output:
                 print(f"Synthesized text output: {result}")
             return result
-        
+
         # Otherwise, use existing audio-in modes
 
         mode = (
@@ -76,7 +76,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             "record" if args.record else
             "audio_out" if args.text or args.output or args.play or args.return_text_output else
             None
-        )   
+        )
 
         match mode:
             case "file":

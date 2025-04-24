@@ -66,6 +66,7 @@ def add_transcription_arguments(parser: argparse.ArgumentParser) -> None:
         help="Language code to use (e.g., 'en' for English). Skips language detection.",
     )
 
+
 def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
     """Add audio-out related arguments to the parser.
 
@@ -94,7 +95,6 @@ def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
         help="Return synthesized text instead of audio path (for testing/debugging)",
     )
 
-    
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments.
@@ -109,7 +109,6 @@ def parse_arguments() -> argparse.Namespace:
     add_mode_arguments(parser)
     add_recording_arguments(parser)
     add_transcription_arguments(parser)
-    add_audio_out_arguments(parser) 
+    add_audio_out_arguments(parser)
 
     return parser.parse_args()
-
