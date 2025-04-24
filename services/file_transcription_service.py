@@ -220,7 +220,10 @@ class FileTranscriptionService:
                 f"{len(failed_files)} files{Style.RESET_ALL}"
             )
             for file_path, error_msg in failed_files:
-                print(f"{Fore.RED}- {file_path}: " f"{error_msg}{Style.RESET_ALL}")
+                print(
+                    f"{Fore.RED}- {file_path}: "
+                    f"{error_msg}{Style.RESET_ALL}"
+                )
 
         print(f"{Fore.CYAN}Finished processing all files" f"{Style.RESET_ALL}")
         # Convert to List[str] as required by the return type
