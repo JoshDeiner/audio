@@ -12,7 +12,7 @@ update audio out to accept audio out cli argument and use better flags to mutate
 
 files to update : controller, main, argumentparser.
 
-update flag so that you can pass in cli flag 
+update flag so that you can pass in cli flag
 
 	create --cli flag so that audio isnt transmitted only text is. this is obviously weird. because im planning to duplicate efforts and go from text - audo -text
 

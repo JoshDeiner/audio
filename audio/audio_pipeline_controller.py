@@ -64,7 +64,7 @@ class AudioPipelineController:
         # If it's not a file path, return as is
         if not os.path.isfile(source):
             return source
-            
+
         # Try to read the file
         try:
             return FileService.read_text(source)
