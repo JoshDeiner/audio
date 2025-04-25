@@ -79,12 +79,7 @@ class AudioPipelineController:
         Returns:
             str: Path to the output audio file
         """
-        # Get text from config, latest transcription, or default
-        # text = (
-        #    self.config.get("text")
-        #    or self._get_latest_transcription()
-        #    or "Hello, world!"
-        # )
+
         text = self.resolve_text_source()
 
         if not text or text == "no text found":
@@ -97,8 +92,6 @@ class AudioPipelineController:
         except Exception as e:
             logger.error(f"Error synthesizing audio: {e}")
             return
-
-        # audio_data = TextToSpeechService.synthesize(text)
 
         # Save audio to file
         output_path = (

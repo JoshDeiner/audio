@@ -51,25 +51,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
     try:
         args = parse_arguments()
 
-        # Check for audio-out mode
-        if args.datasource is not None or args.output is not None or args.play:
-            # Audio output pipeline
-            config = {
-                "datasource": args.datasource,
-                "output_path": args.output,
-                "play_audio": args.play if args.play is not None else True,
-                "return_text_output": args.return_text_output,
-
-            }
-            controller = AudioPipelineController(config)
-            result = controller.handle_audio_out()
-
-            if args.return_text_output:
-                print(f"Synthesized text output: {result}")
-            return result
-
-        # Otherwise, use existing audio-in modes
-
+        # Determine operation mode
         mode = (
             "file" if args.file else
             "dir" if args.dir else
@@ -88,26 +70,30 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 }
                 controller = AudioPipelineController(config)
                 return controller.handle_audio_in()
+
             case "dir":
                 transcription_service = FileTranscriptionService()
                 return transcription_service.transcribe_directory(
                     args.dir, args.model, args.language
                 )
+
             case "record":
                 recording_service = ApplicationService()
                 return recording_service.run(duration=args.duration)
+
             case "audio_out":
                 config = {
-                  "datasource": args.datasource,
-                  "output_path": args.output,
-                  "play_audio": args.play if args.play is not None else True,
-                  "return_text_output": args.return_text_output,
+                    "datasource": args.datasource,
+                    "output_path": args.output,
+                    "play_audio": args.play if args.play is not None else True,
+                    "return_text_output": args.return_text_output,
                 }
                 controller = AudioPipelineController(config)
                 result = controller.handle_audio_out()
                 if args.return_text_output:
                     print(f"Synthesized text output: {result}")
                 return result
+
             case _:
                 print(f"\n{Fore.RED}Unknown mode: {mode}{Style.RESET_ALL}")
                 logger.error(f"Unknown mode: {mode}")
