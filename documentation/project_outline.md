@@ -143,10 +143,6 @@ Create a testing mode where multiple LLMs interact, and I intervene to approve, 
 Develop an interface that allows the AI to request or simulate simple OS-level interactions (in a sandboxed, secure way).
 
 
-6. Document Store
-Add the ability to read/write documents in persistent storage.
-
-
 Eventually allow the AI to query or synthesize insights from saved documents.
 
 
@@ -157,15 +153,3 @@ Enhance voice features to support both system-level speech synthesis and more hu
 Explore multi-language support and natural prosody improvements.
 
 
-
-Would you like help organizing this into a README.md, project wiki, or slide deck? I can also format this into a formal project brief if you're applying somewhere.
-
-
-Enhance voice features to support both system-level speech synthesis and more human-like dialogue.
-
-
-Explore multi-language support and natural prosody improvements.
-
-
-
-Would you like help organizing this into a README.md, project wiki, or slide deck? I can also format this into a formal project brief if you're applying somewhere.
