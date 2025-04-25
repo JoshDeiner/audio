@@ -617,4 +617,3 @@ voice-assistant/
 │
 └── scenes/
     └── chrome_help.json      # Example scene files
-

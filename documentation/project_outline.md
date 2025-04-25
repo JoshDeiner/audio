@@ -151,5 +151,3 @@ Enhance voice features to support both system-level speech synthesis and more hu
 
 
 Explore multi-language support and natural prosody improvements.
-
-
