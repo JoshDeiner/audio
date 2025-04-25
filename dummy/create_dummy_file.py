@@ -1,3 +1,5 @@
+"""Utility for creating dummy audio files for testing purposes."""
+
 import os
 import sys
 import tempfile

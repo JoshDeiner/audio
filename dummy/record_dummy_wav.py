@@ -1,3 +1,5 @@
+"""Utility for recording audio from microphone or generating dummy audio."""
+
 import argparse
 import os
 
