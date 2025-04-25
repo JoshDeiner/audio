@@ -57,7 +57,7 @@ class AudioPipelineController:
             str: The resolved text content
         """
         # Prefer config text if set
-        source = self.config.get("datasource")
+        source = self.config.get("data_source")
         if not source:
             logging.warning("No source text found in config.")
             return "no text found"

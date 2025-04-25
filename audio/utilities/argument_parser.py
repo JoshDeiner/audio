@@ -32,8 +32,8 @@ def add_mode_arguments(parser: argparse.ArgumentParser) -> None:
     mode_group.add_argument(
         "--audio-out",
         "-ao",
-        metavar="OUT",
-        help="sets the audio out path for the cli function",
+        action="store_true",
+        help="Enable audio output mode for text-to-speech conversion",
     )
 
 
@@ -81,7 +81,7 @@ def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
     """
     group = parser.add_argument_group("Audio output options")
     group.add_argument(
-        "--datasource",
+        "--data-source",
         type=str,
         help="Optional text to synthesize into audio (used in audio-out mode)",
     )

@@ -262,7 +262,7 @@ test-languages:
 # Test commands for running unit and integration tests
 
 run-audio-out:
-	python -m audio --datasource "$(DATA-SOURCE)" --play
+	python -m audio --audio-out --data-source "$(DATA-SOURCE)" --play
 
 # Default
 test: test-unit test-integration

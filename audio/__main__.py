@@ -53,10 +53,10 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
         # Determine operation mode
         mode = (
+            "audio_out" if (args.audio_out and args.data_source) is not None else
             "file" if args.file else
             "dir" if args.dir else
             "record" if args.record else
-            "audio_out" if args.datasource or args.output or args.play or args.return_text_output else
             None
         )
 
@@ -83,7 +83,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
             case "audio_out":
                 config = {
-                    "datasource": args.datasource,
+                    "data_source": args.data_source,
                     "output_path": args.output,
                     "play_audio": args.play if args.play is not None else True,
                     "return_text_output": args.return_text_output,
