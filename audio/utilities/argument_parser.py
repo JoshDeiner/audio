@@ -29,6 +29,12 @@ def add_mode_arguments(parser: argparse.ArgumentParser) -> None:
         metavar="DIR",
         help="Transcribe all WAV files in a directory",
     )
+    mode_group.add_argument(
+        "--audio-out",
+        "-ao",
+        metavar="OUT",
+        help="sets the audio out path for the cli function",
+    )
 
 
 def add_recording_arguments(parser: argparse.ArgumentParser) -> None:
