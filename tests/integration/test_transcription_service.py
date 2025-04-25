@@ -4,7 +4,6 @@ import os
 import subprocess
 import sys
 import tempfile
-import time
 from pathlib import Path
 
 import pytest
@@ -166,7 +165,7 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
     }
 
     controller = AudioPipelineController(config)
-    result = controller.handle_audio_out()
+    controller.handle_audio_out()
 
     # Verify audio file was created
     assert (

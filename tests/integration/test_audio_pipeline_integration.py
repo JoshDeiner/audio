@@ -60,7 +60,7 @@ def test_audio_out_pipeline_uses_default_text(tmp_path: Path) -> None:
     output_file = tmp_path / "output.wav"
 
     # Run the audio-out pipeline with default text
-    result = subprocess.run(
+    subprocess.run(
         [
             sys.executable,
             "-m",
