@@ -2,15 +2,13 @@
 import os
 from pathlib import Path
 
-import pytest
-
 from services.file_transcription_service import FileTranscriptionService
 
 
 class TestTranscription:
     """Test class for transcription services."""
 
-    def test_file_transcription(self):
+    def test_file_transcription(self) -> None:
         """Test transcribing a WAV file to text.
 
         Tests that transcription completes successfully and the output
@@ -40,7 +38,7 @@ class TestTranscription:
 
         # Verify output file was created (checking most recent file in output dir)
         output_dir = os.environ.get("AUDIO_OUTPUT_DIR", "output")
-        output_files = list(Path(output_dir).glob(f"dummy_speech_*.txt"))
+        output_files = list(Path(output_dir).glob("dummy_speech_*.txt"))
         assert len(output_files) > 0, "No output file was created"
 
         # Verify the content of the most recent output file

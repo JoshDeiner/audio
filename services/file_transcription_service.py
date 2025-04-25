@@ -5,7 +5,7 @@ import os
 from typing import List, Optional, Tuple
 
 from colorama import Fore, Style
-from tqdm import tqdm  # type: ignore
+from tqdm import tqdm
 
 from services.exceptions import FileOperationError
 from services.file_service import FileService

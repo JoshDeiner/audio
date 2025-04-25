@@ -1,3 +1,6 @@
+"""Unit tests for FileTranscriptionService."""
+from typing import Any
+
 import pytest
 
 from services.file_transcription_service import FileTranscriptionService
@@ -7,7 +10,8 @@ from services.file_transcription_service import FileTranscriptionService
 class TestFileTranscriptionUnit:
     """Unit tests for FileTranscriptionService."""
 
-    def test_transcribe_file_called_correctly(self, mocker):
+    def test_transcribe_file_called_correctly(self, mocker: Any) -> None:
+        """Test that transcribe_file method is called with correct parameters."""
         service = FileTranscriptionService()
         file_path = "fake/path.wav"
 
@@ -26,7 +30,8 @@ class TestFileTranscriptionUnit:
         )
         assert result == "mocked text"
 
-    def test_handles_missing_file_gracefully(self):
+    def test_handles_missing_file_gracefully(self) -> None:
+        """Test that service raises appropriate exception for missing files."""
         from services.exceptions import FileOperationError
 
         service = FileTranscriptionService()

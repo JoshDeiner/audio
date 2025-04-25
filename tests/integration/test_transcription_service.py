@@ -1,3 +1,4 @@
+"""Integration tests for FileTranscriptionService."""
 import os
 from pathlib import Path
 
@@ -10,7 +11,8 @@ from services.file_transcription_service import FileTranscriptionService
 class TestFileTranscriptionIntegration:
     """Integration tests for FileTranscriptionService."""
 
-    def test_transcribe_real_file_to_output(self, tmp_path):
+    def test_transcribe_real_file_to_output(self, tmp_path: Path) -> None:
+        """Test transcribing a real audio file and verifying output."""
         # Arrange
         service = FileTranscriptionService()
         # Using absolute path from project root

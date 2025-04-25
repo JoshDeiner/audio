@@ -13,7 +13,7 @@ import logging
 import sys
 from typing import List, Tuple, Union
 
-from colorama import Fore, Style, init  # type: ignore
+from colorama import Fore, Style, init
 from dotenv import load_dotenv
 
 from audio.audio_pipeline_controller import AudioPipelineController

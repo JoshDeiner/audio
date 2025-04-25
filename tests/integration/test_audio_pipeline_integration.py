@@ -8,7 +8,7 @@ import pytest
 
 
 @pytest.mark.integration
-def test_audio_in_pipeline_prints_transcription(tmp_path):
+def test_audio_in_pipeline_prints_transcription(tmp_path: Path) -> None:
     """Test audio-in pipeline transcribes and prints results."""
     # Create a dummy audio file
     audio_file = tmp_path / "test.wav"
@@ -52,7 +52,7 @@ def test_audio_in_pipeline_prints_transcription(tmp_path):
 
 
 @pytest.mark.integration
-def test_audio_out_pipeline_uses_default_text(tmp_path):
+def test_audio_out_pipeline_uses_default_text(tmp_path: Path) -> None:
     """Test audio-out pipeline with default text."""
     # Set output directory
     output_dir = tmp_path / "output"
@@ -62,20 +62,13 @@ def test_audio_out_pipeline_uses_default_text(tmp_path):
     # Set a specific output file
     output_file = tmp_path / "output.wav"
 
-    # Run the audio-out pipeline
-    result = subprocess.run(
-        [sys.executable, "-m", "audio", "--output", str(output_file)],
-        capture_output=True,
-        text=True,
-    )
-
     # Check output file exists
     assert output_file.exists(), f"Output file not created: {output_file}"
     assert output_file.stat().st_size > 0, "Output file is empty"
 
 
 @pytest.mark.integration
-def test_audio_out_pipeline_uses_custom_text_and_output(tmp_path):
+def test_audio_out_pipeline_uses_custom_text_and_output(tmp_path: Path) -> None:
     """Test audio-out pipeline with custom text and output path."""
     # Set output directory
     output_dir = tmp_path / "output"
@@ -86,7 +79,7 @@ def test_audio_out_pipeline_uses_custom_text_and_output(tmp_path):
     output_file = tmp_path / "custom.wav"
 
     # Run the audio-out pipeline with custom text
-    result = subprocess.run(
+    subprocess.run(
         [
             sys.executable,
             "-m",
@@ -106,7 +99,7 @@ def test_audio_out_pipeline_uses_custom_text_and_output(tmp_path):
 
 
 @pytest.mark.integration
-def test_audio_out_pipeline_with_play_flag(tmp_path):
+def test_audio_out_pipeline_with_play_flag(tmp_path: Path) -> None:
     """Test audio-out pipeline with play flag."""
     # Set output directory
     output_dir = tmp_path / "output"

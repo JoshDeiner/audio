@@ -161,7 +161,7 @@ class TranscriptionService:
         # If language is specified, use it to skip language detection
         if language:
             logger.info(f"Using specified language: {language}")
-            transcription_options["language"] = language
+            transcription_options["language"] = language  # type: ignore
             print(
                 f"{Fore.CYAN}Using language: {Fore.YELLOW}{language}{Style.RESET_ALL}"
             )

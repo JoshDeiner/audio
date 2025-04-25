@@ -2,7 +2,7 @@
 
 import logging
 import os
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 
 from services.audio_playback_service import AudioPlaybackService
 from services.file_service import FileService
@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class AudioPipelineController:
     """Controller for audio processing pipelines."""
 
-    def __init__(self, config: Dict[str, any]) -> None:
+    def __init__(self, config: Dict[str, Any]) -> None:
         """Initialize the controller with configuration.
 
         Args:
@@ -64,11 +64,11 @@ class AudioPipelineController:
 
         # If it's not a file path, return as is
         if not os.path.isfile(source):
-            return source
+            return str(source)
 
         # Try to read the file
         try:
-            return FileService.read_text(source)
+            return str(FileService.read_text(source))
         except Exception as e:
             logging.error(f"Failed to read source file: {e}")
             return "error reading file"
@@ -84,14 +84,14 @@ class AudioPipelineController:
 
         if not text or text == "no text found":
             logger.warning("No valid text to synthesize.")
-            return
+            return "No valid text to synthesize"
 
         # Synthesize audio
         try:
             audio_data = TextToSpeechService.synthesize(text)
         except Exception as e:
             logger.error(f"Error synthesizing audio: {e}")
-            return
+            return "Error synthesizing audio"
 
         # Save audio to file
         output_path = (
