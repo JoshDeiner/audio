@@ -68,7 +68,9 @@ def test_audio_out_pipeline_uses_default_text(tmp_path: Path) -> None:
 
 
 @pytest.mark.integration
-def test_audio_out_pipeline_uses_custom_text_and_output(tmp_path: Path) -> None:
+def test_audio_out_pipeline_uses_custom_text_and_output(
+    tmp_path: Path,
+) -> None:
     """Test audio-out pipeline with custom text and output path."""
     # Set output directory
     output_dir = tmp_path / "output"
