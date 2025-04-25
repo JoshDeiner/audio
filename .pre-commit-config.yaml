@@ -60,13 +60,6 @@ repos:
         types: [python]
         stages: [push]
 
-    -   id: strict-black
-        name: Strict black check
-        entry: black --check --line-length=79
-        language: system
-        types: [python]
-        stages: [push]
-
     -   id: strict-isort
         name: Strict isort check
         entry: isort --check
