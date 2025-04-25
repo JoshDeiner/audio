@@ -1,4 +1,5 @@
 """Platform detection service for audio transcription tool."""
+
 import logging
 import os
 import platform

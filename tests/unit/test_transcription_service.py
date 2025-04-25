@@ -1,4 +1,5 @@
 """Unit tests for FileTranscriptionService."""
+
 from typing import Any
 
 import pytest

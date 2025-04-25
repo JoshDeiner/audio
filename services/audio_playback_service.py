@@ -1,4 +1,5 @@
 """Audio playback service for audio synthesis."""
+
 import logging
 from typing import Tuple, Union
 

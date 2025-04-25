@@ -1,4 +1,5 @@
 """Integration test for the complete audio pipeline with text comparison."""
+
 import difflib
 import os
 import subprocess

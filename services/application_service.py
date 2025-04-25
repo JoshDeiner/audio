@@ -1,4 +1,5 @@
 """Application service for audio transcription tool."""
+
 import logging
 import os
 import time

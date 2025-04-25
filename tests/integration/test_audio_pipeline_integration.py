@@ -1,4 +1,5 @@
 """Integration tests for audio pipeline controller."""
+
 import os
 import subprocess
 import sys

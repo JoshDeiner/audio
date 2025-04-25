@@ -1,4 +1,5 @@
 """File-based transcription service for audio transcription tool."""
+
 import logging
 import multiprocessing
 import os
