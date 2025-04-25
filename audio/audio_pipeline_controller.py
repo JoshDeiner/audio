@@ -1,4 +1,5 @@
 """Audio pipeline controller for the audio package."""
+
 import logging
 import os
 from typing import Dict, Optional
@@ -50,7 +51,7 @@ class AudioPipelineController:
         return transcription
 
     def resolve_text_source(self) -> str:
-        """Resolves the input source text from config or environment.
+        """To resolve the input source text from config or environment.
 
         Returns:
             str: The resolved text content
@@ -74,7 +75,6 @@ class AudioPipelineController:
 
     def handle_audio_out(self) -> str:
         """Handle audio output (synthesis) pipeline.
-
 
         Returns:
             str: Path to the output audio file
