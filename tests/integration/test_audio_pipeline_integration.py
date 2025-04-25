@@ -12,23 +12,23 @@ def test_audio_in_pipeline_prints_transcription(tmp_path: Path) -> None:
     """Test audio-in pipeline transcribes and prints results."""
     # Create a test output file to check
     output_file = tmp_path / "transcription_test.wav"
-    
+
     # Set output directory
     output_dir = tmp_path / "output"
     os.environ["AUDIO_OUTPUT_DIR"] = str(output_dir)
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Run the audio-out pipeline with direct text input
     result = subprocess.run(
         [
-            sys.executable, 
-            "-m", 
-            "audio", 
-            "--audio-out", 
+            sys.executable,
+            "-m",
+            "audio",
+            "--audio-out",
             "--data-source",
             "This is a test for audio transcription.",
             "--output",
-            str(output_file)
+            str(output_file),
         ],
         capture_output=True,
         text=True,
@@ -37,13 +37,15 @@ def test_audio_in_pipeline_prints_transcription(tmp_path: Path) -> None:
     # Check output file exists
     assert output_file.exists(), f"Output file not created: {output_file}"
     assert output_file.stat().st_size > 0, "Output file is empty"
-    
+
     # Print output for debugging
     print(f"Stdout: {result.stdout}")
     print(f"Stderr: {result.stderr}")
-    
+
     # Check that audio is synthesized
-    assert "Synthesizing text" in result.stderr, "No mention of text synthesis in output"
+    assert (
+        "Synthesizing text" in result.stderr
+    ), "No mention of text synthesis in output"
 
 
 @pytest.mark.integration
@@ -56,7 +58,7 @@ def test_audio_out_pipeline_uses_default_text(tmp_path: Path) -> None:
 
     # Set a specific output file
     output_file = tmp_path / "output.wav"
-    
+
     # Run the audio-out pipeline with default text
     result = subprocess.run(
         [
