@@ -58,7 +58,11 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             else (
                 "file"
                 if args.file
-                else "dir" if args.dir else "record" if args.record else None
+                else "dir"
+                if args.dir
+                else "record"
+                if args.record
+                else None
             )
         )
 
