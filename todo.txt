@@ -8,19 +8,5 @@ files to update : controller, main, argumentparser.
 --
 
 
-create text that checks this functionality:
-
-machine can read from passage passed into cli
-
-machine can convert to audio ready format ie text to speech service
-
-machine can convert audui format back to text : ie speech to text service
-
-compare out to source text
-
-
---
-do this for file input too
-
 ----
 work on audio -in updates

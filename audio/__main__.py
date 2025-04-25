@@ -53,7 +53,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
         # Determine operation mode
         mode = (
-            "audio_out" if (args.audio_out and args.data_source) is not None else
+            "audio_out" if args.audio_out else
             "file" if args.file else
             "dir" if args.dir else
             "record" if args.record else
