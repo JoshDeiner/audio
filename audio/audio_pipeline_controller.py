@@ -79,7 +79,6 @@ class AudioPipelineController:
         Returns:
             str: Path to the output audio file
         """
-
         text = self.resolve_text_source()
 
         if not text or text == "no text found":
