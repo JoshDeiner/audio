@@ -8,7 +8,7 @@ import sounddevice as sd
 from scipy.io.wavfile import write
 
 
-def record_wav(filename="dummy_speech.wav", duration=5, samplerate=16000):
+def record_wav(filename="dummy_speech.wav", duration=5, samplerate=16000) -> None:
     """Record audio from microphone or generate dummy audio if microphone is not available.
 
     Args:
