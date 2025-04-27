@@ -26,7 +26,7 @@ def retry(
     exceptions: Union[Type[Exception], tuple] = AudioServiceError,
     error_code: Optional[str] = None,
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
-    """Decorator for retrying operations that fail transiently.
+    """Retry operations that fail transiently.
 
     Args:
         max_attempts: Maximum number of attempts before giving up
@@ -56,19 +56,19 @@ def retry(
                 try:
                     return func(*args, **kwargs)
 
-                except exceptions as e:
+                except exceptions as exc:
                     # Check error code if specified
-                    if error_code and isinstance(e, AudioServiceError):
-                        if getattr(e, "error_code", None) != error_code:
+                    if error_code and isinstance(exc, AudioServiceError):
+                        if getattr(exc, "error_code", None) != error_code:
                             # Not the specific error we want to retry on
                             raise
 
-                    last_exception = e
+                    last_exception = exc
 
                     # Log retry attempt
                     if attempt < max_attempts - 1:
                         logger.warning(
-                            f"Retry {attempt+1}/{max_attempts} for {func.__name__}: {e}"
+                            f"Retry {attempt+1}/{max_attempts} for {func.__name__}: {exc}"
                         )
 
                         # Delay with exponential backoff
@@ -98,7 +98,7 @@ def circuit_breaker(
     recovery_timeout: int = 60,
     exceptions: Union[Type[Exception], tuple] = Exception,
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
-    """Decorator for implementing the circuit breaker pattern.
+    """Implement the circuit breaker pattern.
 
     Args:
         failure_threshold: Number of failures before opening the circuit
@@ -154,7 +154,7 @@ def circuit_breaker(
 
                 return result
 
-            except exceptions as e:
+            except exceptions:
                 # Increment failure count
                 failures += 1
                 last_failure_time = time.time()

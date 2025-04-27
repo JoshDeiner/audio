@@ -17,7 +17,8 @@ try:
 except ImportError:
     pass
 
-from colorama import Fore, Style  # type: ignore
+from colorama import Style 
+from colorama import Fore 
 
 
 def create_dummy_file(text: Optional[str] = None) -> str:

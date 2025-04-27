@@ -9,8 +9,8 @@ from scipy.io.wavfile import write
 
 
 def record_wav(
-    filename="dummy_speech.wav", duration=5, samplerate=16000
-) -> None:
+        filename:str = "dummy_speech.wav", duration: int = 5, samplerate: int = 16000
+) -> str:
     """Record audio from microphone or generate dummy audio if microphone is not available.
 
     Args:

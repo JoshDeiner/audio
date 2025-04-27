@@ -12,6 +12,13 @@ class AudioServiceError(Exception):
         error_code: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize the exception with error details.
+
+        Args:
+            message: The error message
+            error_code: Optional error code for categorization
+            details: Optional additional error context
+        """
         super().__init__(message)
         self.error_code = error_code
         self.details = details or {}
@@ -26,6 +33,13 @@ class AudioRecordingError(AudioServiceError):
         error_code: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize recording error with details.
+
+        Args:
+            message: The error message
+            error_code: Optional error code for categorization
+            details: Optional additional error context
+        """
         super().__init__(message, error_code, details)
 
 
@@ -38,6 +52,13 @@ class TranscriptionError(AudioServiceError):
         error_code: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize transcription error with details.
+
+        Args:
+            message: The error message
+            error_code: Optional error code for categorization
+            details: Optional additional error context
+        """
         super().__init__(message, error_code, details)
 
 
@@ -50,4 +71,11 @@ class FileOperationError(AudioServiceError):
         error_code: Optional[str] = None,
         details: Optional[Dict[str, Any]] = None,
     ) -> None:
+        """Initialize file operation error with details.
+
+        Args:
+            message: The error message
+            error_code: Optional error code for categorization
+            details: Optional additional error context
+        """
         super().__init__(message, error_code, details)
