@@ -35,6 +35,12 @@ def add_mode_arguments(parser: argparse.ArgumentParser) -> None:
         action="store_true",
         help="Enable audio output mode for text-to-speech conversion",
     )
+    mode_group.add_argument(
+        "--audio-in",
+        "-ai",
+        action="store_true",
+        help="Enable audio input mode for speech-to-text conversion",
+    )
 
 
 def add_recording_arguments(parser: argparse.ArgumentParser) -> None:
@@ -88,12 +94,12 @@ def add_audio_out_arguments(parser: argparse.ArgumentParser) -> None:
     group.add_argument(
         "--output",
         type=str,
-        help="Optional output path for synthesized audio file",
+        help="Optional output path for synthesized audio file or transcription text file",
     )
     group.add_argument(
         "--play",
         action="store_true",
-        help="Play the synthesized audio after generation",
+        help="Play the synthesized audio after generation (audio-out mode only)",
     )
     group.add_argument(
         "--return-text-output",

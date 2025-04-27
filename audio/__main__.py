@@ -53,9 +53,9 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
         # Determine operation mode
         mode = (
+            "audio_in" if args.audio_in else
             "audio_out"
-            if args.audio_out
-            else (
+            if args.audio_out else (
                 "file"
                 if args.file
                 else "dir"
@@ -76,6 +76,20 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 }
                 controller = AudioPipelineController(config)
                 return controller.handle_audio_in()
+            case "audio_in":
+                config = {
+                    "audio_path": args.file,  # Will be None if not provided
+                    "model": args.model,
+                    "language": args.language,
+                    "duration": args.duration,
+                    "output_path": args.output,  # Output path for transcript
+                    "save_transcript": True,
+                }
+                controller = AudioPipelineController(config)
+                result = controller.handle_audio_in()
+                
+                # Make sure we always return the text
+                return result
 
             case "dir":
                 transcription_service = FileTranscriptionService()
