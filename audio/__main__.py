@@ -12,8 +12,8 @@ import logging
 from typing import Dict, List, Optional
 
 from audio.refactored_pipeline_controller import AsyncAudioPipelineController
-from services.exceptions import AudioServiceError
 from audio.utilities.argument_parser import ArgumentParser
+from services.exceptions import AudioServiceError
 
 # Configure logging
 logging.basicConfig(

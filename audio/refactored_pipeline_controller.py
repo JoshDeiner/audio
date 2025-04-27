@@ -115,7 +115,7 @@ class AsyncAudioPipelineController:
             audio_path = await asyncio.to_thread(
                 recording_service.record_audio, duration=duration
             )
-            
+
             logger.info(f"Audio recorded and saved to: {audio_path}")
             print(f"Audio recorded and saved to: {audio_path}")
             return audio_path
@@ -191,7 +191,9 @@ class AsyncAudioPipelineController:
         audio_path = self.config.get("audio_path")
         if not audio_path:
             # Record from microphone if no path provided
-            audio_path = await self._record_audio_async(self.config.get("duration", 5))
+            audio_path = await self._record_audio_async(
+                self.config.get("duration", 5)
+            )
 
         # Transcribe the audio - use a thread pool for CPU-intensive work
         try:
@@ -294,10 +296,9 @@ class AsyncAudioPipelineController:
             raise AudioServiceError(error_msg, error_code="SYNTHESIS_FAILED")
 
         # Determine output path
-        output_path = (
-            self.config.get("output_path")
-            or await asyncio.to_thread(FileService.generate_temp_output_path)
-        )
+        output_path = self.config.get(
+            "output_path"
+        ) or await asyncio.to_thread(FileService.generate_temp_output_path)
 
         # Save audio to file - file I/O operations in thread pool
         try:
@@ -313,9 +314,7 @@ class AsyncAudioPipelineController:
         # Play audio if enabled - in thread pool since playback is blocking
         if self.config.get("play_audio", True):
             try:
-                await asyncio.to_thread(
-                    AudioPlaybackService.play, audio_data
-                )
+                await asyncio.to_thread(AudioPlaybackService.play, audio_data)
                 logger.info("Audio playback completed")
             except Exception as e:
                 error_msg = f"Error playing audio: {e}"
@@ -345,7 +344,9 @@ class AsyncAudioPipelineController:
             ```
         """
         try:
-            return await asyncio.to_thread(FileService.load_latest_transcription)
+            return await asyncio.to_thread(
+                FileService.load_latest_transcription
+            )
         except FileOperationError as e:
             logger.warning(f"Failed to load latest transcription: {e}")
             return None
@@ -354,17 +355,19 @@ class AsyncAudioPipelineController:
             logger.error(error_msg)
             return None
 
-    async def handle_conversation_loop(self, max_turns: int = 5) -> List[Dict[str, str]]:
+    async def handle_conversation_loop(
+        self, max_turns: int = 5
+    ) -> List[Dict[str, str]]:
         """Run a bidirectional conversation loop between user and machine.
-        
+
         This demonstrates the benefit of async patterns for conversational interfaces.
-        
+
         Args:
             max_turns: Maximum number of conversation turns
-            
+
         Returns:
             List[Dict[str, str]]: Conversation history with user and machine messages
-            
+
         Example:
             ```python
             controller = AsyncAudioPipelineController({})
@@ -372,35 +375,40 @@ class AsyncAudioPipelineController:
             ```
         """
         conversation_history = []
-        
+
         print(f"Starting conversation loop (max {max_turns} turns)...")
-        
+
         for turn in range(max_turns):
             print(f"\n--- Turn {turn+1}/{max_turns} ---")
-            
+
             # 1. Record and transcribe user input (audio in)
             try:
                 # Record user speech
                 print("Your turn to speak...")
                 user_text = await self.handle_audio_in()
-                conversation_history.append({"role": "user", "content": user_text})
-                
+                conversation_history.append(
+                    {"role": "user", "content": user_text}
+                )
+
                 # Check for conversation end
-                if "goodbye" in user_text.lower() or "exit" in user_text.lower():
+                if (
+                    "goodbye" in user_text.lower()
+                    or "exit" in user_text.lower()
+                ):
                     print("Ending conversation as requested.")
                     break
-                    
+
             except Exception as e:
                 logger.error(f"Error in user input handling: {e}")
                 print(f"Sorry, I couldn't understand that. Error: {e}")
                 continue
-                
+
             # 2. Generate response (could connect to an LLM in a real implementation)
             try:
                 # Simulate LLM response generation (non-blocking)
                 print("Generating response...")
                 await asyncio.sleep(0.5)  # Simulate thinking time
-                
+
                 # Generate simple response based on user input
                 if "hello" in user_text.lower() or "hi" in user_text.lower():
                     response = "Hello! How can I help you today?"
@@ -409,21 +417,25 @@ class AsyncAudioPipelineController:
                 elif "weather" in user_text.lower():
                     response = "I'm sorry, I don't have access to weather information at the moment."
                 else:
-                    response = f"I heard you say: {user_text}. That's interesting!"
-                
-                conversation_history.append({"role": "assistant", "content": response})
-                
+                    response = (
+                        f"I heard you say: {user_text}. That's interesting!"
+                    )
+
+                conversation_history.append(
+                    {"role": "assistant", "content": response}
+                )
+
                 # Configure TTS output
                 self.config["data_source"] = response
-                
+
                 # 3. Synthesize and play response (audio out)
                 print("Assistant response:")
                 print(f"'{response}'")
                 await self.handle_audio_out()
-                
+
             except Exception as e:
                 logger.error(f"Error in response generation or playback: {e}")
                 print(f"Sorry, I couldn't respond properly. Error: {e}")
-        
+
         print("\nConversation loop completed.")
         return conversation_history

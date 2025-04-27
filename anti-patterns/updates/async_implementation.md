@@ -63,24 +63,24 @@ We've implemented a conversation loop that demonstrates async benefits:
 ```python
 async def handle_conversation_loop(self, max_turns: int = 5) -> List[Dict[str, str]]:
     conversation_history = []
-    
+
     for turn in range(max_turns):
         # 1. Record and transcribe user input
         user_text = await self.handle_audio_in()
         conversation_history.append({"role": "user", "content": user_text})
-        
+
         # 2. Generate response (could connect to an LLM)
         # Simulate LLM response generation (non-blocking)
         await asyncio.sleep(0.5)  # Simulate thinking time
-        
+
         # Generate response
         response = f"I heard you say: {user_text}. That's interesting!"
         conversation_history.append({"role": "assistant", "content": response})
-        
+
         # 3. Synthesize and play response
         self.config["data_source"] = response
         await self.handle_audio_out()
-    
+
     return conversation_history
 ```
 
