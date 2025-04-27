@@ -12,7 +12,7 @@ import asyncio
 import logging
 import os
 import time
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional
 
 from services.audio_playback_service import AudioPlaybackService
 from services.audio_service import AudioRecordingService

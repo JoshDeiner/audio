@@ -9,7 +9,7 @@ Author: Claude Code
 Created: 2025-04-27
 """
 import argparse
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Tuple
 
 
 class ArgumentParser:

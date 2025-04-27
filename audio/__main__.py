@@ -9,7 +9,7 @@ Created: 2025-04-27
 
 import asyncio
 import logging
-from typing import Dict, List, Optional
+from typing import Dict
 
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
@@ -79,7 +79,7 @@ async def handle_conversation_command(args: Dict[str, str]) -> None:
 
 
 async def main_async() -> None:
-    """Main function to run the audio application with async support."""
+    """Run the audio application with async support."""
     parser = ArgumentParser()
     args, command = parser.parse_arguments()
 
