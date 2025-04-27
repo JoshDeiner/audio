@@ -19,7 +19,6 @@ from dotenv import load_dotenv
 
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import parse_arguments
-from config.configuration_manager import ConfigurationManager
 from services.application_service import ApplicationService
 from services.exceptions import AudioServiceError, FileOperationError
 from services.file_transcription_service import FileTranscriptionService
@@ -86,10 +85,6 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
         ```
     """
     try:
-        # Initialize configuration
-        config_file = "config/audio_config.env"
-        ConfigurationManager.initialize(config_file)
-
         # Parse arguments
         args = parse_arguments()
 

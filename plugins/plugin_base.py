@@ -88,7 +88,9 @@ class PluginRegistry:
         if plugin_type not in cls._plugins:
             cls._plugins[plugin_type] = {}
 
-        plugin_id = plugin_class.plugin_id  # type: ignore
+        # Create temporary instance to get plugin_id
+        temp_instance = plugin_class()
+        plugin_id = temp_instance.plugin_id
 
         if plugin_id in cls._plugins[plugin_type]:
             logger.warning(

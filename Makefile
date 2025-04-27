@@ -1,4 +1,4 @@
-.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model test test-unit test-integration
+.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model test test-unit test-integration audio-in audio-out conversation
 
 # Default Python interpreter and pip
 PYTHON := python3
@@ -15,6 +15,11 @@ help:
 	@echo "  make docker-build       - Rebuild the Docker image"
 	@echo "  make docker-stop        - Stop any running Docker containers"
 	@echo "  make clean              - Remove temporary files and virtual environment"
+	@echo ""
+	@echo "Command-line commands:"
+	@echo "  make audio-in           - Run the audio-in pipeline (transcription)"
+	@echo "  make audio-out          - Run the audio-out pipeline (text-to-speech)"
+	@echo "  make conversation       - Run the conversation mode"
 	@echo ""
 	@echo "Testing commands:"
 	@echo "  make test-dummy         - Create a dummy sine wave file and transcribe it"
@@ -77,6 +82,32 @@ clean:
 	find . -type f -name "*.pyc" -delete
 	@echo "Cleanup complete"
 
+# Command-line pipeline commands
+
+audio-in:
+	@echo "Running audio-in pipeline..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in
+
+audio-out:
+	@echo "Running audio-out pipeline..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-out --data-source "This is a test of the text-to-speech functionality."
+
+conversation:
+	@echo "Starting conversation mode..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PYTHON) -m audio conversation
+
 # Testing commands for dummy files and transcription
 
 test-dummy:
@@ -85,8 +116,8 @@ test-dummy:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) seed/create_dummy_wav.py --output input/dummy_sine.wav
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_sine.wav
+	. $(VENV)/bin/activate && $(PYTHON) dummy/create_dummy_file.py --output input/dummy_sine.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file input/dummy_sine.wav
 
 test-dummy-speech:
 	@echo "Creating and transcribing a dummy speech file..."
@@ -94,8 +125,8 @@ test-dummy-speech:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) seed/create_speech_wav.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_speech.wav
+	. $(VENV)/bin/activate && $(PYTHON) dummy/create_dummy_file.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file input/dummy_speech.wav
 
 test-dummy-en:
 	@echo "Creating and transcribing a dummy speech file with English language specified..."
@@ -103,8 +134,8 @@ test-dummy-en:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) seed/create_speech_wav.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file input/dummy_speech.wav --language en
+	. $(VENV)/bin/activate && $(PYTHON) dummy/create_dummy_file.py --text "This is a test of the audio transcription system." --output input/dummy_speech.wav
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file input/dummy_speech.wav --language en
 
 test-file:
 	@echo "Transcribing file: $(FILE)"
@@ -116,7 +147,7 @@ test-file:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE)
 
 test-dir:
 	@echo "Transcribing all WAV files in directory: $(DIR)"
@@ -128,7 +159,7 @@ test-dir:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --dir $(DIR)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --dir $(DIR)
 
 # Additional test commands with language specification
 
@@ -142,7 +173,7 @@ test-file-en:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE) --language en
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE) --language en
 
 test-dir-en:
 	@echo "Transcribing all WAV files in directory with English language: $(DIR)"
@@ -154,7 +185,7 @@ test-dir-en:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --dir $(DIR) --language en
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --dir $(DIR) --language en
 
 # Convenient aliases for transcription commands
 
@@ -168,7 +199,7 @@ transcribe:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE)
 
 transcribe-en:
 	@echo "Transcribing file with English language: $(FILE)"
@@ -180,7 +211,7 @@ transcribe-en:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE) --language en
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE) --language en
 
 transcribe-model:
 	@echo "Transcribing file with model $(MODEL): $(FILE)"
@@ -196,7 +227,7 @@ transcribe-model:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE) --model $(MODEL)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE) --model $(MODEL)
 
 # Additional test commands with model specification
 
@@ -214,7 +245,7 @@ test-file-model:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --file $(FILE) --model $(MODEL)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --file $(FILE) --model $(MODEL)
 
 test-dir-model:
 	@echo "Transcribing all WAV files in directory with model $(MODEL): $(DIR)"
@@ -230,7 +261,7 @@ test-dir-model:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) -m audio --dir $(DIR) --model $(MODEL)
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --dir $(DIR) --model $(MODEL)
 
 # Advanced test suite generation with seed functionality
 
@@ -249,7 +280,7 @@ test-suite:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) seed/create_test_suite.py --output-dir input/test_suite
+	. $(VENV)/bin/activate && $(PYTHON) dummy/create_test_suite.py --output-dir input/test_suite
 
 test-languages:
 	@echo "Creating samples in multiple languages..."
@@ -257,23 +288,23 @@ test-languages:
 		echo "Virtual environment not found. Running setup first..."; \
 		$(MAKE) setup; \
 	fi
-	. $(VENV)/bin/activate && $(PYTHON) seed/create_multi_language_samples.py --output-dir input/language_samples
+	. $(VENV)/bin/activate && $(PYTHON) dummy/create_multi_language_samples.py --output-dir input/language_samples
 
 # Test commands for running unit and integration tests
 
 run-audio-out:
-	python -m audio --audio-out --data-source "$(DATA-SOURCE)" --play
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-out --data-source "$(DATA-SOURCE)" --play
 
 run-audio-in:
-	python -m audio --audio-in --output output/audio-input.txt
+	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --record --output output/audio-input.txt
 
 # Default
 test: test-unit test-integration
 
 # Unit tests only
 test-unit:
-	pytest tests/unit
+	. $(VENV)/bin/activate && python -m pytest tests/unit
 
 # Integration tests only
 test-integration:
-	pytest tests/integration
+	. $(VENV)/bin/activate && python -m pytest tests/integration
