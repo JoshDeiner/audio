@@ -62,11 +62,11 @@ To create a custom plugin:
      @property
      def plugin_id(self) -> str:
          return "my_plugin_id"
-     
+
      @property
      def plugin_name(self) -> str:
          return "My Plugin Name"
-     
+
      @property
      def plugin_version(self) -> str:
          return "1.0.0"
@@ -222,7 +222,7 @@ python -m audio --seed --seed-type test-suite
   - `refactored_pipeline_controller.py`: Plugin-aware controller
   - `utilities/`: Utility modules
     - `argument_parser.py`: Command-line argument parsing
-  
+
 ### Services
 - `services/`: Service components
   - `audio_service.py`: Audio recording
@@ -230,7 +230,7 @@ python -m audio --seed --seed-type test-suite
   - `text_to_speech_service.py`: Text-to-speech
   - `file_service.py`: File operations
   - `services_factory.py`: Service creation
-  
+
 ### Plugin System
 - `plugins/`: Plugin architecture
   - `plugin_base.py`: Core plugin interfaces
