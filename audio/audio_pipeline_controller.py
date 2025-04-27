@@ -27,7 +27,7 @@ class AudioPipelineController:
 
     def handle_audio_in(self) -> str:
         """Handle audio input (transcription) pipeline.
-        
+
         This method supports two modes:
         1. Transcribe an existing audio file if audio_path is provided
         2. Record from microphone and transcribe if no audio_path is provided
@@ -36,28 +36,33 @@ class AudioPipelineController:
             str: The transcription result
         """
         audio_path = self.config.get("audio_path")
-        
+
         # If no audio path, record from microphone
         if not audio_path:
             import os
+
             from services.audio_service import AudioRecordingService
-            
+
             # Check for required environment variables
             if not os.environ.get("AUDIO_INPUT_DIR"):
                 # Set default if not set
-                os.environ["AUDIO_INPUT_DIR"] = os.path.join(os.getcwd(), "input")
-                print(f"AUDIO_INPUT_DIR not set, using default: {os.environ['AUDIO_INPUT_DIR']}")
-                
+                os.environ["AUDIO_INPUT_DIR"] = os.path.join(
+                    os.getcwd(), "input"
+                )
+                print(
+                    f"AUDIO_INPUT_DIR not set, using default: {os.environ['AUDIO_INPUT_DIR']}"
+                )
+
                 # Make sure the directory exists
                 if not os.path.exists(os.environ["AUDIO_INPUT_DIR"]):
                     os.makedirs(os.environ["AUDIO_INPUT_DIR"], exist_ok=True)
-            
+
             recording_service = AudioRecordingService()
-            
+
             # Get duration from config or use default
             duration = self.config.get("duration", 5)
             print(f"Recording audio for {duration} seconds...")
-            
+
             # Record audio from microphone
             audio_path = recording_service.record_audio(duration=duration)
             print(f"Audio recorded and saved to: {audio_path}")
@@ -77,25 +82,29 @@ class AudioPipelineController:
         elif self.config.get("save_transcript", False):
             # Set default output directory if not set
             import os
+
             if not os.environ.get("AUDIO_OUTPUT_DIR"):
-                os.environ["AUDIO_OUTPUT_DIR"] = os.path.join(os.getcwd(), "output")
+                os.environ["AUDIO_OUTPUT_DIR"] = os.path.join(
+                    os.getcwd(), "output"
+                )
                 if not os.path.exists(os.environ["AUDIO_OUTPUT_DIR"]):
                     os.makedirs(os.environ["AUDIO_OUTPUT_DIR"], exist_ok=True)
-                    
+
             # Generate a timestamped filename for the transcript
             import time
+
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             transcript_file = os.path.join(
-                os.environ.get("AUDIO_OUTPUT_DIR"), 
-                f"transcript_{timestamp}.txt"
+                os.environ.get("AUDIO_OUTPUT_DIR"),
+                f"transcript_{timestamp}.txt",
             )
             self.file_service.save_text(transcription, transcript_file)
             print(f"Transcription saved to: {transcript_file}")
 
         # Always print the transcription
         print(f"Transcription: {transcription}")
-        
-        # Always return the text 
+
+        # Always return the text
         return transcription
 
     def resolve_text_source(self) -> str:

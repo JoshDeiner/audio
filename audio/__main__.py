@@ -53,16 +53,20 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
         # Determine operation mode
         mode = (
-            "audio_in" if args.audio_in else
-            "audio_out"
-            if args.audio_out else (
-                "file"
-                if args.file
-                else "dir"
-                if args.dir
-                else "record"
-                if args.record
-                else None
+            "audio_in"
+            if args.audio_in
+            else (
+                "audio_out"
+                if args.audio_out
+                else (
+                    "file"
+                    if args.file
+                    else (
+                        "dir"
+                        if args.dir
+                        else "record" if args.record else None
+                    )
+                )
             )
         )
 
@@ -87,7 +91,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 }
                 controller = AudioPipelineController(config)
                 result = controller.handle_audio_in()
-                
+
                 # Make sure we always return the text
                 return result
 
