@@ -11,7 +11,7 @@ import asyncio
 import logging
 from typing import Dict, List, Optional
 
-from audio.refactored_pipeline_controller import AsyncAudioPipelineController
+from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
 from services.exceptions import AudioServiceError
 
@@ -30,7 +30,7 @@ async def handle_audio_in_command(args: Dict[str, str]) -> None:
         args: Command-line arguments
     """
     try:
-        controller = AsyncAudioPipelineController(args)
+        controller = AudioPipelineController(args)
         transcription = await controller.handle_audio_in()
         print(f"\nTranscription result: {transcription}\n")
     except AudioServiceError as e:
@@ -48,7 +48,7 @@ async def handle_audio_out_command(args: Dict[str, str]) -> None:
         args: Command-line arguments
     """
     try:
-        controller = AsyncAudioPipelineController(args)
+        controller = AudioPipelineController(args)
         audio_path = await controller.handle_audio_out()
         print(f"\nAudio output saved to: {audio_path}\n")
     except AudioServiceError as e:
@@ -67,7 +67,7 @@ async def handle_conversation_command(args: Dict[str, str]) -> None:
     """
     try:
         max_turns = int(args.get("turns", "5"))
-        controller = AsyncAudioPipelineController(args)
+        controller = AudioPipelineController(args)
         await controller.handle_conversation_loop(max_turns=max_turns)
         print("\nConversation completed successfully.\n")
     except AudioServiceError as e:

@@ -1,16 +1,18 @@
-"""Audio pipeline controller for the audio package.
+"""Asynchronous audio pipeline controller for the audio package.
 
 This module provides the controller that orchestrates the audio processing
-pipelines for both input (recording/transcription) and output (synthesis/playback).
+pipelines for both input (recording/transcription) and output (synthesis/playback)
+using asyncio for improved concurrency and responsiveness.
 
 Author: Claude Code
 Created: 2025-04-27
 """
 
+import asyncio
 import logging
 import os
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from services.audio_playback_service import AudioPlaybackService
 from services.audio_service import AudioRecordingService
@@ -28,10 +30,11 @@ logger = logging.getLogger(__name__)
 
 
 class AudioPipelineController:
-    """Controller for audio processing pipelines.
+    """Asynchronous controller for audio processing pipelines.
 
     This controller coordinates the various services required for audio
-    processing, including recording, transcription, and synthesis.
+    processing, including recording, transcription, and synthesis using
+    asyncio for improved concurrency.
 
     Attributes:
         config: Configuration dictionary with pipeline options
@@ -52,7 +55,7 @@ class AudioPipelineController:
                 "language": "en",
                 "duration": 10
             }
-            controller = AudioPipelineController(config)
+            controller = AsyncAudioPipelineController(config)
             ```
         """
         self.config = config
@@ -89,8 +92,8 @@ class AudioPipelineController:
                 os.makedirs(output_dir, exist_ok=True)
                 logger.info(f"Created output directory: {output_dir}")
 
-    def _record_audio(self, duration: int) -> str:
-        """Record audio from microphone.
+    async def _record_audio_async(self, duration: int) -> str:
+        """Record audio from microphone asynchronously.
 
         Args:
             duration: Recording duration in seconds
@@ -102,11 +105,17 @@ class AudioPipelineController:
             AudioRecordingError: If recording fails
         """
         try:
+            # Run the recording operation in a thread pool since PyAudio is blocking
             recording_service = AudioRecordingService()
             logger.info(f"Recording audio for {duration} seconds...")
             print(f"Recording audio for {duration} seconds...")
 
-            audio_path = recording_service.record_audio(duration=duration)
+            # Use asyncio.to_thread to run the blocking recording operation
+            # without blocking the event loop
+            audio_path = await asyncio.to_thread(
+                recording_service.record_audio, duration=duration
+            )
+
             logger.info(f"Audio recorded and saved to: {audio_path}")
             print(f"Audio recorded and saved to: {audio_path}")
             return audio_path
@@ -115,10 +124,10 @@ class AudioPipelineController:
             logger.error(error_msg)
             raise AudioRecordingError(error_msg, error_code="RECORD_FAILED")
 
-    def _save_transcription(
+    async def _save_transcription_async(
         self, transcription: str, output_path: Optional[str] = None
     ) -> str:
-        """Save transcription to file.
+        """Save transcription to file asynchronously.
 
         Args:
             transcription: The transcription text to save
@@ -142,7 +151,10 @@ class AudioPipelineController:
                     )
 
             if output_path:
-                self.file_service.save_text(transcription, output_path)
+                # Run the file saving operation in a thread
+                await asyncio.to_thread(
+                    self.file_service.save_text, transcription, output_path
+                )
                 logger.info(f"Transcription saved to: {output_path}")
                 print(f"Transcription saved to: {output_path}")
                 return output_path
@@ -153,8 +165,8 @@ class AudioPipelineController:
             logger.error(error_msg)
             raise FileOperationError(error_msg, error_code="SAVE_FAILED")
 
-    def handle_audio_in(self) -> str:
-        """Handle audio input (transcription) pipeline.
+    async def handle_audio_in(self) -> str:
+        """Handle audio input (transcription) pipeline asynchronously.
 
         This method supports two modes:
         1. Transcribe an existing audio file if audio_path is provided
@@ -170,8 +182,8 @@ class AudioPipelineController:
         Example:
             ```python
             config = {"duration": 10, "model": "small"}
-            controller = AudioPipelineController(config)
-            transcription = controller.handle_audio_in()
+            controller = AsyncAudioPipelineController(config)
+            transcription = await controller.handle_audio_in()
             print(transcription)
             ```
         """
@@ -179,11 +191,15 @@ class AudioPipelineController:
         audio_path = self.config.get("audio_path")
         if not audio_path:
             # Record from microphone if no path provided
-            audio_path = self._record_audio(self.config.get("duration", 5))
+            audio_path = await self._record_audio_async(
+                self.config.get("duration", 5)
+            )
 
-        # Transcribe the audio
+        # Transcribe the audio - use a thread pool for CPU-intensive work
         try:
-            transcription = self.transcription_service.transcribe_audio(
+            # Run the transcription operation in a thread pool
+            transcription = await asyncio.to_thread(
+                self.transcription_service.transcribe_audio,
                 audio_path,
                 model_size=self.config.get("model"),
                 language=self.config.get("language"),
@@ -195,7 +211,7 @@ class AudioPipelineController:
 
         # Save transcript if needed
         output_path = self.config.get("output_path")
-        self._save_transcription(transcription, output_path)
+        await self._save_transcription_async(transcription, output_path)
 
         # Always print the transcription
         print(f"Transcription: {transcription}")
@@ -203,16 +219,16 @@ class AudioPipelineController:
         # Always return the text
         return transcription
 
-    def resolve_text_source(self) -> str:
-        """Resolve the input source text from config or environment.
+    async def resolve_text_source_async(self) -> str:
+        """Resolve the input source text from config or environment asynchronously.
 
         Returns:
             str: The resolved text content
 
         Example:
             ```python
-            controller = AudioPipelineController({"data_source": "hello.txt"})
-            text = controller.resolve_text_source()
+            controller = AsyncAudioPipelineController({"data_source": "hello.txt"})
+            text = await controller.resolve_text_source_async()
             ```
         """
         # Guard clause: check if source exists
@@ -227,14 +243,16 @@ class AudioPipelineController:
 
         # Try to read the file
         try:
-            return str(FileService.read_text(source))
+            # Run the file reading operation in a thread pool
+            content = await asyncio.to_thread(FileService.read_text, source)
+            return str(content)
         except Exception as e:
             error_msg = f"Failed to read source file: {e}"
             logger.error(error_msg)
             raise FileOperationError(error_msg, error_code="READ_FAILED")
 
-    def handle_audio_out(self) -> str:
-        """Handle audio output (synthesis) pipeline.
+    async def handle_audio_out(self) -> str:
+        """Handle audio output (synthesis) pipeline asynchronously.
 
         Returns:
             str: Path to the output audio file
@@ -246,13 +264,13 @@ class AudioPipelineController:
         Example:
             ```python
             config = {"data_source": "Hello, world!", "play_audio": True}
-            controller = AudioPipelineController(config)
-            audio_path = controller.handle_audio_out()
+            controller = AsyncAudioPipelineController(config)
+            audio_path = await controller.handle_audio_out()
             ```
         """
         try:
             # Get the text to synthesize
-            text = self.resolve_text_source()
+            text = await self.resolve_text_source_async()
         except FileOperationError as e:
             # Re-raise with additional context
             raise FileOperationError(
@@ -267,33 +285,36 @@ class AudioPipelineController:
             logger.warning(error_msg)
             raise AudioServiceError(error_msg, error_code="EMPTY_TEXT")
 
-        # Synthesize audio
+        # Synthesize audio - run in thread pool since TTS is CPU-intensive
         try:
-            audio_data = TextToSpeechService.synthesize(text)
+            audio_data = await asyncio.to_thread(
+                TextToSpeechService.synthesize, text
+            )
         except Exception as e:
             error_msg = f"Error synthesizing audio: {e}"
             logger.error(error_msg)
             raise AudioServiceError(error_msg, error_code="SYNTHESIS_FAILED")
 
         # Determine output path
-        output_path = (
-            self.config.get("output_path")
-            or FileService.generate_temp_output_path()
-        )
+        output_path = self.config.get(
+            "output_path"
+        ) or await asyncio.to_thread(FileService.generate_temp_output_path)
 
-        # Save audio to file
+        # Save audio to file - file I/O operations in thread pool
         try:
-            self.file_service.save(audio_data, output_path)
+            await asyncio.to_thread(
+                self.file_service.save, audio_data, output_path
+            )
             logger.info(f"Audio saved to: {output_path}")
         except Exception as e:
             error_msg = f"Error saving audio file: {e}"
             logger.error(error_msg)
             raise FileOperationError(error_msg, error_code="SAVE_FAILED")
 
-        # Play audio if enabled
+        # Play audio if enabled - in thread pool since playback is blocking
         if self.config.get("play_audio", True):
             try:
-                AudioPlaybackService.play(audio_data)
+                await asyncio.to_thread(AudioPlaybackService.play, audio_data)
                 logger.info("Audio playback completed")
             except Exception as e:
                 error_msg = f"Error playing audio: {e}"
@@ -308,22 +329,24 @@ class AudioPipelineController:
 
         return output_path
 
-    def _get_latest_transcription(self) -> Optional[str]:
-        """Get the latest transcription from files.
+    async def _get_latest_transcription_async(self) -> Optional[str]:
+        """Get the latest transcription from files asynchronously.
 
         Returns:
             Optional[str]: The latest transcription or None if not found
 
         Example:
             ```python
-            controller = AudioPipelineController({})
-            latest_text = controller._get_latest_transcription()
+            controller = AsyncAudioPipelineController({})
+            latest_text = await controller._get_latest_transcription_async()
             if latest_text:
                 print(f"Latest transcription: {latest_text}")
             ```
         """
         try:
-            return FileService.load_latest_transcription()
+            return await asyncio.to_thread(
+                FileService.load_latest_transcription
+            )
         except FileOperationError as e:
             logger.warning(f"Failed to load latest transcription: {e}")
             return None
@@ -331,3 +354,88 @@ class AudioPipelineController:
             error_msg = f"Unexpected error loading transcription: {e}"
             logger.error(error_msg)
             return None
+
+    async def handle_conversation_loop(
+        self, max_turns: int = 5
+    ) -> List[Dict[str, str]]:
+        """Run a bidirectional conversation loop between user and machine.
+
+        This demonstrates the benefit of async patterns for conversational interfaces.
+
+        Args:
+            max_turns: Maximum number of conversation turns
+
+        Returns:
+            List[Dict[str, str]]: Conversation history with user and machine messages
+
+        Example:
+            ```python
+            controller = AsyncAudioPipelineController({})
+            conversation = await controller.handle_conversation_loop()
+            ```
+        """
+        conversation_history = []
+
+        print(f"Starting conversation loop (max {max_turns} turns)...")
+
+        for turn in range(max_turns):
+            print(f"\n--- Turn {turn+1}/{max_turns} ---")
+
+            # 1. Record and transcribe user input (audio in)
+            try:
+                # Record user speech
+                print("Your turn to speak...")
+                user_text = await self.handle_audio_in()
+                conversation_history.append(
+                    {"role": "user", "content": user_text}
+                )
+
+                # Check for conversation end
+                if (
+                    "goodbye" in user_text.lower()
+                    or "exit" in user_text.lower()
+                ):
+                    print("Ending conversation as requested.")
+                    break
+
+            except Exception as e:
+                logger.error(f"Error in user input handling: {e}")
+                print(f"Sorry, I couldn't understand that. Error: {e}")
+                continue
+
+            # 2. Generate response (could connect to an LLM in a real implementation)
+            try:
+                # Simulate LLM response generation (non-blocking)
+                print("Generating response...")
+                await asyncio.sleep(0.5)  # Simulate thinking time
+
+                # Generate simple response based on user input
+                if "hello" in user_text.lower() or "hi" in user_text.lower():
+                    response = "Hello! How can I help you today?"
+                elif "how are you" in user_text.lower():
+                    response = "I'm functioning well, thank you for asking. How about you?"
+                elif "weather" in user_text.lower():
+                    response = "I'm sorry, I don't have access to weather information at the moment."
+                else:
+                    response = (
+                        f"I heard you say: {user_text}. That's interesting!"
+                    )
+
+                conversation_history.append(
+                    {"role": "assistant", "content": response}
+                )
+
+                # Configure TTS output
+                self.config["data_source"] = response
+
+                # 3. Synthesize and play response (audio out)
+                print("Assistant response:")
+                print(f"'{response}'")
+                await self.handle_audio_out()
+
+            except Exception as e:
+                logger.error(f"Error in response generation or playback: {e}")
+                print(f"Sorry, I couldn't respond properly. Error: {e}")
+
+        print("\nConversation loop completed.")
+        return conversation_history
