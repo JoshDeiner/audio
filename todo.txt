@@ -3,10 +3,3 @@ try out eleven lab experiment
 --
 
 
-files to update : controller, main, argumentparser.
-
---
-
-
-----
-work on audio -in updates
