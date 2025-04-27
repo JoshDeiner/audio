@@ -38,10 +38,10 @@ logger = logging.getLogger(__name__)
 
 def _determine_mode(args: argparse.Namespace) -> Optional[str]:
     """Determine the operation mode based on arguments.
-    
+
     Args:
         args: Parsed command line arguments
-        
+
     Returns:
         Optional[str]: The operation mode or None if no mode specified
     """
@@ -72,13 +72,13 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
 
     Raises:
         SystemExit: If an error or user interruption occurs
-        
+
     Example:
         ```python
         # When called from command line
         if __name__ == "__main__":
             main()
-        
+
         # When imported as module
         from audio.__main__ import main
         result = main()
@@ -87,13 +87,15 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
     try:
         # Parse arguments
         args = parse_arguments()
-        
+
         # Determine operation mode using helper function
         mode = _determine_mode(args)
-        
+
         # Guard clause for unknown mode
         if not mode:
-            print(f"\n{Fore.RED}No operation mode specified. Use -h for help.{Style.RESET_ALL}")
+            print(
+                f"\n{Fore.RED}No operation mode specified. Use -h for help.{Style.RESET_ALL}"
+            )
             logger.error("No operation mode specified")
             sys.exit(1)
 
@@ -108,7 +110,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 }
                 controller = AudioPipelineController(config)
                 return controller.handle_audio_in()
-                
+
             case "audio_in":
                 config = {
                     "audio_path": args.file,  # Will be None if not provided
@@ -147,29 +149,37 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")
         sys.exit(0)
-        
+
     except AudioServiceError as error:
         # Enhanced error reporting with error codes
-        error_code = getattr(error, 'error_code', 'UNKNOWN')
-        print(f"\n{Fore.RED}Audio Service Error [{error_code}]: {error}{Style.RESET_ALL}")
+        error_code = getattr(error, "error_code", "UNKNOWN")
+        print(
+            f"\n{Fore.RED}Audio Service Error [{error_code}]: {error}{Style.RESET_ALL}"
+        )
         logger.error(f"Audio Service Error [{error_code}]: {error}")
         sys.exit(1)
-        
+
     except FileOperationError as error:
         # Enhanced error reporting with error codes
-        error_code = getattr(error, 'error_code', 'UNKNOWN')
-        details = getattr(error, 'details', {})
+        error_code = getattr(error, "error_code", "UNKNOWN")
+        details = getattr(error, "details", {})
         detail_str = f" - Details: {details}" if details else ""
-        
-        print(f"\n{Fore.RED}File Operation Error [{error_code}]: {error}{Style.RESET_ALL}")
-        logger.error(f"File Operation Error [{error_code}]: {error}{detail_str}")
+
+        print(
+            f"\n{Fore.RED}File Operation Error [{error_code}]: {error}{Style.RESET_ALL}"
+        )
+        logger.error(
+            f"File Operation Error [{error_code}]: {error}{detail_str}"
+        )
         sys.exit(1)
-        
+
     except Exception as error:
         print(f"\n{Fore.RED}Unexpected error: {error}{Style.RESET_ALL}")
-        logger.error(f"Unexpected error: {error}", exc_info=True)  # Include stack trace
+        logger.error(
+            f"Unexpected error: {error}", exc_info=True
+        )  # Include stack trace
         sys.exit(1)
-        
+
     # This will never execute due to sys.exit() calls above,
     # but it helps satisfy the type checker
     return None

@@ -117,7 +117,7 @@ def parse_arguments() -> argparse.Namespace:
 
     Returns:
         argparse.Namespace: Parsed arguments with all command-line options
-        
+
     Example:
         ```python
         args = parse_arguments()
@@ -126,13 +126,13 @@ def parse_arguments() -> argparse.Namespace:
         elif args.audio_out:
             # Handle audio output mode
         ```
-    
+
     Raises:
         SystemExit: If invalid arguments are provided
     """
     parser = argparse.ArgumentParser(
         description="Audio transcription and synthesis tool",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
     # Add argument groups in logical order

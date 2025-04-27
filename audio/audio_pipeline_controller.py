@@ -14,7 +14,12 @@ from typing import Any, Dict, Optional, Union
 
 from services.audio_playback_service import AudioPlaybackService
 from services.audio_service import AudioRecordingService
-from services.exceptions import AudioRecordingError, AudioServiceError, FileOperationError, TranscriptionError
+from services.exceptions import (
+    AudioRecordingError,
+    AudioServiceError,
+    FileOperationError,
+    TranscriptionError,
+)
 from services.file_service import FileService
 from services.text_to_speech_service import TextToSpeechService
 from services.transcription_service import TranscriptionService
@@ -24,10 +29,10 @@ logger = logging.getLogger(__name__)
 
 class AudioPipelineController:
     """Controller for audio processing pipelines.
-    
+
     This controller coordinates the various services required for audio
     processing, including recording, transcription, and synthesis.
-    
+
     Attributes:
         config: Configuration dictionary with pipeline options
         transcription_service: Service for audio transcription
@@ -39,11 +44,11 @@ class AudioPipelineController:
 
         Args:
             config: Configuration dictionary with pipeline options
-            
+
         Example:
             ```python
             config = {
-                "model": "small", 
+                "model": "small",
                 "language": "en",
                 "duration": 10
             }
@@ -53,13 +58,13 @@ class AudioPipelineController:
         self.config = config
         self.transcription_service = TranscriptionService()
         self.file_service = FileService()
-        
+
         # Ensure directories exist
         self._ensure_directories()
 
     def _ensure_directories(self) -> None:
         """Ensure required directories exist for audio I/O.
-        
+
         Creates the input and output directories if they don't exist.
         """
         # Ensure input directory exists
@@ -67,30 +72,32 @@ class AudioPipelineController:
             input_dir = os.path.join(os.getcwd(), "input")
             os.environ["AUDIO_INPUT_DIR"] = input_dir
             logger.info(f"AUDIO_INPUT_DIR not set, using default: {input_dir}")
-            
+
             if not os.path.exists(input_dir):
                 os.makedirs(input_dir, exist_ok=True)
                 logger.info(f"Created input directory: {input_dir}")
-        
+
         # Ensure output directory exists
         if not os.environ.get("AUDIO_OUTPUT_DIR"):
             output_dir = os.path.join(os.getcwd(), "output")
             os.environ["AUDIO_OUTPUT_DIR"] = output_dir
-            logger.info(f"AUDIO_OUTPUT_DIR not set, using default: {output_dir}")
-            
+            logger.info(
+                f"AUDIO_OUTPUT_DIR not set, using default: {output_dir}"
+            )
+
             if not os.path.exists(output_dir):
                 os.makedirs(output_dir, exist_ok=True)
                 logger.info(f"Created output directory: {output_dir}")
-                
+
     def _record_audio(self, duration: int) -> str:
         """Record audio from microphone.
-        
+
         Args:
             duration: Recording duration in seconds
-            
+
         Returns:
             str: Path to the recorded audio file
-            
+
         Raises:
             AudioRecordingError: If recording fails
         """
@@ -98,7 +105,7 @@ class AudioPipelineController:
             recording_service = AudioRecordingService()
             logger.info(f"Recording audio for {duration} seconds...")
             print(f"Recording audio for {duration} seconds...")
-            
+
             audio_path = recording_service.record_audio(duration=duration)
             logger.info(f"Audio recorded and saved to: {audio_path}")
             print(f"Audio recorded and saved to: {audio_path}")
@@ -107,17 +114,19 @@ class AudioPipelineController:
             error_msg = f"Failed to record audio: {e}"
             logger.error(error_msg)
             raise AudioRecordingError(error_msg, error_code="RECORD_FAILED")
-            
-    def _save_transcription(self, transcription: str, output_path: Optional[str] = None) -> str:
+
+    def _save_transcription(
+        self, transcription: str, output_path: Optional[str] = None
+    ) -> str:
         """Save transcription to file.
-        
+
         Args:
             transcription: The transcription text to save
             output_path: Optional specific path to save to
-            
+
         Returns:
             str: Path to the saved transcription file
-            
+
         Raises:
             FileOperationError: If saving fails
         """
@@ -131,13 +140,13 @@ class AudioPipelineController:
                         output_dir,
                         f"transcript_{timestamp}.txt",
                     )
-            
+
             if output_path:
                 self.file_service.save_text(transcription, output_path)
                 logger.info(f"Transcription saved to: {output_path}")
                 print(f"Transcription saved to: {output_path}")
                 return output_path
-            
+
             return ""
         except Exception as e:
             error_msg = f"Failed to save transcription: {e}"
@@ -153,11 +162,11 @@ class AudioPipelineController:
 
         Returns:
             str: The transcription result
-            
+
         Raises:
             AudioServiceError: If audio recording or transcription fails
             FileOperationError: If saving the transcription fails
-            
+
         Example:
             ```python
             config = {"duration": 10, "model": "small"}
@@ -171,7 +180,7 @@ class AudioPipelineController:
         if not audio_path:
             # Record from microphone if no path provided
             audio_path = self._record_audio(self.config.get("duration", 5))
-        
+
         # Transcribe the audio
         try:
             transcription = self.transcription_service.transcribe_audio(
@@ -183,14 +192,14 @@ class AudioPipelineController:
             error_msg = f"Failed to transcribe audio: {e}"
             logger.error(error_msg)
             raise TranscriptionError(error_msg, error_code="TRANSCRIBE_FAILED")
-        
+
         # Save transcript if needed
         output_path = self.config.get("output_path")
         self._save_transcription(transcription, output_path)
-        
+
         # Always print the transcription
         print(f"Transcription: {transcription}")
-        
+
         # Always return the text
         return transcription
 
@@ -199,7 +208,7 @@ class AudioPipelineController:
 
         Returns:
             str: The resolved text content
-            
+
         Example:
             ```python
             controller = AudioPipelineController({"data_source": "hello.txt"})
@@ -229,11 +238,11 @@ class AudioPipelineController:
 
         Returns:
             str: Path to the output audio file
-            
+
         Raises:
             AudioServiceError: If synthesis or playback fails
             FileOperationError: If file operations fail
-            
+
         Example:
             ```python
             config = {"data_source": "Hello, world!", "play_audio": True}
@@ -246,9 +255,11 @@ class AudioPipelineController:
             text = self.resolve_text_source()
         except FileOperationError as e:
             # Re-raise with additional context
-            raise FileOperationError(f"Failed to resolve text source: {e}", 
-                                    error_code="SOURCE_FAILED",
-                                    details={"original_error": str(e)})
+            raise FileOperationError(
+                f"Failed to resolve text source: {e}",
+                error_code="SOURCE_FAILED",
+                details={"original_error": str(e)},
+            )
 
         # Guard clause: validate text
         if not text or text == "no text found":
@@ -287,7 +298,9 @@ class AudioPipelineController:
             except Exception as e:
                 error_msg = f"Error playing audio: {e}"
                 logger.error(error_msg)
-                raise AudioServiceError(error_msg, error_code="PLAYBACK_FAILED")
+                raise AudioServiceError(
+                    error_msg, error_code="PLAYBACK_FAILED"
+                )
 
         # Return text instead of path if flagged (for testing or debugging)
         if self.config.get("return_text_output", False):
@@ -300,7 +313,7 @@ class AudioPipelineController:
 
         Returns:
             Optional[str]: The latest transcription or None if not found
-            
+
         Example:
             ```python
             controller = AudioPipelineController({})
