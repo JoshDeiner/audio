@@ -51,7 +51,7 @@ def record_wav(
     return filename
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description="Record or generate dummy WAV file"
