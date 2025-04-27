@@ -24,6 +24,25 @@ class AudioServiceError(Exception):
         self.details = details or {}
 
 
+class SecurityError(AudioServiceError):
+    """Raised when a security violation is detected."""
+
+    def __init__(
+        self,
+        message: str,
+        error_code: Optional[str] = "SECURITY_VIOLATION",
+        details: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Initialize security error with details.
+
+        Args:
+            message: The error message
+            error_code: Optional error code for categorization
+            details: Optional additional error context
+        """
+        super().__init__(message, error_code, details)
+
+
 class AudioRecordingError(AudioServiceError):
     """Raised when audio recording fails."""
 

@@ -16,7 +16,9 @@ class BaseService(ABC):
     in the audio application.
     """
 
-    def __init__(self, config_manager: Optional[ConfigurationManager] = None) -> None:
+    def __init__(
+        self, config_manager: Optional[ConfigurationManager] = None
+    ) -> None:
         """Initialize the base service.
 
         Args:
@@ -34,7 +36,7 @@ class BaseService(ABC):
         if self._initialized:
             logger.debug(f"{self.__class__.__name__} already initialized")
             return
-        
+
         self._do_initialization()
         self._initialized = True
         logger.info(f"{self.__class__.__name__} initialized")
@@ -46,7 +48,7 @@ class BaseService(ABC):
         Subclasses must implement this method to initialize their specific resources.
         """
         pass
-    
+
     def cleanup(self) -> None:
         """Clean up resources used by the service.
 
@@ -54,13 +56,15 @@ class BaseService(ABC):
         It will be implemented by child classes to perform service-specific cleanup.
         """
         if not self._initialized:
-            logger.debug(f"{self.__class__.__name__} not initialized, nothing to clean up")
+            logger.debug(
+                f"{self.__class__.__name__} not initialized, nothing to clean up"
+            )
             return
-        
+
         self._do_cleanup()
         self._initialized = False
         logger.info(f"{self.__class__.__name__} cleaned up")
-    
+
     def _do_cleanup(self) -> None:
         """Perform service-specific cleanup.
 

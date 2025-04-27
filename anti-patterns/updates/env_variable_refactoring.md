@@ -31,31 +31,31 @@ Located at `/config/configuration_manager.py`:
 ```python
 class ConfigurationManager:
     """Centralized configuration manager for the audio application."""
-    
+
     # Default configuration values
     _defaults = {
         # Paths
         "AUDIO_INPUT_DIR": "input",
         "AUDIO_OUTPUT_DIR": "output",
-        
+
         # Whisper configuration
         "WHISPER_MODEL": "tiny",
         "WHISPER_COMPUTE_TYPE": "int8",
         "WHISPER_DEVICE": "cpu",
-        
+
         # Platform configuration
         "AUDIO_DRIVER": "",
         "PLATFORM": "",
     }
-    
+
     # Configuration store
     _config: Dict[str, Any] = {}
-    
+
     @classmethod
     def initialize(cls, config_file: Optional[str] = None) -> None:
         """Initialize configuration from environment variables and optional config file."""
         # Implementation here...
-        
+
     @classmethod
     def get(cls, key: str, default: Any = None) -> Any:
         """Get configuration value."""
@@ -110,7 +110,7 @@ def main():
     # Initialize configuration
     config_file = "config/audio_config.env"
     ConfigurationManager.initialize(config_file)
-    
+
     # Rest of the application startup
 ```
 
@@ -126,7 +126,7 @@ class BaseService(ABC):
         """Initialize the base service."""
         self.config_manager = config_manager or ConfigurationManager
         self._initialized = False
-        
+
     # Rest of the class implementation...
 ```
 
