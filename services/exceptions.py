@@ -1,25 +1,32 @@
 """Custom exceptions for audio transcription services."""
+from typing import Any, Dict, Optional
 
 
 class AudioServiceError(Exception):
     """Base exception for all audio service errors."""
 
-    pass
+    def __init__(self, message: str, error_code: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message)
+        self.error_code = error_code
+        self.details = details or {}
 
 
 class AudioRecordingError(AudioServiceError):
     """Raised when audio recording fails."""
 
-    pass
+    def __init__(self, message: str, error_code: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message, error_code, details)
 
 
 class TranscriptionError(AudioServiceError):
     """Raised when transcription fails."""
 
-    pass
+    def __init__(self, message: str, error_code: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message, error_code, details)
 
 
 class FileOperationError(AudioServiceError):
     """Raised when file operations fail."""
-
-    pass
+    
+    def __init__(self, message: str, error_code: Optional[str] = None, details: Optional[Dict[str, Any]] = None) -> None:
+        super().__init__(message, error_code, details)

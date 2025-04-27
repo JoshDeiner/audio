@@ -2,7 +2,11 @@
 """Argument parsing utilities for the audio package.
 
 This module provides functions to configure command-line arguments for
-the audio transcription tool.
+the audio transcription tool. It handles all the CLI argument parsing
+for both audio input (recording/transcription) and output (synthesis) modes.
+
+Author: Claude Code
+Created: 2025-04-27
 """
 import argparse
 
@@ -112,12 +116,26 @@ def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments.
 
     Returns:
-        argparse.Namespace: Parsed arguments
+        argparse.Namespace: Parsed arguments with all command-line options
+        
+    Example:
+        ```python
+        args = parse_arguments()
+        if args.audio_in:
+            # Handle audio input mode
+        elif args.audio_out:
+            # Handle audio output mode
+        ```
+    
+    Raises:
+        SystemExit: If invalid arguments are provided
     """
     parser = argparse.ArgumentParser(
-        description="Audio transcription tool using faster-whisper"
+        description="Audio transcription and synthesis tool",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
 
+    # Add argument groups in logical order
     add_mode_arguments(parser)
     add_recording_arguments(parser)
     add_transcription_arguments(parser)

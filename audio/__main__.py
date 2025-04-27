@@ -9,9 +9,10 @@ This module provides functionality to:
 It follows a service-oriented architecture with clear separation of concerns
 between audio recording, transcription processing, synthesis, and output management.
 """
+import argparse
 import logging
 import sys
-from typing import List, Tuple, Union
+from typing import List, Optional, Tuple, Union
 
 from colorama import Fore, Style, init
 from dotenv import load_dotenv
@@ -35,6 +36,29 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _determine_mode(args: argparse.Namespace) -> Optional[str]:
+    """Determine the operation mode based on arguments.
+    
+    Args:
+        args: Parsed command line arguments
+        
+    Returns:
+        Optional[str]: The operation mode or None if no mode specified
+    """
+    if args.audio_in:
+        return "audio_in"
+    elif args.audio_out:
+        return "audio_out"
+    elif args.file:
+        return "file"
+    elif args.dir:
+        return "dir"
+    elif args.record:
+        return "record"
+    else:
+        return None
+
+
 def main() -> Union[Tuple[str, str], List[str], str, None]:
     """
     Execute the main workflow based on command line arguments.
@@ -44,32 +68,36 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
             - Tuple: For recording mode, returns paths to audio and transcript files
             - List: For file or directory transcription, returns list of transcript texts
             - str: For audio synthesis, returns path to output audio file
+            - None: If an error occurs or process is interrupted
 
     Raises:
         SystemExit: If an error or user interruption occurs
+        
+    Example:
+        ```python
+        # When called from command line
+        if __name__ == "__main__":
+            main()
+        
+        # When imported as module
+        from audio.__main__ import main
+        result = main()
+        ```
     """
     try:
+        # Parse arguments
         args = parse_arguments()
+        
+        # Determine operation mode using helper function
+        mode = _determine_mode(args)
+        
+        # Guard clause for unknown mode
+        if not mode:
+            print(f"\n{Fore.RED}No operation mode specified. Use -h for help.{Style.RESET_ALL}")
+            logger.error("No operation mode specified")
+            sys.exit(1)
 
-        # Determine operation mode
-        mode = (
-            "audio_in"
-            if args.audio_in
-            else (
-                "audio_out"
-                if args.audio_out
-                else (
-                    "file"
-                    if args.file
-                    else (
-                        "dir"
-                        if args.dir
-                        else "record" if args.record else None
-                    )
-                )
-            )
-        )
-
+        # Handle each mode
         match mode:
             case "file":
                 config = {
@@ -80,6 +108,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                 }
                 controller = AudioPipelineController(config)
                 return controller.handle_audio_in()
+                
             case "audio_in":
                 config = {
                     "audio_path": args.file,  # Will be None if not provided
@@ -90,10 +119,7 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                     "save_transcript": True,
                 }
                 controller = AudioPipelineController(config)
-                result = controller.handle_audio_in()
-
-                # Make sure we always return the text
-                return result
+                return controller.handle_audio_in()
 
             case "dir":
                 transcription_service = FileTranscriptionService()
@@ -118,22 +144,35 @@ def main() -> Union[Tuple[str, str], List[str], str, None]:
                     print(f"Synthesized text output: {result}")
                 return result
 
-            case _:
-                print(f"\n{Fore.RED}Unknown mode: {mode}{Style.RESET_ALL}")
-                logger.error(f"Unknown mode: {mode}")
-                sys.exit(1)
-
     except KeyboardInterrupt:
         print(f"\n{Fore.YELLOW}Process interrupted by user.{Style.RESET_ALL}")
         sys.exit(0)
-    except (AudioServiceError, FileOperationError) as error:
-        print(f"\n{Fore.RED}Error: {error}{Style.RESET_ALL}")
-        logger.error(f"Application error: {error}")
+        
+    except AudioServiceError as error:
+        # Enhanced error reporting with error codes
+        error_code = getattr(error, 'error_code', 'UNKNOWN')
+        print(f"\n{Fore.RED}Audio Service Error [{error_code}]: {error}{Style.RESET_ALL}")
+        logger.error(f"Audio Service Error [{error_code}]: {error}")
         sys.exit(1)
+        
+    except FileOperationError as error:
+        # Enhanced error reporting with error codes
+        error_code = getattr(error, 'error_code', 'UNKNOWN')
+        details = getattr(error, 'details', {})
+        detail_str = f" - Details: {details}" if details else ""
+        
+        print(f"\n{Fore.RED}File Operation Error [{error_code}]: {error}{Style.RESET_ALL}")
+        logger.error(f"File Operation Error [{error_code}]: {error}{detail_str}")
+        sys.exit(1)
+        
     except Exception as error:
         print(f"\n{Fore.RED}Unexpected error: {error}{Style.RESET_ALL}")
-        logger.error(f"Unexpected error: {error}")
+        logger.error(f"Unexpected error: {error}", exc_info=True)  # Include stack trace
         sys.exit(1)
+        
+    # This will never execute due to sys.exit() calls above,
+    # but it helps satisfy the type checker
+    return None
 
 
 if __name__ == "__main__":

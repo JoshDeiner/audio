@@ -264,6 +264,9 @@ test-languages:
 run-audio-out:
 	python -m audio --audio-out --data-source "$(DATA-SOURCE)" --play
 
+run-audio-in:
+	python -m audio --audio-in --output output/audio-input.txt
+
 # Default
 test: test-unit test-integration
 
