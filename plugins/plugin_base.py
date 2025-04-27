@@ -28,7 +28,7 @@ class Plugin(ABC):
             str: Unique plugin identifier
         """
         pass
-    
+
     @property
     @abstractmethod
     def plugin_name(self) -> str:
@@ -38,7 +38,7 @@ class Plugin(ABC):
             str: Plugin name
         """
         pass
-    
+
     @property
     @abstractmethod
     def plugin_version(self) -> str:
@@ -48,16 +48,18 @@ class Plugin(ABC):
             str: Plugin version in format major.minor.patch
         """
         pass
-    
+
     @abstractmethod
-    def initialize(self, config_manager: Optional[ConfigurationManager] = None) -> None:
+    def initialize(
+        self, config_manager: Optional[ConfigurationManager] = None
+    ) -> None:
         """Initialize the plugin with configuration.
 
         Args:
             config_manager: Configuration manager instance
         """
         pass
-    
+
     @abstractmethod
     def cleanup(self) -> None:
         """Clean up resources used by the plugin."""
@@ -72,9 +74,11 @@ class PluginRegistry:
 
     _plugins: Dict[str, Dict[str, Type[Plugin]]] = {}
     _instances: Dict[str, Dict[str, Plugin]] = {}
-    
+
     @classmethod
-    def register_plugin_class(cls, plugin_type: str, plugin_class: Type[Plugin]) -> None:
+    def register_plugin_class(
+        cls, plugin_type: str, plugin_class: Type[Plugin]
+    ) -> None:
         """Register a plugin class by type.
 
         Args:
@@ -83,18 +87,26 @@ class PluginRegistry:
         """
         if plugin_type not in cls._plugins:
             cls._plugins[plugin_type] = {}
-        
+
         plugin_id = plugin_class.plugin_id  # type: ignore
-        
+
         if plugin_id in cls._plugins[plugin_type]:
-            logger.warning(f"Plugin {plugin_id} already registered for type {plugin_type}, overwriting")
-            
+            logger.warning(
+                f"Plugin {plugin_id} already registered for type {plugin_type}, overwriting"
+            )
+
         cls._plugins[plugin_type][plugin_id] = plugin_class
-        logger.info(f"Registered plugin class {plugin_class.__name__} with ID {plugin_id} for type {plugin_type}")
-    
+        logger.info(
+            f"Registered plugin class {plugin_class.__name__} with ID {plugin_id} for type {plugin_type}"
+        )
+
     @classmethod
-    def get_plugin_instance(cls, plugin_type: str, plugin_id: str, 
-                         config_manager: Optional[ConfigurationManager] = None) -> Optional[Plugin]:
+    def get_plugin_instance(
+        cls,
+        plugin_type: str,
+        plugin_id: str,
+        config_manager: Optional[ConfigurationManager] = None,
+    ) -> Optional[Plugin]:
         """Get or create a plugin instance.
 
         Args:
@@ -108,22 +120,25 @@ class PluginRegistry:
         # Initialize the type dictionaries if they don't exist
         if plugin_type not in cls._instances:
             cls._instances[plugin_type] = {}
-            
+
         # Return existing instance if available
         if plugin_id in cls._instances[plugin_type]:
             return cls._instances[plugin_type][plugin_id]
-            
+
         # Create new instance if the class is registered
-        if plugin_type in cls._plugins and plugin_id in cls._plugins[plugin_type]:
+        if (
+            plugin_type in cls._plugins
+            and plugin_id in cls._plugins[plugin_type]
+        ):
             plugin_class = cls._plugins[plugin_type][plugin_id]
             instance = plugin_class()
             instance.initialize(config_manager)
             cls._instances[plugin_type][plugin_id] = instance
             return instance
-            
+
         logger.warning(f"Plugin {plugin_id} not found for type {plugin_type}")
         return None
-    
+
     @classmethod
     def get_plugin_types(cls) -> Set[str]:
         """Get all registered plugin types.
@@ -132,7 +147,7 @@ class PluginRegistry:
             Set of plugin type strings
         """
         return set(cls._plugins.keys())
-    
+
     @classmethod
     def get_plugins_for_type(cls, plugin_type: str) -> List[str]:
         """Get all plugin IDs for a specific type.
@@ -146,7 +161,7 @@ class PluginRegistry:
         if plugin_type not in cls._plugins:
             return []
         return list(cls._plugins[plugin_type].keys())
-    
+
     @classmethod
     def cleanup_all(cls) -> None:
         """Clean up all plugin instances."""
@@ -154,8 +169,10 @@ class PluginRegistry:
             for plugin_id, instance in cls._instances[plugin_type].items():
                 try:
                     instance.cleanup()
-                    logger.info(f"Cleaned up plugin {plugin_id} of type {plugin_type}")
+                    logger.info(
+                        f"Cleaned up plugin {plugin_id} of type {plugin_type}"
+                    )
                 except Exception as e:
                     logger.error(f"Error cleaning up plugin {plugin_id}: {e}")
-        
+
         cls._instances = {}

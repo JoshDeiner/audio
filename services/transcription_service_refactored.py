@@ -9,7 +9,11 @@ from colorama import Fore, Style
 from faster_whisper import WhisperModel
 
 from config.configuration_manager import ConfigurationManager
-from services.exceptions import FileOperationError, SecurityError, TranscriptionError
+from services.exceptions import (
+    FileOperationError,
+    SecurityError,
+    TranscriptionError,
+)
 from services.file_service_refactored import FileService
 
 logger = logging.getLogger(__name__)
@@ -56,25 +60,33 @@ class TranscriptionService:
         if not audio_file_path:
             logger.error("Audio file path cannot be empty")
             raise ValueError("Audio file path cannot be empty")
-            
+
         # Validate model_size if provided
         valid_model_sizes = ["tiny", "base", "small", "medium", "large"]
         if model_size and model_size not in valid_model_sizes:
-            logger.error(f"Invalid model size: {model_size}. Must be one of {valid_model_sizes}")
-            raise ValueError(f"Invalid model size: {model_size}. Must be one of {valid_model_sizes}")
-            
+            logger.error(
+                f"Invalid model size: {model_size}. Must be one of {valid_model_sizes}"
+            )
+            raise ValueError(
+                f"Invalid model size: {model_size}. Must be one of {valid_model_sizes}"
+            )
+
         # Validate language code if provided
         if language:
             # Simple validation - RFC 5646 language tags are typically 2-7 chars
             if not isinstance(language, str) or not (2 <= len(language) <= 7):
                 logger.error(f"Invalid language code: {language}")
                 raise ValueError(f"Invalid language code: {language}")
-                
+
             # Only allow alphanumeric chars and hyphen in language code
-            if not all(c.isalnum() or c == '-' for c in language):
-                logger.error(f"Invalid characters in language code: {language}")
-                raise ValueError(f"Invalid characters in language code: {language}")
-        
+            if not all(c.isalnum() or c == "-" for c in language):
+                logger.error(
+                    f"Invalid characters in language code: {language}"
+                )
+                raise ValueError(
+                    f"Invalid characters in language code: {language}"
+                )
+
         # Validate input file - this may raise SecurityError
         if not self._is_valid_audio_file(audio_file_path):
             raise TranscriptionError("Invalid or corrupted audio file")
@@ -109,7 +121,7 @@ class TranscriptionService:
 
         Returns:
             bool: True if the file is valid, False otherwise
-            
+
         Raises:
             SecurityError: If file path is invalid or potentially malicious
         """
@@ -117,19 +129,25 @@ class TranscriptionService:
         if not audio_file_path or not isinstance(audio_file_path, str):
             logger.error("Audio file path must be a non-empty string")
             return False
-            
+
         # Additional format validation to ensure file has audio extension
-        valid_extensions = ['.wav', '.mp3', '.flac', '.ogg', '.m4a']
-        if not any(audio_file_path.lower().endswith(ext) for ext in valid_extensions):
-            logger.warning(f"File does not have a standard audio extension: {audio_file_path}")
+        valid_extensions = [".wav", ".mp3", ".flac", ".ogg", ".m4a"]
+        if not any(
+            audio_file_path.lower().endswith(ext) for ext in valid_extensions
+        ):
+            logger.warning(
+                f"File does not have a standard audio extension: {audio_file_path}"
+            )
             # Continue but log warning
-            
+
         # Let FileService handle path validation and audio file validation
         try:
             return self.file_service.validate_audio_file(audio_file_path)
         except SecurityError as e:
             logger.error(f"Security error validating audio file: {e}")
-            raise SecurityError(f"Security validation failed for audio file: {e}")
+            raise SecurityError(
+                f"Security validation failed for audio file: {e}"
+            )
         except Exception as e:
             logger.error(f"Error validating audio file: {e}")
             return False
@@ -144,18 +162,20 @@ class TranscriptionService:
 
         Returns:
             Dict[str, str]: Model configuration dictionary
-            
+
         Raises:
             ValueError: If model configuration is invalid
         """
         # Get model size from config or use provided value
         if not model_size:
             model_size = self.config_manager.get("WHISPER_MODEL", "tiny")
-            
+
         # Ensure model_size is a string
         if not isinstance(model_size, str):
             logger.error(f"Invalid model size type: {type(model_size)}")
-            raise ValueError(f"Model size must be a string, got {type(model_size)}")
+            raise ValueError(
+                f"Model size must be a string, got {type(model_size)}"
+            )
 
         # Validate model size
         valid_sizes = ["tiny", "base", "small", "medium", "large"]
@@ -268,18 +288,20 @@ class TranscriptionService:
         if not transcription:
             logger.warning("Empty transcription content")
             transcription = "(No transcription available)"
-            
+
         if not audio_file_path or not isinstance(audio_file_path, str):
             logger.error("Invalid audio file path")
             raise ValueError("Invalid audio file path")
-            
-        # Sanitize original file path for security 
+
+        # Sanitize original file path for security
         try:
-            sanitized_audio_path = self.file_service.sanitize_path(audio_file_path)
+            sanitized_audio_path = self.file_service.sanitize_path(
+                audio_file_path
+            )
         except SecurityError:
             # If the original path fails validation, use a generic name instead
             sanitized_audio_path = "audio_file"
-            
+
         # Get output directory from config
         output_dir = self.file_service.sanitize_path(
             self.config_manager.get("AUDIO_OUTPUT_DIR", "output")
@@ -294,10 +316,12 @@ class TranscriptionService:
             base_name = os.path.basename(sanitized_audio_path)
             file_name = os.path.splitext(base_name)[0]
             # Keep only alphanumeric chars and some safe punctuation
-            safe_file_name = ''.join(c for c in file_name if c.isalnum() or c in '-_')
+            safe_file_name = "".join(
+                c for c in file_name if c.isalnum() or c in "-_"
+            )
             if not safe_file_name:
                 safe_file_name = "transcription"  # Fallback if no valid chars
-                
+
             timestamp = time.strftime("%Y%m%d-%H%M%S")
             output_file = os.path.join(
                 output_dir, f"{safe_file_name}_{timestamp}.txt"

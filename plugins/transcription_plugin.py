@@ -20,10 +20,14 @@ class TranscriptionPlugin(Plugin):
     Plugins that implement this interface can provide different transcription engines
     for the audio application.
     """
-    
+
     @abstractmethod
-    def transcribe(self, audio_path: str, language: Optional[str] = None, 
-                   options: Optional[Dict] = None) -> str:
+    def transcribe(
+        self,
+        audio_path: str,
+        language: Optional[str] = None,
+        options: Optional[Dict] = None,
+    ) -> str:
         """Transcribe audio file to text.
 
         Args:
@@ -38,7 +42,7 @@ class TranscriptionPlugin(Plugin):
             TranscriptionError: If transcription fails
         """
         pass
-    
+
     @abstractmethod
     def supports_language(self, language_code: str) -> bool:
         """Check if this plugin supports the given language.
@@ -50,7 +54,7 @@ class TranscriptionPlugin(Plugin):
             bool: True if supported, False otherwise
         """
         pass
-    
+
     @abstractmethod
     def get_supported_languages(self) -> Dict[str, str]:
         """Get all supported languages.
@@ -59,7 +63,7 @@ class TranscriptionPlugin(Plugin):
             Dict mapping language codes to language names
         """
         pass
-    
+
     @abstractmethod
     def get_model_info(self) -> Dict:
         """Get information about the transcription model.

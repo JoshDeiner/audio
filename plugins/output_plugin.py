@@ -19,10 +19,11 @@ class OutputPlugin(Plugin):
     Plugins that implement this interface can provide different ways to handle
     transcription results, such as saving to databases, sending to APIs, etc.
     """
-    
+
     @abstractmethod
-    def handle_transcription(self, transcription: str, 
-                          metadata: Optional[Dict[str, Any]] = None) -> bool:
+    def handle_transcription(
+        self, transcription: str, metadata: Optional[Dict[str, Any]] = None
+    ) -> bool:
         """Process a transcription result.
 
         Args:
@@ -31,12 +32,12 @@ class OutputPlugin(Plugin):
 
         Returns:
             bool: True if successful, False otherwise
-            
+
         Raises:
             OutputError: If processing fails
         """
         pass
-    
+
     @abstractmethod
     def supports_batch(self) -> bool:
         """Check if this plugin supports batch processing.
@@ -45,9 +46,11 @@ class OutputPlugin(Plugin):
             bool: True if batch processing is supported, False otherwise
         """
         pass
-    
+
     @abstractmethod
-    def handle_batch(self, items: Dict[str, Dict[str, Any]]) -> Dict[str, bool]:
+    def handle_batch(
+        self, items: Dict[str, Dict[str, Any]]
+    ) -> Dict[str, bool]:
         """Process multiple transcription results in batch.
 
         Args:
@@ -55,7 +58,7 @@ class OutputPlugin(Plugin):
 
         Returns:
             Dict mapping IDs to success status
-            
+
         Raises:
             OutputError: If batch processing fails
         """

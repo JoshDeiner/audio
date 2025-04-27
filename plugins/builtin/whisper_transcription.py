@@ -21,19 +21,19 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
 
     This plugin uses the Whisper model from faster-whisper to transcribe audio.
     """
-    
+
     @property
     def plugin_id(self) -> str:
         return "whisper_transcription"
-    
+
     @property
     def plugin_name(self) -> str:
         return "Whisper Transcription"
-    
+
     @property
     def plugin_version(self) -> str:
         return "1.0.0"
-    
+
     def __init__(self) -> None:
         """Initialize the plugin."""
         self._model = None
@@ -42,20 +42,22 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
         self._device = None
         self._initialized = False
         self._supported_languages = self._get_whisper_languages()
-    
-    def initialize(self, config_manager: Optional[ConfigurationManager] = None) -> None:
+
+    def initialize(
+        self, config_manager: Optional[ConfigurationManager] = None
+    ) -> None:
         """Initialize the plugin with configuration.
 
         Args:
             config_manager: Configuration manager instance
         """
         self.config_manager = config_manager or ConfigurationManager
-        
+
         # Get model configuration
         model_size = self.config_manager.get("WHISPER_MODEL", "tiny")
         compute_type = self.config_manager.get("WHISPER_COMPUTE_TYPE", "int8")
         device = self.config_manager.get("WHISPER_DEVICE", "cpu")
-        
+
         # Initialize the model
         try:
             self._model = WhisperModel(
@@ -63,26 +65,32 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
                 device=device,
                 compute_type=compute_type,
             )
-            
+
             self._model_size = model_size
             self._compute_type = compute_type
             self._device = device
             self._initialized = True
-            
+
             logger.info(f"Initialized Whisper model: {model_size} on {device}")
         except Exception as e:
             logger.error(f"Failed to initialize Whisper model: {e}")
-            raise TranscriptionError(f"Failed to initialize Whisper model: {e}")
-    
+            raise TranscriptionError(
+                f"Failed to initialize Whisper model: {e}"
+            )
+
     def cleanup(self) -> None:
         """Clean up resources used by the plugin."""
         # Free up memory
         self._model = None
         self._initialized = False
         logger.info("Cleaned up Whisper transcription plugin")
-    
-    def transcribe(self, audio_path: str, language: Optional[str] = None, 
-                   options: Optional[Dict] = None) -> str:
+
+    def transcribe(
+        self,
+        audio_path: str,
+        language: Optional[str] = None,
+        options: Optional[Dict] = None,
+    ) -> str:
         """Transcribe audio file to text.
 
         Args:
@@ -98,45 +106,49 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
         """
         if not self._initialized or self._model is None:
             raise TranscriptionError("Whisper model not initialized")
-            
+
         if not os.path.exists(audio_path):
             raise TranscriptionError(f"Audio file not found: {audio_path}")
-        
+
         try:
             # Set up transcription parameters
             transcription_options = options or {}
-            
+
             # Add beam size if not specified
             if "beam_size" not in transcription_options:
                 transcription_options["beam_size"] = 5
-                
+
             # If language is specified, use it
             if language:
                 transcription_options["language"] = language
                 logger.info(f"Using specified language: {language}")
-            
+
             # Run transcription
-            segments, info = self._model.transcribe(audio_path, **transcription_options)
-            
+            segments, info = self._model.transcribe(
+                audio_path, **transcription_options
+            )
+
             # Collect transcription segments
             transcription = " ".join([segment.text for segment in segments])
-            
+
             # Log information
             detected_lang = info.language
             if language:
-                logger.info(f"Transcription complete using language: {language}")
+                logger.info(
+                    f"Transcription complete using language: {language}"
+                )
             else:
                 logger.info(
                     f"Transcription complete (detected language: {detected_lang}, "
                     f"probability: {info.language_probability:.2f})"
                 )
-                
+
             return transcription.strip()
-            
+
         except Exception as e:
             logger.error(f"Error transcribing audio: {e}")
             raise TranscriptionError(f"Failed to transcribe audio: {str(e)}")
-    
+
     def supports_language(self, language_code: str) -> bool:
         """Check if this plugin supports the given language.
 
@@ -147,7 +159,7 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
             bool: True if supported, False otherwise
         """
         return language_code in self._supported_languages
-    
+
     def get_supported_languages(self) -> Dict[str, str]:
         """Get all supported languages.
 
@@ -155,7 +167,7 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
             Dict mapping language codes to language names
         """
         return self._supported_languages
-    
+
     def get_model_info(self) -> Dict:
         """Get information about the transcription model.
 
@@ -169,7 +181,7 @@ class WhisperTranscriptionPlugin(TranscriptionPlugin):
             "device": self._device,
             "language_count": len(self._supported_languages),
         }
-    
+
     def _get_whisper_languages(self) -> Dict[str, str]:
         """Get the supported languages for Whisper.
 

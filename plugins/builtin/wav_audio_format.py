@@ -22,19 +22,19 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
 
     This plugin provides support for WAV audio files.
     """
-    
+
     @property
     def plugin_id(self) -> str:
         return "wav_audio_format"
-    
+
     @property
     def plugin_name(self) -> str:
         return "WAV Audio Format"
-    
+
     @property
     def plugin_version(self) -> str:
         return "1.0.0"
-    
+
     def initialize(self, config_manager=None) -> None:
         """Initialize the plugin with configuration.
 
@@ -42,11 +42,11 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
             config_manager: Configuration manager instance (unused for this plugin)
         """
         logger.info("Initialized WAV audio format plugin")
-    
+
     def cleanup(self) -> None:
         """Clean up resources used by the plugin."""
         logger.info("Cleaned up WAV audio format plugin")
-    
+
     def get_supported_extensions(self) -> List[str]:
         """Get the file extensions supported by this plugin.
 
@@ -54,7 +54,7 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
             List of supported file extensions
         """
         return [".wav"]
-    
+
     def validate_file(self, file_path: str) -> bool:
         """Validate that a file is a proper WAV file.
 
@@ -67,22 +67,22 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
         if not os.path.exists(file_path):
             logger.error(f"Audio file not found: {file_path}")
             return False
-            
+
         try:
             with wave.open(file_path, "rb") as wf:
                 # Check basic WAV file properties
                 if wf.getnchannels() < 1:
                     logger.error(f"Invalid audio channels in {file_path}")
                     return False
-                    
+
                 if wf.getsampwidth() < 1:
                     logger.error(f"Invalid sample width in {file_path}")
                     return False
-                    
+
                 if wf.getframerate() < 1:
                     logger.error(f"Invalid frame rate in {file_path}")
                     return False
-                    
+
                 return True
         except wave.Error as e:
             logger.error(f"WAV file format error: {e}")
@@ -93,7 +93,7 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
         except Exception as e:
             logger.error(f"Unexpected error during audio validation: {e}")
             return False
-    
+
     def read_file(self, file_path: str) -> Tuple[np.ndarray, int]:
         """Read a WAV file and convert to numpy array.
 
@@ -102,21 +102,28 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
 
         Returns:
             Tuple of (audio_data, sample_rate)
-            
+
         Raises:
             AudioFormatError: If reading fails
         """
         try:
             data, sample_rate = sf.read(file_path)
-            logger.info(f"Read WAV file: {file_path} (sample rate: {sample_rate}Hz)")
+            logger.info(
+                f"Read WAV file: {file_path} (sample rate: {sample_rate}Hz)"
+            )
             return data, sample_rate
         except Exception as e:
             error_msg = f"Failed to read WAV file: {e}"
             logger.error(error_msg)
             raise FileOperationError(error_msg)
-    
-    def write_file(self, file_path: str, audio_data: np.ndarray, 
-                sample_rate: int, **kwargs) -> str:
+
+    def write_file(
+        self,
+        file_path: str,
+        audio_data: np.ndarray,
+        sample_rate: int,
+        **kwargs,
+    ) -> str:
         """Write audio data to a WAV file.
 
         Args:
@@ -127,7 +134,7 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
 
         Returns:
             str: Path to the saved file
-            
+
         Raises:
             AudioFormatError: If writing fails
         """
@@ -136,21 +143,21 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
             parent_dir = os.path.dirname(file_path)
             if parent_dir and not os.path.exists(parent_dir):
                 os.makedirs(parent_dir, exist_ok=True)
-                
+
             # Add .wav extension if not present
             if not file_path.lower().endswith(".wav"):
                 file_path += ".wav"
-                
+
             # Save using soundfile
             sf.write(file_path, audio_data, sample_rate)
             logger.info(f"Saved WAV file: {file_path}")
             return file_path
-            
+
         except Exception as e:
             error_msg = f"Failed to save WAV file: {e}"
             logger.error(error_msg)
             raise FileOperationError(error_msg)
-    
+
     def get_format_info(self) -> Dict:
         """Get information about the audio format.
 

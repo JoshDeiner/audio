@@ -49,62 +49,72 @@ class FileService:
 
         # Normalize path separators and resolve relative paths
         path = os.path.normpath(path)
-        
+
         # Convert to absolute path to resolve any relative path components
         path = os.path.abspath(path)
-        
+
         # Get configured allowed directories
         allowed_dirs = self._get_allowed_directories()
-        
+
         # Check if path is inside allowed directories
         if not self._is_path_in_allowed_dirs(path, allowed_dirs):
-            logger.warning(f"Security violation: Path outside allowed directories: {path}")
+            logger.warning(
+                f"Security violation: Path outside allowed directories: {path}"
+            )
             raise SecurityError("Path is outside of allowed directories")
-            
+
         # Check for suspicious patterns
         if self._contains_suspicious_patterns(path):
-            logger.warning(f"Security violation: Path contains suspicious patterns: {path}")
+            logger.warning(
+                f"Security violation: Path contains suspicious patterns: {path}"
+            )
             raise SecurityError("Path contains suspicious patterns")
-            
+
         return path
-        
+
     def _get_allowed_directories(self) -> list:
         """Get list of allowed directories from configuration.
-        
+
         Returns:
             list: List of allowed directory paths
         """
         # Get configured allowed directories or use defaults
         default_dirs = ["input", "output"]
-        configured_dirs = self.config_manager.get("ALLOWED_DIRECTORIES", ",".join(default_dirs))
-        
+        configured_dirs = self.config_manager.get(
+            "ALLOWED_DIRECTORIES", ",".join(default_dirs)
+        )
+
         if isinstance(configured_dirs, str):
             configured_dirs = [d.strip() for d in configured_dirs.split(",")]
-            
+
         # Resolve to absolute paths
-        return [os.path.abspath(os.path.normpath(os.path.expanduser(d))) for d in configured_dirs]
-    
+        return [
+            os.path.abspath(os.path.normpath(os.path.expanduser(d)))
+            for d in configured_dirs
+        ]
+
     def _is_path_in_allowed_dirs(self, path: str, allowed_dirs: list) -> bool:
         """Check if a path is inside allowed directories.
-        
+
         Args:
             path: Path to check
             allowed_dirs: List of allowed directory paths
-            
+
         Returns:
             bool: True if path is inside allowed directories, False otherwise
         """
         return any(
-            os.path.commonpath([path]) == os.path.commonpath([path, allowed_dir])
+            os.path.commonpath([path])
+            == os.path.commonpath([path, allowed_dir])
             for allowed_dir in allowed_dirs
         )
-    
+
     def _contains_suspicious_patterns(self, path: str) -> bool:
         """Check if path contains suspicious patterns that might indicate security issues.
-        
+
         Args:
             path: Path to check
-            
+
         Returns:
             bool: True if suspicious patterns found, False otherwise
         """
@@ -117,7 +127,7 @@ class FileService:
             "/dev/",
             "\\\\",  # Windows UNC paths
         ]
-        
+
         return any(pattern in path for pattern in suspicious_patterns)
 
     def validate_audio_file(self, file_path: str) -> bool:
@@ -128,7 +138,7 @@ class FileService:
 
         Returns:
             bool: True if the file is a valid WAV file, False otherwise
-            
+
         Raises:
             SecurityError: If file path is invalid or potentially malicious
         """
@@ -138,17 +148,21 @@ class FileService:
         except SecurityError as e:
             logger.error(f"Security validation failed for audio file: {e}")
             return False
-            
+
         # Check file existence
         if not os.path.exists(sanitized_path):
             logger.error(f"Audio file not found: {sanitized_path}")
             return False
-            
+
         # Check file size limit to prevent DoS attacks
         file_size = os.path.getsize(sanitized_path)
-        max_size_mb = float(self.config_manager.get("MAX_AUDIO_FILE_SIZE_MB", "100"))
+        max_size_mb = float(
+            self.config_manager.get("MAX_AUDIO_FILE_SIZE_MB", "100")
+        )
         if file_size > max_size_mb * 1024 * 1024:
-            logger.error(f"Audio file too large: {file_size} bytes (max: {max_size_mb}MB)")
+            logger.error(
+                f"Audio file too large: {file_size} bytes (max: {max_size_mb}MB)"
+            )
             return False
 
         try:
@@ -165,10 +179,12 @@ class FileService:
                 if wf.getframerate() < 1:
                     logger.error(f"Invalid frame rate in {sanitized_path}")
                     return False
-                    
+
                 # Check for reasonable frame rate range
                 if not (8000 <= wf.getframerate() <= 192000):
-                    logger.error(f"Suspicious frame rate in {sanitized_path}: {wf.getframerate()}")
+                    logger.error(
+                        f"Suspicious frame rate in {sanitized_path}: {wf.getframerate()}"
+                    )
                     return False
 
                 return True
@@ -228,18 +244,26 @@ class FileService:
         if text is None:
             logger.error("Text content cannot be None")
             raise ValueError("Text content cannot be None")
-            
+
         # Limit text size to prevent DoS attacks
-        max_size_kb = float(self.config_manager.get("MAX_TEXT_CONTENT_KB", "1024"))
+        max_size_kb = float(
+            self.config_manager.get("MAX_TEXT_CONTENT_KB", "1024")
+        )
         if len(text) > max_size_kb * 1024:
-            logger.error(f"Text content too large: {len(text)} chars (max: {max_size_kb}KB)")
-            raise SecurityError(f"Text content too large: {len(text)} chars (max: {max_size_kb}KB)")
-            
+            logger.error(
+                f"Text content too large: {len(text)} chars (max: {max_size_kb}KB)"
+            )
+            raise SecurityError(
+                f"Text content too large: {len(text)} chars (max: {max_size_kb}KB)"
+            )
+
         # First validate the path for security concerns
         try:
             sanitized_path = self.sanitize_path(file_path)
         except SecurityError as e:
-            logger.error(f"Security validation failed for output file path: {e}")
+            logger.error(
+                f"Security validation failed for output file path: {e}"
+            )
             raise SecurityError(f"Security validation failed: {e}")
 
         try:
@@ -249,9 +273,14 @@ class FileService:
                 self.prepare_directory(parent_dir)
 
             # Validate file extension
-            valid_extensions = ['.txt', '.md', '.json', '.csv', '.log']
-            if not any(sanitized_path.lower().endswith(ext) for ext in valid_extensions):
-                logger.warning(f"Suspicious file extension for text file: {sanitized_path}")
+            valid_extensions = [".txt", ".md", ".json", ".csv", ".log"]
+            if not any(
+                sanitized_path.lower().endswith(ext)
+                for ext in valid_extensions
+            ):
+                logger.warning(
+                    f"Suspicious file extension for text file: {sanitized_path}"
+                )
                 # We continue but log the warning
 
             # Save text to file
@@ -342,25 +371,35 @@ class FileService:
         except SecurityError as e:
             logger.error(f"Security validation failed for text file: {e}")
             raise SecurityError(f"Security validation failed: {e}")
-            
+
         # Check file existence
         if not os.path.exists(sanitized_path):
             logger.error(f"Text file not found: {sanitized_path}")
             raise FileOperationError(f"Text file not found: {sanitized_path}")
-            
+
         # Check file size limit to prevent DoS attacks
         file_size = os.path.getsize(sanitized_path)
-        max_size_mb = float(self.config_manager.get("MAX_TEXT_FILE_SIZE_MB", "10"))
+        max_size_mb = float(
+            self.config_manager.get("MAX_TEXT_FILE_SIZE_MB", "10")
+        )
         if file_size > max_size_mb * 1024 * 1024:
-            logger.error(f"Text file too large: {file_size} bytes (max: {max_size_mb}MB)")
-            raise SecurityError(f"Text file too large: {file_size} bytes (max: {max_size_mb}MB)")
-        
+            logger.error(
+                f"Text file too large: {file_size} bytes (max: {max_size_mb}MB)"
+            )
+            raise SecurityError(
+                f"Text file too large: {file_size} bytes (max: {max_size_mb}MB)"
+            )
+
         # Check file extension to ensure it's a text file
-        valid_extensions = ['.txt', '.md', '.json', '.csv', '.log']
-        if not any(sanitized_path.lower().endswith(ext) for ext in valid_extensions):
-            logger.warning(f"Suspicious file extension for text file: {sanitized_path}")
+        valid_extensions = [".txt", ".md", ".json", ".csv", ".log"]
+        if not any(
+            sanitized_path.lower().endswith(ext) for ext in valid_extensions
+        ):
+            logger.warning(
+                f"Suspicious file extension for text file: {sanitized_path}"
+            )
             # We continue but log the warning
-        
+
         try:
             with open(sanitized_path, "r") as f:
                 content = f.read().strip()

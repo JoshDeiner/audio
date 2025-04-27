@@ -18,10 +18,10 @@ logger = logging.getLogger(__name__)
 class AudioFormatPlugin(Plugin):
     """Base interface for audio format plugins.
 
-    Plugins that implement this interface can provide support for different 
+    Plugins that implement this interface can provide support for different
     audio file formats like MP3, FLAC, etc.
     """
-    
+
     @abstractmethod
     def get_supported_extensions(self) -> List[str]:
         """Get the file extensions supported by this plugin.
@@ -30,7 +30,7 @@ class AudioFormatPlugin(Plugin):
             List of supported file extensions (e.g., ['.mp3', '.m4a'])
         """
         pass
-    
+
     @abstractmethod
     def validate_file(self, file_path: str) -> bool:
         """Validate that a file is in the correct format.
@@ -42,7 +42,7 @@ class AudioFormatPlugin(Plugin):
             bool: True if the file is valid, False otherwise
         """
         pass
-    
+
     @abstractmethod
     def read_file(self, file_path: str) -> Tuple[np.ndarray, int]:
         """Read an audio file and convert to numpy array.
@@ -52,15 +52,20 @@ class AudioFormatPlugin(Plugin):
 
         Returns:
             Tuple of (audio_data, sample_rate)
-            
+
         Raises:
             AudioFormatError: If reading fails
         """
         pass
-    
+
     @abstractmethod
-    def write_file(self, file_path: str, audio_data: np.ndarray, 
-                sample_rate: int, **kwargs) -> str:
+    def write_file(
+        self,
+        file_path: str,
+        audio_data: np.ndarray,
+        sample_rate: int,
+        **kwargs,
+    ) -> str:
         """Write audio data to a file.
 
         Args:
@@ -71,12 +76,12 @@ class AudioFormatPlugin(Plugin):
 
         Returns:
             str: Path to the saved file
-            
+
         Raises:
             AudioFormatError: If writing fails
         """
         pass
-    
+
     @abstractmethod
     def get_format_info(self) -> Dict:
         """Get information about the audio format.

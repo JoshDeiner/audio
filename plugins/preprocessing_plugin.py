@@ -21,10 +21,14 @@ class PreprocessingPlugin(Plugin):
     Plugins that implement this interface can provide custom audio processing
     functionality like noise reduction, normalization, etc.
     """
-    
+
     @abstractmethod
-    def process_audio(self, audio_data: np.ndarray, sample_rate: int,
-                    options: Optional[Dict] = None) -> Tuple[np.ndarray, int]:
+    def process_audio(
+        self,
+        audio_data: np.ndarray,
+        sample_rate: int,
+        options: Optional[Dict] = None,
+    ) -> Tuple[np.ndarray, int]:
         """Process audio data.
 
         Args:
@@ -34,12 +38,12 @@ class PreprocessingPlugin(Plugin):
 
         Returns:
             Tuple of (processed_audio_data, sample_rate)
-            
+
         Raises:
             PreprocessingError: If processing fails
         """
         pass
-    
+
     @abstractmethod
     def get_default_options(self) -> Dict:
         """Get default processing options.
@@ -48,7 +52,7 @@ class PreprocessingPlugin(Plugin):
             Dict of default options
         """
         pass
-    
+
     @abstractmethod
     def get_processing_info(self) -> Dict:
         """Get information about the processing capabilities.

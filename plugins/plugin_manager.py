@@ -56,13 +56,13 @@ class PluginManager:
         """
         # Get plugin directories from configuration
         plugin_dirs = self._get_plugin_directories()
-        
+
         # Discover available plugins
         self._discovered_plugins = PluginLoader.discover_plugins(plugin_dirs)
-        
+
         # Load default plugins if configured
         self._load_default_plugins()
-        
+
         logger.info("Plugin manager initialized")
         return self._discovered_plugins
 
@@ -73,22 +73,26 @@ class PluginManager:
             List of directory paths
         """
         plugin_dirs = []
-        
+
         # Add built-in plugins directory
         import os
+
         import plugins
-        builtin_dir = os.path.join(os.path.dirname(plugins.__file__), "builtin")
+
+        builtin_dir = os.path.join(
+            os.path.dirname(plugins.__file__), "builtin"
+        )
         plugin_dirs.append(builtin_dir)
-        
+
         # Add user plugins directory
         user_dir = os.path.expanduser("~/.audio/plugins")
         plugin_dirs.append(user_dir)
-        
+
         # Add directory from configuration
         config_dir = self.config_manager.get("PLUGIN_DIR")
         if config_dir:
             plugin_dirs.append(config_dir)
-            
+
         return plugin_dirs
 
     def _load_default_plugins(self) -> None:
@@ -103,18 +107,20 @@ class PluginManager:
         default_output = self.config_manager.get(
             "DEFAULT_OUTPUT_PLUGIN", "file_output"
         )
-        
+
         # Load default plugins
         if default_transcription:
             self.get_transcription_plugin(default_transcription)
-            
+
         if default_audio_format:
             self.get_audio_format_plugin(default_audio_format)
-            
+
         if default_output:
             self.get_output_plugin(default_output)
 
-    def get_transcription_plugin(self, plugin_id: Optional[str] = None) -> Optional[TranscriptionPlugin]:
+    def get_transcription_plugin(
+        self, plugin_id: Optional[str] = None
+    ) -> Optional[TranscriptionPlugin]:
         """Get a transcription plugin instance.
 
         Args:
@@ -125,11 +131,15 @@ class PluginManager:
         """
         # Use default if not specified
         if plugin_id is None:
-            plugin_id = self.config_manager.get("DEFAULT_TRANSCRIPTION_PLUGIN", "whisper_transcription")
-            
+            plugin_id = self.config_manager.get(
+                "DEFAULT_TRANSCRIPTION_PLUGIN", "whisper_transcription"
+            )
+
         return self._get_plugin_instance("transcription", plugin_id)
 
-    def get_audio_format_plugin(self, plugin_id: Optional[str] = None) -> Optional[AudioFormatPlugin]:
+    def get_audio_format_plugin(
+        self, plugin_id: Optional[str] = None
+    ) -> Optional[AudioFormatPlugin]:
         """Get an audio format plugin instance.
 
         Args:
@@ -140,11 +150,15 @@ class PluginManager:
         """
         # Use default if not specified
         if plugin_id is None:
-            plugin_id = self.config_manager.get("DEFAULT_AUDIO_FORMAT_PLUGIN", "wav_audio_format")
-            
+            plugin_id = self.config_manager.get(
+                "DEFAULT_AUDIO_FORMAT_PLUGIN", "wav_audio_format"
+            )
+
         return self._get_plugin_instance("audio_format", plugin_id)
 
-    def get_output_plugin(self, plugin_id: Optional[str] = None) -> Optional[OutputPlugin]:
+    def get_output_plugin(
+        self, plugin_id: Optional[str] = None
+    ) -> Optional[OutputPlugin]:
         """Get an output plugin instance.
 
         Args:
@@ -155,11 +169,15 @@ class PluginManager:
         """
         # Use default if not specified
         if plugin_id is None:
-            plugin_id = self.config_manager.get("DEFAULT_OUTPUT_PLUGIN", "file_output")
-            
+            plugin_id = self.config_manager.get(
+                "DEFAULT_OUTPUT_PLUGIN", "file_output"
+            )
+
         return self._get_plugin_instance("output", plugin_id)
 
-    def get_preprocessing_plugin(self, plugin_id: Optional[str] = None) -> Optional[PreprocessingPlugin]:
+    def get_preprocessing_plugin(
+        self, plugin_id: Optional[str] = None
+    ) -> Optional[PreprocessingPlugin]:
         """Get a preprocessing plugin instance.
 
         Args:
@@ -173,10 +191,12 @@ class PluginManager:
             plugin_id = self.config_manager.get("DEFAULT_PREPROCESSING_PLUGIN")
             if not plugin_id:
                 return None
-                
+
         return self._get_plugin_instance("preprocessing", plugin_id)
 
-    def _get_plugin_instance(self, plugin_type: str, plugin_id: str) -> Optional[Plugin]:
+    def _get_plugin_instance(
+        self, plugin_type: str, plugin_id: str
+    ) -> Optional[Plugin]:
         """Get a plugin instance of the specified type.
 
         Args:
@@ -190,16 +210,20 @@ class PluginManager:
         key = f"{plugin_type}:{plugin_id}"
         if key in self._active_plugins:
             return self._active_plugins[key]
-            
+
         # Get a new instance from the registry
-        instance = PluginRegistry.get_plugin_instance(plugin_type, plugin_id, self.config_manager)
-        
+        instance = PluginRegistry.get_plugin_instance(
+            plugin_type, plugin_id, self.config_manager
+        )
+
         if instance:
             self._active_plugins[key] = instance
-            
+
         return instance
 
-    def get_available_plugins(self, plugin_type: Optional[str] = None) -> Dict[str, List[str]]:
+    def get_available_plugins(
+        self, plugin_type: Optional[str] = None
+    ) -> Dict[str, List[str]]:
         """Get the available plugins.
 
         Args:
@@ -210,7 +234,7 @@ class PluginManager:
         """
         if not self._discovered_plugins:
             self.initialize()
-            
+
         if plugin_type:
             return {plugin_type: self._discovered_plugins.get(plugin_type, [])}
         else:
@@ -224,5 +248,5 @@ class PluginManager:
                 logger.info(f"Cleaned up plugin: {key}")
             except Exception as e:
                 logger.error(f"Error cleaning up plugin {key}: {e}")
-                
+
         self._active_plugins = {}

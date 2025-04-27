@@ -59,25 +59,27 @@ class AudioPipelineController:
         """
         self.config = config
         self.config_manager = ConfigurationManager
-        
+
         # Initialize service factory
         self.service_factory = ServiceFactory(self.config_manager)
         self.service_factory.initialize()
-        
+
         # Set up plugin manager
         self.plugin_manager = PluginManager(self.config_manager)
-        
+
         # Create services using factory
-        self.transcription_service = self.service_factory.create_transcription_service(config)
+        self.transcription_service = (
+            self.service_factory.create_transcription_service(config)
+        )
         self.file_service = self.service_factory.create_file_service()
 
         # Ensure directories exist
         self._ensure_directories()
-        
+
         # Initialize processing hooks
         self._pre_processing_hooks = []
         self._post_processing_hooks = []
-        
+
         # Register any processing hooks specified in configuration
         self._register_hooks()
 
@@ -97,7 +99,9 @@ class AudioPipelineController:
         if not output_dir:
             output_dir = os.path.join(os.getcwd(), "output")
             self.config_manager.set("AUDIO_OUTPUT_DIR", output_dir)
-            logger.info(f"AUDIO_OUTPUT_DIR not set, using default: {output_dir}")
+            logger.info(
+                f"AUDIO_OUTPUT_DIR not set, using default: {output_dir}"
+            )
 
         if not os.path.exists(output_dir):
             os.makedirs(output_dir, exist_ok=True)
@@ -114,7 +118,7 @@ class AudioPipelineController:
                 logger.info(f"Registered pre-processing plugin: {plugin_id}")
             else:
                 logger.warning(f"Pre-processing plugin not found: {plugin_id}")
-                
+
         # Get post-processing (output) plugins
         post_plugins = self.config.get("output_plugins", [])
         for plugin_id in post_plugins:
@@ -156,7 +160,9 @@ class AudioPipelineController:
             AudioRecordingError: If recording fails
         """
         try:
-            recording_service = self.service_factory.create_audio_recording_service()
+            recording_service = (
+                self.service_factory.create_audio_recording_service()
+            )
             logger.info(f"Recording audio for {duration} seconds...")
             print(f"Recording audio for {duration} seconds...")
 
@@ -231,22 +237,28 @@ class AudioPipelineController:
         if self._pre_processing_hooks:
             try:
                 # Read audio file
-                audio_format_plugin = self.plugin_manager.get_audio_format_plugin()
+                audio_format_plugin = (
+                    self.plugin_manager.get_audio_format_plugin()
+                )
                 if audio_format_plugin:
-                    audio_data, sample_rate = audio_format_plugin.read_file(audio_path)
-                    
+                    audio_data, sample_rate = audio_format_plugin.read_file(
+                        audio_path
+                    )
+
                     # Apply pre-processing hooks
                     for hook in self._pre_processing_hooks:
                         audio_data, sample_rate = hook.process_audio(
                             audio_data, sample_rate
                         )
-                    
+
                     # Save processed audio to a temporary file
                     temp_path = os.path.join(
                         os.path.dirname(audio_path),
                         f"processed_{os.path.basename(audio_path)}",
                     )
-                    audio_format_plugin.write_file(temp_path, audio_data, sample_rate)
+                    audio_format_plugin.write_file(
+                        temp_path, audio_data, sample_rate
+                    )
                     audio_path = temp_path
                     logger.info(f"Pre-processed audio saved to: {audio_path}")
             except Exception as e:
@@ -260,10 +272,12 @@ class AudioPipelineController:
             if plugin_id:
                 # Use plugin-specific options if available
                 options = self.config.get("transcription_options", {})
-                
+
                 # Get the plugin
-                plugin = self.plugin_manager.get_transcription_plugin(plugin_id)
-                
+                plugin = self.plugin_manager.get_transcription_plugin(
+                    plugin_id
+                )
+
                 if plugin:
                     # Use the plugin directly
                     transcription = plugin.transcribe(
@@ -273,10 +287,12 @@ class AudioPipelineController:
                     )
                 else:
                     # Fall back to service
-                    transcription = self.transcription_service.transcribe_audio(
-                        audio_path,
-                        model_size=self.config.get("model"),
-                        language=self.config.get("language"),
+                    transcription = (
+                        self.transcription_service.transcribe_audio(
+                            audio_path,
+                            model_size=self.config.get("model"),
+                            language=self.config.get("language"),
+                        )
                     )
             else:
                 # Use the service
@@ -302,7 +318,7 @@ class AudioPipelineController:
                 "model": self.config.get("model", "unknown"),
                 "language": self.config.get("language", "auto"),
             }
-            
+
             for hook in self._post_processing_hooks:
                 try:
                     hook.handle_transcription(transcription, metadata)
@@ -370,13 +386,13 @@ class AudioPipelineController:
         try:
             # Get TTS service
             tts_service = self.service_factory.create_tts_service()
-            
+
             # Use plugin if specified in config
             tts_plugin = self.config.get("tts_plugin")
             if tts_plugin:
                 # Plugin support for TTS could be added in the future
                 pass
-                
+
             audio_data = tts_service.synthesize(text)
         except Exception as e:
             error_msg = f"Error synthesizing audio: {e}"
@@ -400,7 +416,7 @@ class AudioPipelineController:
             else:
                 # Fall back to file service
                 self.file_service.save(audio_data, output_path)
-                
+
             logger.info(f"Audio saved to: {output_path}")
         except Exception as e:
             error_msg = f"Error saving audio file: {e}"
@@ -410,7 +426,9 @@ class AudioPipelineController:
         # Play audio if enabled
         if self.config.get("play_audio", True):
             try:
-                playback_service = self.service_factory.create_audio_playback_service()
+                playback_service = (
+                    self.service_factory.create_audio_playback_service()
+                )
                 playback_service.play(audio_data)
                 logger.info("Audio playback completed")
             except Exception as e:
@@ -429,13 +447,13 @@ class AudioPipelineController:
     def cleanup(self) -> None:
         """Clean up resources used by the controller."""
         # Clean up services
-        if hasattr(self.transcription_service, 'cleanup'):
+        if hasattr(self.transcription_service, "cleanup"):
             self.transcription_service.cleanup()
-            
-        if hasattr(self.file_service, 'cleanup'):
+
+        if hasattr(self.file_service, "cleanup"):
             self.file_service.cleanup()
-            
+
         # Clean up plugin manager
         self.plugin_manager.cleanup()
-        
+
         logger.info("Audio pipeline controller cleaned up")
