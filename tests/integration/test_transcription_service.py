@@ -166,7 +166,9 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
     }
 
     controller = AudioPipelineController(config)
-    controller.handle_audio_out()
+    # Use asyncio.run to run the coroutine
+    import asyncio
+    asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
     assert (
