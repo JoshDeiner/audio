@@ -8,11 +8,15 @@ from typing import List, Optional, Tuple
 from colorama import Fore, Style
 from tqdm import tqdm
 
-from services.interfaces.file_transcription_service_interface import IFileTranscriptionService
-from services.interfaces.file_service_interface import IFileService
-from services.interfaces.transcription_service_interface import ITranscriptionService
-from services.exceptions import FileOperationError
 from dependency_injection.module_loader import Injectable
+from services.exceptions import FileOperationError
+from services.interfaces.file_service_interface import IFileService
+from services.interfaces.file_transcription_service_interface import (
+    IFileTranscriptionService,
+)
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,10 +28,10 @@ class FileTranscriptionService(IFileTranscriptionService):
     def __init__(
         self,
         file_service: IFileService,
-        transcription_service: ITranscriptionService
+        transcription_service: ITranscriptionService,
     ) -> None:
         """Initialize the file transcription service with dependencies.
-        
+
         Args:
             file_service: Service for file operations
             transcription_service: Service for audio transcription

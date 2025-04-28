@@ -6,8 +6,10 @@ from typing import Tuple, Union
 import numpy as np
 import sounddevice as sd
 
-from services.interfaces.audio_playback_service_interface import IAudioPlaybackService
 from dependency_injection.module_loader import Injectable
+from services.interfaces.audio_playback_service_interface import (
+    IAudioPlaybackService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,9 @@ class AudioPlaybackService(IAudioPlaybackService):
         """Initialize the audio playback service."""
         pass
 
-    def play(self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]]) -> None:
+    def play(
+        self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]]
+    ) -> None:
         """Play audio data through the default audio output.
 
         Args:

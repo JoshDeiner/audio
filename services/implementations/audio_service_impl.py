@@ -12,7 +12,9 @@ from colorama import Fore, Style
 from services.exceptions import AudioRecordingError, FileOperationError
 from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.file_service_interface import IFileService
-from services.interfaces.platform_service_interface import IPlatformDetectionService
+from services.interfaces.platform_service_interface import (
+    IPlatformDetectionService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +23,12 @@ class AudioRecordingService(IAudioRecordingService):
     """Implementation for recording audio from microphone."""
 
     def __init__(
-        self, 
-        platform_service: IPlatformDetectionService, 
-        file_service: IFileService
+        self,
+        platform_service: IPlatformDetectionService,
+        file_service: IFileService,
     ) -> None:
         """Initialize the audio recording service.
-        
+
         Args:
             platform_service: Platform detection service dependency
             file_service: File service dependency
@@ -96,7 +98,9 @@ class AudioRecordingService(IAudioRecordingService):
         except FileOperationError as e:
             raise FileOperationError(f"Input directory error: {str(e)}")
 
-    def _apply_platform_specific_settings(self, rate: int, chunk: int) -> tuple[int, int]:
+    def _apply_platform_specific_settings(
+        self, rate: int, chunk: int
+    ) -> tuple[int, int]:
         """Apply platform-specific audio settings.
 
         Args:

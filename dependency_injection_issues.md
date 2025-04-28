@@ -13,14 +13,14 @@
 ## 2. Hard-coded Dependencies in Controllers
 
 ### AudioPipelineController (audio/audio_pipeline_controller.py)
-- Line 62-63: 
+- Line 62-63:
   ```python
   self.transcription_service = TranscriptionService()
   self.file_service = FileService()
   ```
 - Direct instantiation of services in controller constructor
 - Line 109: `recording_service = AudioRecordingService()` - Creating service instance inside method
-- Line 291: `TextToSpeechService.synthesize` - Static method calls 
+- Line 291: `TextToSpeechService.synthesize` - Static method calls
 - Line 317: `AudioPlaybackService.play` - Static method calls with no DI
 - Line 248 & 301: Static method calls to FileService with no DI
 

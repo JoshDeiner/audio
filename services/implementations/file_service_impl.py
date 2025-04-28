@@ -98,7 +98,9 @@ class FileService(IFileService):
                 logger.info(f"Created directory: {dir_path}")
             except (IOError, OSError) as e:
                 logger.error(f"Failed to create directory: {e}")
-                raise FileOperationError(f"Failed to create directory: {dir_path}")
+                raise FileOperationError(
+                    f"Failed to create directory: {dir_path}"
+                )
 
         return dir_path
 
@@ -133,7 +135,9 @@ class FileService(IFileService):
             raise FileOperationError(f"Failed to save text file: {e}")
 
     def save(
-        self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]], file_path: str
+        self,
+        audio_data: Union[np.ndarray, Tuple[np.ndarray, int]],
+        file_path: str,
     ) -> str:
         """Save audio data to a file.
 
@@ -176,7 +180,9 @@ class FileService(IFileService):
             str: Path to the temporary output file
         """
         # Get output directory from environment or use default
-        output_dir = self.sanitize_path(os.environ.get("AUDIO_OUTPUT_DIR", "output"))
+        output_dir = self.sanitize_path(
+            os.environ.get("AUDIO_OUTPUT_DIR", "output")
+        )
         # Create the output directory if it doesn't exist
         self.prepare_directory(output_dir)
         # Generate a unique filename based on timestamp
@@ -211,7 +217,9 @@ class FileService(IFileService):
             Optional[str]: The content of the latest transcription file or None if not found
         """
         # Get output directory from environment or use default
-        output_dir = self.sanitize_path(os.environ.get("AUDIO_OUTPUT_DIR", "output"))
+        output_dir = self.sanitize_path(
+            os.environ.get("AUDIO_OUTPUT_DIR", "output")
+        )
         if not os.path.exists(output_dir):
             logger.warning(f"Output directory not found: {output_dir}")
             return None

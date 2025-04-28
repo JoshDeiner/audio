@@ -48,7 +48,7 @@ from services.interfaces.my_service_interface import IMyService
 class MyService(IMyService):
     def __init__(self, dependency: IDependency) -> None:
         self.dependency = dependency
-        
+
     def do_something(self) -> str:
         return f"Did something with {self.dependency.name}"
 ```
@@ -102,10 +102,10 @@ def test_my_controller():
     # Create mock dependencies
     mock_service1 = MockService1()
     mock_service2 = MockService2()
-    
+
     # Create controller with mock dependencies
     controller = MyController({}, mock_service1, mock_service2)
-    
+
     # Test methods
     result = controller.do_something()
     assert result == "expected result"

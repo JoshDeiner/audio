@@ -6,7 +6,7 @@ from typing import Any, Dict, Optional
 
 class IConfigurationManager(ABC):
     """Interface for centralized configuration management.
-    
+
     This interface defines methods for accessing and managing configuration
     values from various sources such as explicit values, environment variables,
     and default values.

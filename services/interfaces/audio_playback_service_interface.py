@@ -10,7 +10,9 @@ class IAudioPlaybackService(ABC):
     """Interface for audio playback."""
 
     @abstractmethod
-    def play(self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]]) -> None:
+    def play(
+        self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]]
+    ) -> None:
         """Play audio data through the default audio output.
 
         Args:

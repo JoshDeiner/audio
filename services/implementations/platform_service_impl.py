@@ -4,7 +4,9 @@ import logging
 import os
 import platform
 
-from services.interfaces.platform_service_interface import IPlatformDetectionService
+from services.interfaces.platform_service_interface import (
+    IPlatformDetectionService,
+)
 
 logger = logging.getLogger(__name__)
 

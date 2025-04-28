@@ -31,7 +31,7 @@ Concrete implementations accept dependencies through their constructors:
 class TranscriptionService(ITranscriptionService):
     def __init__(self, file_service: IFileService) -> None:
         self.file_service = file_service
-        
+
     def transcribe_audio(self, audio_file_path: str, model_size=None, language=None) -> str:
         # Implementation uses self.file_service rather than creating it
         ...

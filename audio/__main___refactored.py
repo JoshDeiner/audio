@@ -16,9 +16,13 @@ from audio.utilities.argument_parser import ArgumentParser
 from dependency_injection import container
 from services.exceptions import AudioServiceError
 from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.configuration_manager_interface import IConfigurationManager
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
 from services.interfaces.file_service_interface import IFileService
-from services.interfaces.transcription_service_interface import ITranscriptionService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 from services.service_provider import service_provider
 
 # Configure logging
@@ -44,13 +48,13 @@ async def handle_audio_in_command(args: Dict[str, str]) -> None:
 
         # Create controller with injected dependencies
         controller = AudioPipelineController(
-            args, 
-            config_manager, 
-            transcription_service, 
-            file_service, 
-            audio_service
+            args,
+            config_manager,
+            transcription_service,
+            file_service,
+            audio_service,
         )
-        
+
         transcription = await controller.handle_audio_in()
         print(f"\nTranscription result: {transcription}\n")
     except AudioServiceError as e:
@@ -76,13 +80,13 @@ async def handle_audio_out_command(args: Dict[str, str]) -> None:
 
         # Create controller with injected dependencies
         controller = AudioPipelineController(
-            args, 
-            config_manager, 
-            transcription_service, 
-            file_service, 
-            audio_service
+            args,
+            config_manager,
+            transcription_service,
+            file_service,
+            audio_service,
         )
-        
+
         audio_path = await controller.handle_audio_out()
         print(f"\nAudio output saved to: {audio_path}\n")
     except AudioServiceError as e:
@@ -101,7 +105,7 @@ async def handle_conversation_command(args: Dict[str, str]) -> None:
     """
     try:
         max_turns = int(args.get("turns", "5"))
-        
+
         # Get services from the DI container via service provider
         config_manager = service_provider.get_config_manager()
         transcription_service = service_provider.get_transcription_service()
@@ -110,13 +114,13 @@ async def handle_conversation_command(args: Dict[str, str]) -> None:
 
         # Create controller with injected dependencies
         controller = AudioPipelineController(
-            args, 
-            config_manager, 
-            transcription_service, 
-            file_service, 
-            audio_service
+            args,
+            config_manager,
+            transcription_service,
+            file_service,
+            audio_service,
         )
-        
+
         await controller.handle_conversation_loop(max_turns=max_turns)
         print("\nConversation completed successfully.\n")
     except AudioServiceError as e:
@@ -131,7 +135,7 @@ async def main_async() -> None:
     """Run the audio application with async support."""
     # Initialize dependency container first
     service_provider.configure()
-    
+
     parser = ArgumentParser()
     args, command = parser.parse_arguments()
 

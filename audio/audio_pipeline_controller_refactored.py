@@ -14,6 +14,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional
 
+from services.audio_playback_service import AudioPlaybackService
 from services.exceptions import (
     AudioRecordingError,
     AudioServiceError,
@@ -21,11 +22,14 @@ from services.exceptions import (
     TranscriptionError,
 )
 from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.configuration_manager_interface import IConfigurationManager
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
 from services.interfaces.file_service_interface import IFileService
-from services.interfaces.transcription_service_interface import ITranscriptionService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 from services.text_to_speech_service import TextToSpeechService
-from services.audio_playback_service import AudioPlaybackService
 
 logger = logging.getLogger(__name__)
 
@@ -64,7 +68,7 @@ class AudioPipelineController:
             ```python
             # Using the DI container
             from dependency_injection import container
-            
+
             config = {
                 "model": "small",
                 "language": "en",
@@ -274,7 +278,9 @@ class AudioPipelineController:
         # Try to read the file
         try:
             # Run the file reading operation in a thread pool
-            content = await asyncio.to_thread(self.file_service.read_text, source)
+            content = await asyncio.to_thread(
+                self.file_service.read_text, source
+            )
             return str(content)
         except Exception as e:
             error_msg = f"Failed to read source file: {e}"
@@ -330,7 +336,9 @@ class AudioPipelineController:
         # Determine output path
         output_path = self.config.get(
             "output_path"
-        ) or await asyncio.to_thread(self.file_service.generate_temp_output_path)
+        ) or await asyncio.to_thread(
+            self.file_service.generate_temp_output_path
+        )
 
         # Save audio to file - file I/O operations in thread pool
         try:

@@ -19,7 +19,7 @@ class IAudioRecordingService(ABC):
 
         Args:
             duration: Recording duration in seconds
-            rate: Sample rate in Hz 
+            rate: Sample rate in Hz
             chunk: Buffer size
             channels: Number of audio channels (1 for mono)
             format_type: Audio format (from pyaudio constants)

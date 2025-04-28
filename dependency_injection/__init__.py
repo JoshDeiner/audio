@@ -4,6 +4,6 @@ This package provides dependency injection functionality for managing
 service instances and their dependencies across the application.
 """
 
-from dependency_injection.container import container, DIContainer
+from dependency_injection.container import DIContainer, container
 
 __all__ = ["container", "DIContainer"]

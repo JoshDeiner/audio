@@ -20,13 +20,15 @@ logger = logging.getLogger(__name__)
 
 class IArgumentParser:
     """Interface for argument parsing used by the audio application."""
-    
-    def parse_arguments(self, args: Optional[Sequence[str]] = None) -> Tuple[Dict[str, Any], str]:
+
+    def parse_arguments(
+        self, args: Optional[Sequence[str]] = None
+    ) -> Tuple[Dict[str, Any], str]:
         """Parse command line arguments.
 
         Args:
             args: Optional arguments to parse (defaults to sys.argv[1:])
-        
+
         Returns:
             Tuple[Dict[str, Any], str]: A tuple containing:
                 - Dictionary of parsed arguments
@@ -187,12 +189,14 @@ class ArgumentParser(IArgumentParser):
             help="Language code to use for conversation",
         )
 
-    def parse_arguments(self, args: Optional[Sequence[str]] = None) -> Tuple[Dict[str, Any], str]:
+    def parse_arguments(
+        self, args: Optional[Sequence[str]] = None
+    ) -> Tuple[Dict[str, Any], str]:
         """Parse command line arguments.
 
         Args:
             args: Optional arguments to parse (defaults to sys.argv[1:])
-            
+
         Returns:
             Tuple[Dict[str, Any], str]: A tuple containing:
                 - Dictionary of parsed arguments

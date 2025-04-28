@@ -13,7 +13,9 @@ from plugins.plugin_base import Plugin, PluginRegistry
 from plugins.plugin_loader import PluginLoader
 from plugins.preprocessing_plugin import PreprocessingPlugin
 from plugins.transcription_plugin import TranscriptionPlugin
-from services.interfaces.configuration_manager_interface import IConfigurationManager
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -29,9 +31,9 @@ class PluginManager:
     _instance = None
 
     @classmethod
-    def get_instance(cls) -> Optional['PluginManager']:
+    def get_instance(cls) -> Optional["PluginManager"]:
         """Get the singleton instance if it exists.
-        
+
         Returns:
             The singleton instance or None if not initialized
         """
@@ -60,7 +62,7 @@ class PluginManager:
         """
         if self._initialized:
             return self._discovered_plugins
-            
+
         # Get plugin directories from configuration
         plugin_dirs = self._get_plugin_directories()
 
@@ -84,6 +86,7 @@ class PluginManager:
 
         # Add built-in plugins directory
         import plugins
+
         builtin_dir = os.path.join(
             os.path.dirname(plugins.__file__), "builtin"
         )

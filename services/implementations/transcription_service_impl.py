@@ -10,7 +10,9 @@ from faster_whisper import WhisperModel
 
 from services.exceptions import FileOperationError, TranscriptionError
 from services.interfaces.file_service_interface import IFileService
-from services.interfaces.transcription_service_interface import ITranscriptionService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +22,7 @@ class TranscriptionService(ITranscriptionService):
 
     def __init__(self, file_service: IFileService) -> None:
         """Initialize the transcription service.
-        
+
         Args:
             file_service: File service dependency for file operations
         """

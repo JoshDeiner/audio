@@ -6,16 +6,27 @@ advanced features like scoped lifetimes, lazy resolution, and factory methods.
 
 import inspect
 import logging
-from typing import Any, Callable, Dict, List, Optional, Set, Type, TypeVar, cast
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+    cast,
+)
 
 logger = logging.getLogger(__name__)
 
-T = TypeVar('T')
-TFactory = TypeVar('TFactory')
+T = TypeVar("T")
+TFactory = TypeVar("TFactory")
 
 
 class ServiceLifetime:
     """Service lifetime options for DI container registrations."""
+
     SINGLETON = "singleton"  # One instance for the entire application
     SCOPED = "scoped"  # One instance per scope/request
     TRANSIENT = "transient"  # New instance each time resolved
@@ -66,7 +77,7 @@ class Scope:
     the scope but not between different scopes.
     """
 
-    def __init__(self, container: 'DIContainer') -> None:
+    def __init__(self, container: "DIContainer") -> None:
         """Initialize a scope with reference to its parent container.
 
         Args:
@@ -141,12 +152,15 @@ class DIContainer:
             container.register(IConfig, config_instance)
 
             # Register a factory
-            container.register(IDatabase, factory=lambda c: 
+            container.register(IDatabase, factory=lambda c:
                 Database(c.resolve(ISettings).connection_string))
             ```
         """
         # If only implementation is provided, use singleton lifetime
-        if implementation is not None and lifetime != ServiceLifetime.SINGLETON:
+        if (
+            implementation is not None
+            and lifetime != ServiceLifetime.SINGLETON
+        ):
             logger.warning(
                 f"Forcing singleton lifetime for {service_type.__name__} "
                 "because an implementation instance was provided"
@@ -157,7 +171,9 @@ class DIContainer:
         dependencies = []
         if implementation_type and not implementation and not factory:
             try:
-                dependencies = self._get_constructor_dependencies(implementation_type)
+                dependencies = self._get_constructor_dependencies(
+                    implementation_type
+                )
             except Exception as e:
                 logger.warning(
                     f"Failed to determine dependencies for {implementation_type}: {e}"
@@ -178,7 +194,10 @@ class DIContainer:
         self._registrations[key] = registration
 
         # If this is a singleton with an instance already provided, store it
-        if lifetime == ServiceLifetime.SINGLETON and implementation is not None:
+        if (
+            lifetime == ServiceLifetime.SINGLETON
+            and implementation is not None
+        ):
             self._singletons[key] = implementation
 
         logger.debug(f"Registered service: {key} with lifetime {lifetime}")
@@ -212,7 +231,9 @@ class DIContainer:
             Returns:
                 An instance of the requested service
             """
-            return self._create_instance(self._registrations[key], None, kwargs)
+            return self._create_instance(
+                self._registrations[key], None, kwargs
+            )
 
         return factory_func
 
@@ -224,7 +245,9 @@ class DIContainer:
         """
         return Scope(self)
 
-    def resolve(self, service_type: Type[T], scope: Optional[Scope] = None) -> T:
+    def resolve(
+        self, service_type: Type[T], scope: Optional[Scope] = None
+    ) -> T:
         """Resolve a service instance.
 
         Args:
@@ -242,35 +265,39 @@ class DIContainer:
             raise KeyError(f"No service of type {key} is registered")
 
         registration = self._registrations[key]
-        
+
         # Handle different service lifetimes
         if registration.lifetime == ServiceLifetime.SINGLETON:
             # For singletons, create once and reuse
             if key not in self._singletons:
-                self._singletons[key] = self._create_instance(registration, scope)
+                self._singletons[key] = self._create_instance(
+                    registration, scope
+                )
             return cast(T, self._singletons[key])
-        
+
         elif registration.lifetime == ServiceLifetime.SCOPED:
             # For scoped services, ensure we have a scope
             if not scope:
                 raise ValueError(
                     f"Cannot resolve scoped service {key} without a scope"
                 )
-            
+
             # Create once per scope
             if key not in scope.instances:
-                scope.instances[key] = self._create_instance(registration, scope)
+                scope.instances[key] = self._create_instance(
+                    registration, scope
+                )
             return cast(T, scope.instances[key])
-        
+
         else:  # TRANSIENT
             # Always create a new instance
             return cast(T, self._create_instance(registration, scope))
 
     def _create_instance(
-        self, 
-        registration: ServiceRegistration, 
+        self,
+        registration: ServiceRegistration,
         scope: Optional[Scope] = None,
-        overrides: Optional[Dict[str, Any]] = None
+        overrides: Optional[Dict[str, Any]] = None,
     ) -> Any:
         """Create an instance of a service.
 
@@ -303,7 +330,7 @@ class DIContainer:
         # Resolve dependencies
         args = {}
         overrides = overrides or {}
-        
+
         for dep_type in registration.dependencies:
             dep_name = dep_type.__name__
             if dep_name in overrides:
@@ -327,7 +354,9 @@ class DIContainer:
                 f"Failed to create instance of {registration.service_type.__name__}: {e}"
             )
 
-    def _get_constructor_dependencies(self, implementation_type: Type) -> List[Type]:
+    def _get_constructor_dependencies(
+        self, implementation_type: Type
+    ) -> List[Type]:
         """Determine the dependencies required by a type's constructor.
 
         Args:
@@ -343,21 +372,25 @@ class DIContainer:
             # Get constructor signature
             constructor = implementation_type.__init__
             signature = inspect.signature(constructor)
-            
+
             # Extract parameter types from type hints
             dependencies = []
             for name, param in signature.parameters.items():
                 if name == "self":
                     continue
-                    
+
                 # Get the parameter type
                 param_type = param.annotation
-                if param_type is not inspect.Parameter.empty and isinstance(param_type, type):
+                if param_type is not inspect.Parameter.empty and isinstance(
+                    param_type, type
+                ):
                     dependencies.append(param_type)
-                    
+
             return dependencies
         except Exception as e:
-            raise ValueError(f"Failed to analyze constructor for {implementation_type}: {e}")
+            raise ValueError(
+                f"Failed to analyze constructor for {implementation_type}: {e}"
+            )
 
     def is_registered(self, service_type: Type) -> bool:
         """Check if a service type is registered.
@@ -369,7 +402,7 @@ class DIContainer:
             True if the type is registered, False otherwise
         """
         return service_type.__name__ in self._registrations
-        
+
     def remove_registration(self, service_type: Type) -> bool:
         """Remove a service registration.
 

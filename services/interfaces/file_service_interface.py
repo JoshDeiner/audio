@@ -67,7 +67,9 @@ class IFileService(ABC):
 
     @abstractmethod
     def save(
-        self, audio_data: Union[np.ndarray, Tuple[np.ndarray, int]], file_path: str
+        self,
+        audio_data: Union[np.ndarray, Tuple[np.ndarray, int]],
+        file_path: str,
     ) -> str:
         """Save audio data to a file.
 

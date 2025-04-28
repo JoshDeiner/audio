@@ -9,7 +9,7 @@ This document outlines the dependency injection implementation for the audio app
 Created interfaces for all services in the `services/interfaces` package:
 - `IBaseService`
 - `IConfigurationManager`
-- `IFileService` 
+- `IFileService`
 - `ITranscriptionService`
 - `IAudioRecordingService`
 - `IPlatformDetectionService`

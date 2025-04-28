@@ -103,7 +103,7 @@ class ApplicationService:
 @Injectable(interface=IApplicationService)
 class ApplicationService(IApplicationService):
     def __init__(
-        self, 
+        self,
         recording_service: IAudioRecordingService,
         transcription_service: ITranscriptionService
     ) -> None:

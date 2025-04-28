@@ -5,5 +5,3 @@
   3. Implement a DI container to manage dependencies
   4. Replace ServiceFactory with proper DI
   5. Eliminate global state and singletons
-
-

@@ -7,11 +7,15 @@ from typing import Tuple
 
 from colorama import Fore, Style
 
-from services.interfaces.application_service_interface import IApplicationService
-from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.transcription_service_interface import ITranscriptionService
-from services.exceptions import AudioServiceError
 from dependency_injection.module_loader import Injectable
+from services.exceptions import AudioServiceError
+from services.interfaces.application_service_interface import (
+    IApplicationService,
+)
+from services.interfaces.audio_service_interface import IAudioRecordingService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -21,12 +25,12 @@ class ApplicationService(IApplicationService):
     """Main application service that orchestrates the workflow."""
 
     def __init__(
-        self, 
+        self,
         recording_service: IAudioRecordingService,
-        transcription_service: ITranscriptionService
+        transcription_service: ITranscriptionService,
     ) -> None:
         """Initialize the application service with dependencies.
-        
+
         Args:
             recording_service: Service for audio recording
             transcription_service: Service for audio transcription

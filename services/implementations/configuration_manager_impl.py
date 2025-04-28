@@ -4,7 +4,9 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-from services.interfaces.configuration_manager_interface import IConfigurationManager
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
 
 logger = logging.getLogger(__name__)
 

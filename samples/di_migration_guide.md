@@ -43,13 +43,13 @@ async def handle_audio_in_command(args: Dict[str, str]) -> None:
 
         # Create controller with injected dependencies
         controller = AudioPipelineController(
-            args, 
-            config_manager, 
-            transcription_service, 
-            file_service, 
+            args,
+            config_manager,
+            transcription_service,
+            file_service,
             audio_service
         )
-        
+
         transcription = await controller.handle_audio_in()
         print(f"\nTranscription result: {transcription}\n")
     except AudioServiceError as e:
@@ -167,7 +167,7 @@ def test_audio_pipeline_controller():
     mock_transcription_service = MockTranscriptionService()
     mock_file_service = MockFileService()
     mock_audio_service = MockAudioService()
-    
+
     # Create controller with mock dependencies
     controller = AudioPipelineController(
         {"test": True},
@@ -176,7 +176,7 @@ def test_audio_pipeline_controller():
         mock_file_service,
         mock_audio_service
     )
-    
+
     # Test controller methods with mocked dependencies
     result = await controller.handle_audio_in()
     assert result == "expected transcription"
