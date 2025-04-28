@@ -6,7 +6,7 @@ defining the standard contract for extending the application.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Set, Type
+from typing import Dict, List, Optional, Set, Type
 
 from config.configuration_manager import ConfigurationManager
 

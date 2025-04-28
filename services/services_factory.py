@@ -29,6 +29,11 @@ class ServiceFactory:
     _instance = None
 
     def __new__(cls, *args, **kwargs):
+        """Implement singleton pattern for ServiceFactory.
+
+        Returns:
+            The singleton instance of ServiceFactory
+        """
         if cls._instance is None:
             cls._instance = super(ServiceFactory, cls).__new__(cls)
             cls._instance._initialized = False

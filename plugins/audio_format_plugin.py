@@ -6,7 +6,7 @@ to extend the audio application with support for different audio formats.
 
 import logging
 from abc import abstractmethod
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Dict, List, Tuple
 
 import numpy as np
 

@@ -10,7 +10,7 @@ import logging
 import os
 import pkgutil
 import sys
-from typing import Dict, List, Optional, Set, Type
+from typing import Dict, List, Optional
 
 from config.configuration_manager import ConfigurationManager
 from plugins.audio_format_plugin import AudioFormatPlugin

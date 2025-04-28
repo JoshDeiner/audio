@@ -25,14 +25,29 @@ class WavAudioFormatPlugin(AudioFormatPlugin):
 
     @property
     def plugin_id(self) -> str:
+        """Get the unique identifier for this plugin.
+
+        Returns:
+            str: Unique plugin identifier
+        """
         return "wav_audio_format"
 
     @property
     def plugin_name(self) -> str:
+        """Get the human-readable name for this plugin.
+
+        Returns:
+            str: Plugin name
+        """
         return "WAV Audio Format"
 
     @property
     def plugin_version(self) -> str:
+        """Get the version of this plugin.
+
+        Returns:
+            str: Plugin version in format major.minor.patch
+        """
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:

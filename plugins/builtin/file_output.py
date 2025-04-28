@@ -23,14 +23,29 @@ class FileOutputPlugin(OutputPlugin):
 
     @property
     def plugin_id(self) -> str:
+        """Get the unique identifier for this plugin.
+
+        Returns:
+            str: Unique plugin identifier
+        """
         return "file_output"
 
     @property
     def plugin_name(self) -> str:
+        """Get the human-readable name for this plugin.
+
+        Returns:
+            str: Plugin name
+        """
         return "File Output"
 
     @property
     def plugin_version(self) -> str:
+        """Get the version of this plugin.
+
+        Returns:
+            str: Plugin version in format major.minor.patch
+        """
         return "1.0.0"
 
     def __init__(self) -> None:

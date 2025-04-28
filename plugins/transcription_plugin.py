@@ -8,7 +8,6 @@ import logging
 from abc import abstractmethod
 from typing import Dict, Optional
 
-from config.configuration_manager import ConfigurationManager
 from plugins.plugin_base import Plugin
 
 logger = logging.getLogger(__name__)

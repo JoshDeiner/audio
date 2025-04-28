@@ -1,3 +1,9 @@
+"""Configuration management for the audio application.
+
+This module provides functionality for loading, accessing, and modifying
+application configuration from environment variables and config files.
+"""
+
 import logging
 import os
 from typing import Any, Dict, Optional
