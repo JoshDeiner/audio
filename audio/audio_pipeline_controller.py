@@ -14,7 +14,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional
 
-from dependency_injection.app_services import AppServices
+from library.bin.dependency_injection.app_services import AppServices
 from services.audio_playback_service import AudioPlaybackService
 from services.exceptions import (
     AudioRecordingError,
@@ -68,7 +68,7 @@ class AudioPipelineController:
         Example:
             ```python
             # Using the simplified AppServices container
-            from dependency_injection.app_services import AppServices
+            from library.bin.dependency_injection.app_services import AppServices
 
             services = AppServices()
             config = {

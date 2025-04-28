@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 from colorama import Fore, Style
 from tqdm import tqdm
 
-from dependency_injection.module_loader import Injectable
+from library.bin.dependency_injection.module_loader import Injectable
 from services.exceptions import FileOperationError
 from services.interfaces.file_service_interface import IFileService
 from services.interfaces.file_transcription_service_interface import (

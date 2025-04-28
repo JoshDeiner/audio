@@ -7,7 +7,7 @@ completely replacing the ServiceFactory singleton with proper dependency injecti
 import logging
 from typing import Any, Dict, Optional, Type, TypeVar, cast
 
-from dependency_injection.container import DIContainer, Scope, ServiceLifetime
+from library.bin.dependency_injection.container import DIContainer, Scope, ServiceLifetime
 from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.configuration_manager_interface import (
     IConfigurationManager,

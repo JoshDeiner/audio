@@ -7,7 +7,7 @@ from typing import Tuple
 
 from colorama import Fore, Style
 
-from dependency_injection.module_loader import Injectable
+from library.bin.dependency_injection.module_loader import Injectable
 from services.exceptions import AudioServiceError
 from services.interfaces.application_service_interface import (
     IApplicationService,

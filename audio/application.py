@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional
 
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
-from dependency_injection.app_services import AppServices
+from library.bin.dependency_injection.app_services import AppServices
 from services.exceptions import AudioServiceError
 
 logger = logging.getLogger(__name__)

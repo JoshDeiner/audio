@@ -6,7 +6,7 @@ from typing import Tuple, Union
 import numpy as np
 import sounddevice as sd
 
-from dependency_injection.module_loader import Injectable
+from library.bin.dependency_injection.module_loader import Injectable
 from services.interfaces.audio_playback_service_interface import (
     IAudioPlaybackService,
 )

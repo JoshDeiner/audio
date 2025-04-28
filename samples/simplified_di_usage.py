@@ -8,7 +8,7 @@ import asyncio
 from typing import Any, Dict
 
 from audio.audio_pipeline_controller import AudioPipelineController
-from dependency_injection.app_services import AppServices
+from library.bin.dependency_injection.app_services import AppServices
 from services.file_service import FileService
 from services.transcription_service import TranscriptionService
 

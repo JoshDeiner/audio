@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from audio.audio_pipeline_controller import AudioPipelineController
-from dependency_injection.app_services import AppServices
+from library.bin.dependency_injection.app_services import AppServices
 from services.implementations.audio_service_impl import AudioRecordingService
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,

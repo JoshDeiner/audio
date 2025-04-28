@@ -13,7 +13,7 @@ import logging
 import sys
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
-from dependency_injection.module_loader import Injectable
+from library.bin.dependency_injection.module_loader import Injectable
 
 logger = logging.getLogger(__name__)
 

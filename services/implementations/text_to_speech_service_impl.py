@@ -10,7 +10,7 @@ import numpy as np
 import soundfile as sf
 from gtts import gTTS
 
-from dependency_injection.module_loader import Injectable
+from library.bin.dependency_injection.module_loader import Injectable
 from services.interfaces.text_to_speech_service_interface import (
     ITextToSpeechService,
 )
