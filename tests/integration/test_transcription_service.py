@@ -9,9 +9,13 @@ import pytest
 
 from audio.audio_pipeline_controller import AudioPipelineController
 from services.implementations.audio_service_impl import AudioRecordingService
+from services.implementations.configuration_manager_impl import (
+    ConfigurationManager,
+)
 from services.implementations.file_service_impl import FileService
-from services.implementations.configuration_manager_impl import ConfigurationManager
-from services.implementations.transcription_service_impl import TranscriptionService
+from services.implementations.transcription_service_impl import (
+    TranscriptionService,
+)
 from services.text_to_speech_service import TextToSpeechService
 
 
@@ -26,7 +30,10 @@ def temp_config_manager():
 @pytest.fixture
 def platform_service():
     """Create a platform detection service."""
-    from services.implementations.platform_service_impl import PlatformDetectionService
+    from services.implementations.platform_service_impl import (
+        PlatformDetectionService,
+    )
+
     return PlatformDetectionService()
 
 
@@ -95,7 +102,13 @@ def test_full_audio_pipeline(temp_config_manager, file_service) -> None:
 
 
 @pytest.mark.integration
-def test_cli_text_to_speech(tmp_path: Path, temp_config_manager, platform_service, file_service, audio_service) -> None:
+def test_cli_text_to_speech(
+    tmp_path: Path,
+    temp_config_manager,
+    platform_service,
+    file_service,
+    audio_service,
+) -> None:
     """Test the text-to-speech functionality with direct API calls."""
     # Setup temporary directories
     output_dir = tmp_path / "output"
@@ -110,47 +123,51 @@ def test_cli_text_to_speech(tmp_path: Path, temp_config_manager, platform_servic
 
     # Create output file path
     audio_output_file = tmp_path / "audio_output.wav"
-    
+
     # Setup transcription service
     transcription_service = TranscriptionService(file_service)
-    
+
     # Create controller configuration
     config = {
         "data_source": test_text,
         "output_path": str(audio_output_file),
-        "play_audio": False
+        "play_audio": False,
     }
-    
+
     # Create controller
     controller = AudioPipelineController(
         config,
         temp_config_manager,
         transcription_service,
         file_service,
-        audio_service
+        audio_service,
     )
-    
+
     # Run the pipeline
     import asyncio
+
     audio_path = asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert audio_output_file.exists(), f"Audio file not created: {audio_output_file}"
+    assert (
+        audio_output_file.exists()
+    ), f"Audio file not created: {audio_output_file}"
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
 
 @pytest.mark.integration
-def test_direct_transcription_service(tmp_path: Path, temp_config_manager, file_service) -> None:
+def test_direct_transcription_service(
+    tmp_path: Path, temp_config_manager, file_service
+) -> None:
     """Test direct use of the transcription service with test audio file."""
     # Create a test audio file using TextToSpeechService
     test_text = "This is a test for direct transcription service."
     audio_data, sample_rate = TextToSpeechService.synthesize(test_text)
-    
+
     # Save to a temporary file
     test_audio_file = tmp_path / "transcription_test.wav"
     file_service.save(
-        audio_data=(audio_data, sample_rate), 
-        file_path=str(test_audio_file)
+        audio_data=(audio_data, sample_rate), file_path=str(test_audio_file)
     )
 
     # Use the transcription service directly
@@ -165,22 +182,30 @@ def test_direct_transcription_service(tmp_path: Path, temp_config_manager, file_
         # Verify we got some transcription
         assert transcribed_text, "No transcription text returned"
         assert len(transcribed_text) > 0, "Empty transcription returned"
-        
+
         # Calculate similarity
         similarity = difflib.SequenceMatcher(
             None, test_text.lower(), transcribed_text.lower()
         ).ratio()
         print(f"Similarity: {similarity:.2f}")
-        
+
         # We expect at least some similarity
-        assert similarity > 0.3, "Transcription has very low similarity to original text"
-        
+        assert (
+            similarity > 0.3
+        ), "Transcription has very low similarity to original text"
+
     except Exception as e:
         pytest.fail(f"Transcription service failed: {e}")
 
 
 @pytest.mark.integration
-def test_text_file_input_pipeline(tmp_path: Path, temp_config_manager, platform_service, file_service, audio_service) -> None:
+def test_text_file_input_pipeline(
+    tmp_path: Path,
+    temp_config_manager,
+    platform_service,
+    file_service,
+    audio_service,
+) -> None:
     """Test complete audio pipeline using a text file as input via the controller.
 
     This test verifies that:
@@ -225,10 +250,13 @@ def test_text_file_input_pipeline(tmp_path: Path, temp_config_manager, platform_
 
     # Use asyncio.run to run the coroutine
     import asyncio
+
     asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert audio_output_file.exists(), f"Audio file not created: {audio_output_file}"
+    assert (
+        audio_output_file.exists()
+    ), f"Audio file not created: {audio_output_file}"
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file
@@ -257,7 +285,13 @@ def test_text_file_input_pipeline(tmp_path: Path, temp_config_manager, platform_
 
 
 @pytest.mark.integration
-def test_cli_text_file_input(tmp_path: Path, temp_config_manager, platform_service, file_service, audio_service) -> None:
+def test_cli_text_file_input(
+    tmp_path: Path,
+    temp_config_manager,
+    platform_service,
+    file_service,
+    audio_service,
+) -> None:
     """Test complete audio pipeline using a text file as input via direct API calls.
 
     This test verifies:
@@ -282,29 +316,32 @@ def test_cli_text_file_input(tmp_path: Path, temp_config_manager, platform_servi
 
     # Create transcription service
     transcription_service = TranscriptionService(file_service)
-    
+
     # Create configuration for audio pipeline controller
     config = {
         "data_source": str(input_file),
         "output_path": str(audio_output_file),
-        "play_audio": False
+        "play_audio": False,
     }
-    
+
     # Create controller
     controller = AudioPipelineController(
         config,
         temp_config_manager,
         transcription_service,
         file_service,
-        audio_service
+        audio_service,
     )
-    
+
     # Run the pipeline
     import asyncio
+
     audio_path = asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert audio_output_file.exists(), f"Audio file not created: {audio_output_file}"
+    assert (
+        audio_output_file.exists()
+    ), f"Audio file not created: {audio_output_file}"
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file using the transcription service

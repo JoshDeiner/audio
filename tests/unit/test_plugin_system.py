@@ -304,7 +304,7 @@ class TestPluginManager:
         """Test getting all available plugins."""
         # Directly override the get_available_plugins method for this test
         original_method = self.plugin_manager.get_available_plugins
-        
+
         try:
             # Create a mock implementation that returns what we want for testing
             def mock_get_available_plugins(plugin_type=None):
@@ -314,29 +314,33 @@ class TestPluginManager:
                     "output": ["mock_output"],
                     "preprocessing": ["mock_preprocessing"],
                 }
-                
+
                 if plugin_type:
                     return {plugin_type: mock_plugins.get(plugin_type, [])}
                 else:
                     return mock_plugins
-            
+
             # Replace the method with our mock
-            self.plugin_manager.get_available_plugins = mock_get_available_plugins
-            
+            self.plugin_manager.get_available_plugins = (
+                mock_get_available_plugins
+            )
+
             # Get all plugins
             plugins = self.plugin_manager.get_available_plugins()
-    
+
             assert "transcription" in plugins
             assert "audio_format" in plugins
             assert "output" in plugins
             assert "preprocessing" in plugins
-    
+
             # Get specific type
             transcription_plugins = self.plugin_manager.get_available_plugins(
                 "transcription"
             )
             assert "transcription" in transcription_plugins
-            assert transcription_plugins["transcription"] == ["mock_transcription"]
+            assert transcription_plugins["transcription"] == [
+                "mock_transcription"
+            ]
         finally:
             # Restore original method
             self.plugin_manager.get_available_plugins = original_method
@@ -347,16 +351,16 @@ class TestPluginManager:
         original_instance = PluginManager._instance
         try:
             PluginManager._instance = None
-            
+
             # Create mock config managers
             config1 = MagicMock(spec=ConfigurationManager)
-            
+
             # Create first instance - should set singleton
             manager1 = PluginManager(config1)
-            
+
             # Get singleton instance
             singleton = PluginManager.get_instance()
-            
+
             # Verify singleton works
             assert manager1 is singleton
             assert PluginManager._instance is manager1

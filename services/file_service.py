@@ -106,13 +106,13 @@ class FileService:
         # In test mode, allow any path for easier testing
         if os.environ.get("AUDIO_TEST_MODE") == "1":
             return True
-            
+
         # Special case: if the path is directly in the current directory (e.g., input/file.wav)
         # and not an absolute path, consider it allowed for convenience
         if not os.path.isabs(path) and "/" in path and path.count("/") == 1:
             # Simple relative path like "input/file.wav"
             return True
-            
+
         # Otherwise, check if path is inside any of the allowed directories
         return any(
             os.path.commonpath([path])
