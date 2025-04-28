@@ -296,7 +296,20 @@ run-audio-out:
 	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-out --data-source "$(DATA-SOURCE)" --play
 
 run-audio-in:
-	. $(VENV)/bin/activate && AUDIO_INPUT_DIR=$(PWD)/input $(PYTHON) -m audio audio-in --record --output output/audio-input.txt
+	@echo "Running audio-in pipeline with improved validation..."
+	@if [ ! -d "$(PWD)/input" ]; then \
+		echo "Creating input directory..."; \
+		mkdir -p $(PWD)/input; \
+	fi
+	@if [ ! -d "$(PWD)/output" ]; then \
+		echo "Creating output directory..."; \
+		mkdir -p $(PWD)/output; \
+	fi
+	. $(VENV)/bin/activate && \
+	AUDIO_INPUT_DIR=$(PWD)/input \
+	AUDIO_OUTPUT_DIR=$(PWD)/output \
+	WHISPER_MODEL=tiny \
+	$(PYTHON) -m audio audio-in --record --output output/audio-input.txt
 
 # Default
 test: test-unit test-integration
@@ -308,3 +321,8 @@ test-unit:
 # Integration tests only
 test-integration:
 	. $(VENV)/bin/activate && python -m pytest tests/integration
+
+# Test audio recording and transcription specifically
+test-audio-pipeline:
+	@echo "Testing audio recording and transcription pipeline..."
+	. $(VENV)/bin/activate && python -m pytest tests/integration/test_audio_recording.py -v

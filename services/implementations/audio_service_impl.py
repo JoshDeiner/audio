@@ -177,11 +177,20 @@ class AudioRecordingService(IAudioRecordingService):
 
             # Record audio
             frames = self._capture_audio_frames(stream, chunk, rate, duration)
-
-            # Save to WAV file
-            self._save_frames_to_wav(
-                output_path, audio, frames, channels, rate, format_type
-            )
+            
+            # Validate audio quality before saving
+            if self._validate_audio_quality(frames):
+                # Save to WAV file
+                self._save_frames_to_wav(
+                    output_path, audio, frames, channels, rate, format_type
+                )
+            else:
+                logger.warning("Audio quality validation failed, but continuing with processing")
+                print(f"{Fore.YELLOW}Warning: Audio quality may be poor. Processing anyway...{Style.RESET_ALL}")
+                # Save to WAV file regardless
+                self._save_frames_to_wav(
+                    output_path, audio, frames, channels, rate, format_type
+                )
 
             logger.info(f"Audio saved to {output_path}")
 
@@ -274,6 +283,70 @@ class AudioRecordingService(IAudioRecordingService):
 
         return frames
 
+    def _validate_audio_quality(self, frames: List[bytes]) -> bool:
+        """Validate the quality of the recorded audio.
+        
+        This method checks if the audio has enough non-silent content
+        and if the sound levels are within reasonable ranges.
+        
+        Args:
+            frames: List of audio frames
+            
+        Returns:
+            bool: True if audio quality is acceptable, False otherwise
+        """
+        if not frames:
+            logger.warning("No audio frames captured")
+            return False
+            
+        # Calculate the average level of the audio signal
+        import struct
+        import statistics
+        
+        # Convert some frames samples to integers for analysis
+        try:
+            # Sample at most 10 frames for efficiency
+            sample_frames = frames if len(frames) < 10 else frames[::len(frames)//10]
+            levels = []
+            
+            for frame in sample_frames:
+                # Convert bytes to 16-bit integers (assuming format_type=pyaudio.paInt16)
+                # and calculate their absolute values
+                format_str = f"<{len(frame)//2}h"
+                try:
+                    int_values = struct.unpack(format_str, frame)
+                    # Get absolute levels
+                    abs_values = [abs(v) for v in int_values]
+                    if abs_values:
+                        # Use median to avoid outliers
+                        levels.append(statistics.median(abs_values))
+                except Exception as e:
+                    logger.warning(f"Error unpacking audio frame: {e}")
+                    continue
+                    
+            # Check if we have enough data
+            if not levels:
+                logger.warning("Could not analyze audio levels")
+                return False
+                
+            # Calculate median level across frames
+            median_level = statistics.median(levels)
+            
+            # Check if audio is too quiet
+            # 16-bit audio ranges from -32768 to 32767, so we use a percentage threshold
+            min_acceptable = 500  # Approximately 1.5% of max level
+            
+            if median_level < min_acceptable:
+                logger.warning(f"Audio level is too low: {median_level} < {min_acceptable}")
+                return False
+                
+            logger.info(f"Audio quality check passed with median level: {median_level}")
+            return True
+            
+        except Exception as e:
+            logger.warning(f"Error validating audio quality: {e}")
+            return True  # Default to accepting audio on error
+            
     def _save_frames_to_wav(
         self,
         output_path: str,

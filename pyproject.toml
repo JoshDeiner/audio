@@ -38,3 +38,10 @@ exclude = [
     "venv",
     ".venv",
 ]
+
+[tool.pytest.ini_options]
+markers = [
+    "asyncio: mark a test as an asyncio test",
+]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
