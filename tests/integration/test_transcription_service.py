@@ -166,8 +166,8 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
     }
 
     # Create services needed by the controller
-    from services.configuration_manager import ConfigurationManager
     from services.audio_service import AudioRecordingService
+    from services.configuration_manager import ConfigurationManager
 
     # Initialize services
     config_manager = ConfigurationManager()
@@ -181,9 +181,9 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
         config_manager,
         transcription_service,
         file_service,
-        audio_service
+        audio_service,
     )
-    
+
     # Use asyncio.run to run the coroutine
     import asyncio
 
