@@ -8,7 +8,7 @@ import asyncio
 import logging
 from typing import Any, Dict, Optional
 
-from audio.audio_pipeline_controller_refactored import AudioPipelineController
+from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
 from dependency_injection.bootstrap import bootstrap_application
 from dependency_injection.container_enhanced import (

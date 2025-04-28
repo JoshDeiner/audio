@@ -1,18 +1,44 @@
 #!/usr/bin/env python3
-"""Argument parsing utilities for the audio package.
+"""Argument parsing utilities for the audio package with DI support.
 
 This module provides an ArgumentParser class that configures and parses
 command-line arguments for the audio application, supporting both synchronous
-and asynchronous operation modes.
+and asynchronous operation modes, with DI pattern.
 
 Author: Claude Code
 Created: 2025-04-27
 """
 import argparse
-from typing import Any, Dict, Tuple
+import logging
+import sys
+from typing import Any, Dict, List, Optional, Sequence, Tuple
+
+from dependency_injection.module_loader import Injectable
+
+logger = logging.getLogger(__name__)
 
 
-class ArgumentParser:
+class IArgumentParser:
+    """Interface for argument parsing used by the audio application."""
+
+    def parse_arguments(
+        self, args: Optional[Sequence[str]] = None
+    ) -> Tuple[Dict[str, Any], str]:
+        """Parse command line arguments.
+
+        Args:
+            args: Optional arguments to parse (defaults to sys.argv[1:])
+
+        Returns:
+            Tuple[Dict[str, Any], str]: A tuple containing:
+                - Dictionary of parsed arguments
+                - Command name as a string
+        """
+        pass
+
+
+@Injectable(interface=IArgumentParser)
+class ArgumentParser(IArgumentParser):
     """Parser for command-line arguments used by the audio application.
 
     This class encapsulates all argument parsing logic for the application,
@@ -163,8 +189,13 @@ class ArgumentParser:
             help="Language code to use for conversation",
         )
 
-    def parse_arguments(self) -> Tuple[Dict[str, Any], str]:
+    def parse_arguments(
+        self, args: Optional[Sequence[str]] = None
+    ) -> Tuple[Dict[str, Any], str]:
         """Parse command line arguments.
+
+        Args:
+            args: Optional arguments to parse (defaults to sys.argv[1:])
 
         Returns:
             Tuple[Dict[str, Any], str]: A tuple containing:
@@ -181,10 +212,11 @@ class ArgumentParser:
                 # Handle audio output mode
             ```
         """
-        args = self.parser.parse_args()
+        # Use provided args or default to sys.argv[1:]
+        parsed_args = self.parser.parse_args(args)
 
         # Convert Namespace to dictionary
-        args_dict = vars(args)
+        args_dict = vars(parsed_args)
 
         # Extract command and remove from dictionary
         command = args_dict.pop("command")

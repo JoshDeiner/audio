@@ -165,7 +165,25 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
         "return_text_output": False,
     }
 
-    controller = AudioPipelineController(config)
+    # Create services needed by the controller
+    from services.configuration_manager import ConfigurationManager
+    from services.audio_service import AudioRecordingService
+
+    # Initialize services
+    config_manager = ConfigurationManager()
+    transcription_service = trans_service  # Reuse the already created instance
+    file_service = FileService()  # Reuse the already created instance
+    audio_service = AudioRecordingService()
+
+    # Create controller with dependencies injected
+    controller = AudioPipelineController(
+        config,
+        config_manager,
+        transcription_service,
+        file_service,
+        audio_service
+    )
+    
     # Use asyncio.run to run the coroutine
     import asyncio
 

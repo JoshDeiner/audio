@@ -15,16 +15,21 @@ import time
 from typing import Any, Dict, List, Optional
 
 from services.audio_playback_service import AudioPlaybackService
-from services.audio_service import AudioRecordingService
 from services.exceptions import (
     AudioRecordingError,
     AudioServiceError,
     FileOperationError,
     TranscriptionError,
 )
-from services.file_service import FileService
+from services.interfaces.audio_service_interface import IAudioRecordingService
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
+from services.interfaces.file_service_interface import IFileService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 from services.text_to_speech_service import TextToSpeechService
-from services.transcription_service import TranscriptionService
 
 logger = logging.getLogger(__name__)
 
@@ -42,25 +47,47 @@ class AudioPipelineController:
         file_service: Service for file operations
     """
 
-    def __init__(self, config: Dict[str, Any]) -> None:
-        """Initialize the controller with configuration.
+    def __init__(
+        self,
+        config: Dict[str, Any],
+        config_manager: IConfigurationManager,
+        transcription_service: ITranscriptionService,
+        file_service: IFileService,
+        audio_service: IAudioRecordingService,
+    ) -> None:
+        """Initialize the controller with configuration and services.
 
         Args:
             config: Configuration dictionary with pipeline options
+            config_manager: Configuration manager for application settings
+            transcription_service: Service for audio transcription
+            file_service: Service for file operations
+            audio_service: Service for audio recording
 
         Example:
             ```python
+            # Using the DI container
+            from dependency_injection import container
+
             config = {
                 "model": "small",
                 "language": "en",
                 "duration": 10
             }
-            controller = AsyncAudioPipelineController(config)
+            controller = AudioPipelineController(
+                config,
+                container.resolve(IConfigurationManager),
+                container.resolve(ITranscriptionService),
+                container.resolve(IFileService),
+                container.resolve(IAudioRecordingService)
+            )
             ```
         """
         self.config = config
-        self.transcription_service = TranscriptionService()
-        self.file_service = FileService()
+        self.config_manager = config_manager
+        self.transcription_service = transcription_service
+        self.file_service = file_service
+        self.audio_service = audio_service
 
         # Ensure directories exist
         self._ensure_directories()
@@ -71,9 +98,11 @@ class AudioPipelineController:
         Creates the input and output directories if they don't exist.
         """
         # Ensure input directory exists
-        if not os.environ.get("AUDIO_INPUT_DIR"):
+        input_dir = self.config_manager.get("AUDIO_INPUT_DIR")
+        if not input_dir:
             input_dir = os.path.join(os.getcwd(), "input")
             os.environ["AUDIO_INPUT_DIR"] = input_dir
+            self.config_manager.set("AUDIO_INPUT_DIR", input_dir)
             logger.info(f"AUDIO_INPUT_DIR not set, using default: {input_dir}")
 
             if not os.path.exists(input_dir):
@@ -81,9 +110,11 @@ class AudioPipelineController:
                 logger.info(f"Created input directory: {input_dir}")
 
         # Ensure output directory exists
-        if not os.environ.get("AUDIO_OUTPUT_DIR"):
+        output_dir = self.config_manager.get("AUDIO_OUTPUT_DIR")
+        if not output_dir:
             output_dir = os.path.join(os.getcwd(), "output")
             os.environ["AUDIO_OUTPUT_DIR"] = output_dir
+            self.config_manager.set("AUDIO_OUTPUT_DIR", output_dir)
             logger.info(
                 f"AUDIO_OUTPUT_DIR not set, using default: {output_dir}"
             )
@@ -106,14 +137,13 @@ class AudioPipelineController:
         """
         try:
             # Run the recording operation in a thread pool since PyAudio is blocking
-            recording_service = AudioRecordingService()
             logger.info(f"Recording audio for {duration} seconds...")
             print(f"Recording audio for {duration} seconds...")
 
             # Use asyncio.to_thread to run the blocking recording operation
             # without blocking the event loop
             audio_path = await asyncio.to_thread(
-                recording_service.record_audio, duration=duration
+                self.audio_service.record_audio, duration=duration
             )
 
             logger.info(f"Audio recorded and saved to: {audio_path}")
@@ -143,7 +173,7 @@ class AudioPipelineController:
             # Use provided path or generate timestamped one
             if not output_path and self.config.get("save_transcript", False):
                 timestamp = time.strftime("%Y%m%d-%H%M%S")
-                output_dir = os.environ.get("AUDIO_OUTPUT_DIR", "")
+                output_dir = self.config_manager.get("AUDIO_OUTPUT_DIR", "")
                 if output_dir:
                     output_path = os.path.join(
                         output_dir,
@@ -182,7 +212,9 @@ class AudioPipelineController:
         Example:
             ```python
             config = {"duration": 10, "model": "small"}
-            controller = AsyncAudioPipelineController(config)
+            controller = AudioPipelineController(
+                config, config_manager, transcription_service, file_service, audio_service
+            )
             transcription = await controller.handle_audio_in()
             print(transcription)
             ```
@@ -227,7 +259,9 @@ class AudioPipelineController:
 
         Example:
             ```python
-            controller = AsyncAudioPipelineController({"data_source": "hello.txt"})
+            controller = AudioPipelineController(
+                {"data_source": "hello.txt"}, config_manager, transcription_service, file_service, audio_service
+            )
             text = await controller.resolve_text_source_async()
             ```
         """
@@ -244,7 +278,9 @@ class AudioPipelineController:
         # Try to read the file
         try:
             # Run the file reading operation in a thread pool
-            content = await asyncio.to_thread(FileService.read_text, source)
+            content = await asyncio.to_thread(
+                self.file_service.read_text, source
+            )
             return str(content)
         except Exception as e:
             error_msg = f"Failed to read source file: {e}"
@@ -264,7 +300,9 @@ class AudioPipelineController:
         Example:
             ```python
             config = {"data_source": "Hello, world!", "play_audio": True}
-            controller = AsyncAudioPipelineController(config)
+            controller = AudioPipelineController(
+                config, config_manager, transcription_service, file_service, audio_service
+            )
             audio_path = await controller.handle_audio_out()
             ```
         """
@@ -298,7 +336,9 @@ class AudioPipelineController:
         # Determine output path
         output_path = self.config.get(
             "output_path"
-        ) or await asyncio.to_thread(FileService.generate_temp_output_path)
+        ) or await asyncio.to_thread(
+            self.file_service.generate_temp_output_path
+        )
 
         # Save audio to file - file I/O operations in thread pool
         try:
@@ -337,7 +377,9 @@ class AudioPipelineController:
 
         Example:
             ```python
-            controller = AsyncAudioPipelineController({})
+            controller = AudioPipelineController(
+                {}, config_manager, transcription_service, file_service, audio_service
+            )
             latest_text = await controller._get_latest_transcription_async()
             if latest_text:
                 print(f"Latest transcription: {latest_text}")
@@ -345,7 +387,7 @@ class AudioPipelineController:
         """
         try:
             return await asyncio.to_thread(
-                FileService.load_latest_transcription
+                self.file_service.load_latest_transcription
             )
         except FileOperationError as e:
             logger.warning(f"Failed to load latest transcription: {e}")
@@ -370,7 +412,9 @@ class AudioPipelineController:
 
         Example:
             ```python
-            controller = AsyncAudioPipelineController({})
+            controller = AudioPipelineController(
+                {}, config_manager, transcription_service, file_service, audio_service
+            )
             conversation = await controller.handle_conversation_loop()
             ```
         """

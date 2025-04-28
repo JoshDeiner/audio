@@ -2,7 +2,6 @@
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
   (use "git restore <file>..." to discard changes in working directory)
-	modified:   app_antipattern.md
 	modified:   config/configuration_manager.py
 	modified:   plugins/audio_format_plugin.py
 	modified:   plugins/builtin/file_output.py
@@ -16,12 +15,6 @@ Changes not staged for commit:
 
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
-	audio/__main___refactored.py
-	audio/__main__di.py
-	audio/application.py
-	audio/application_enhanced.py
-	audio/audio_pipeline_controller_refactored.py
-	audio/utilities/argument_parser_di.py
 	dependency_injection/
 	plugins/plugin_manager_refactored.py
 	samples/

@@ -7,7 +7,7 @@ import asyncio
 from typing import Dict
 
 # Import controllers and other components
-from audio.audio_pipeline_controller_refactored import AudioPipelineController
+from audio.audio_pipeline_controller import AudioPipelineController
 
 # Import DI components
 from dependency_injection.bootstrap import bootstrap_application
