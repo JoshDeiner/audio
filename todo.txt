@@ -1,12 +1,9 @@
 try out eleven lab experiment
 
 --
-
-fix tests
-
-integration
-
-fix linter issues
+login to claude
+make sure code still works
+library -> inversion of control setup?
 
 
-next time finish antipattern workoup
+make sure test can convert wav to text with higher degree of certainity

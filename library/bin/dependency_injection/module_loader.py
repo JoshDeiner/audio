@@ -11,7 +11,10 @@ import os
 import pkgutil
 from typing import Any, Dict, Iterable, List, Optional, Set, Type, cast
 
-from library.bin.dependency_injection.container import DIContainer, ServiceLifetime
+from library.bin.dependency_injection.container import (
+    DIContainer,
+    ServiceLifetime,
+)
 
 logger = logging.getLogger(__name__)
 

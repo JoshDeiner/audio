@@ -296,7 +296,7 @@ run-audio-out:
 	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-out --data-source "$(DATA-SOURCE)" --play
 
 run-audio-in:
-	. $(VENV)/bin/activate && $(PYTHON) -m audio audio-in --record --output output/audio-input.txt
+	. $(VENV)/bin/activate && AUDIO_INPUT_DIR=$(PWD)/input $(PYTHON) -m audio audio-in --record --output output/audio-input.txt
 
 # Default
 test: test-unit test-integration

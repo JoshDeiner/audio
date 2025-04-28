@@ -8,7 +8,10 @@ import logging
 from typing import Any, Dict, Optional, Type, TypeVar
 
 from library.bin.dependency_injection.app_services import AppServices
-from library.bin.dependency_injection.container import DIContainer, ServiceLifetime
+from library.bin.dependency_injection.container import (
+    DIContainer,
+    ServiceLifetime,
+)
 
 logger = logging.getLogger(__name__)
 
