@@ -25,14 +25,14 @@ from abc import ABC, abstractmethod
 
 class IMyNewService(ABC):
     """Interface for my new service."""
-    
+
     @abstractmethod
     def process_data(self, input_data: str) -> str:
         """Process some data.
-        
+
         Args:
             input_data: The data to process
-            
+
         Returns:
             The processed data
         """
@@ -52,21 +52,21 @@ from services.interfaces.file_service_interface import IFileService
 @Injectable(interface=IMyNewService, lifetime="SINGLETON")
 class MyNewService(IMyNewService):
     """Implementation of my new service."""
-    
+
     def __init__(self, file_service: IFileService) -> None:
         """Initialize with dependencies.
-        
+
         Args:
             file_service: File service dependency
         """
         self.file_service = file_service
-    
+
     def process_data(self, input_data: str) -> str:
         """Process the input data.
-        
+
         Args:
             input_data: The data to process
-            
+
         Returns:
             The processed data
         """
@@ -134,7 +134,7 @@ class MyComponent:
     ) -> None:
         self.my_service = my_service
         self.file_service = file_service
-        
+
     def do_something(self, data: str) -> str:
         return self.my_service.process_data(data)
 ```
@@ -153,10 +153,10 @@ class MockMyService(IMyNewService):
 def test_component():
     mock_service = MockMyService()
     mock_file_service = MockFileService()
-    
+
     component = MyComponent(mock_service, mock_file_service)
     result = component.do_something("test")
-    
+
     assert result == "MOCK: test"
 ```
 
@@ -205,14 +205,14 @@ For core application services, you may need to add your service to the AppServic
 class AppServices:
     def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         # Existing services...
-        
+
         # Add your new service
         self.my_new_service = MyNewService(self.file_service)
-        
+
     def get(self, service_type: Type[T]) -> T:
         service_map = {
             # Existing mappings...
-            
+
             # Add your service mappings
             IMyNewService: self.my_new_service,
             MyNewService: self.my_new_service,

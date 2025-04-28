@@ -19,4 +19,3 @@ If you identify any issues or improvements, please:
 3. Explain why your solution addresses the problem
 
 Focus only on the core functionality of transcribing audio and writing to a file. Don't add new features beyond this scope.
-

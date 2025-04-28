@@ -72,16 +72,16 @@ class AsyncApplicationService:
         audio_path_future = asyncio.create_task(
             self._record_audio_async(duration)
         )
-        
+
         # While recording is happening, prepare the transcription service
         await self._prepare_transcription_service()
-        
+
         # Wait for recording to complete
         audio_path = await audio_path_future
-        
+
         # Start transcription
         transcription = await self._transcribe_audio_async(audio_path)
-        
+
         return audio_path, transcription
 ```
 
@@ -122,16 +122,16 @@ class LoggingService:
 class ApplicationService:
     def __init__(self):
         self.logger = LoggingService.get_logger("application")
-        
+
     def run(self, duration=5, correlation_id=None):
         correlation_id = correlation_id or str(uuid.uuid4())
-        self.logger.info("Starting application run", 
+        self.logger.info("Starting application run",
                         correlation_id=correlation_id,
                         duration=duration)
-        
+
         # Pass correlation_id to all service calls
         audio_path = self.recording_service.record_audio(
-            duration=duration, 
+            duration=duration,
             correlation_id=correlation_id
         )
 ```
@@ -160,12 +160,12 @@ class PlatformDetectionService:
     @staticmethod
     def get_platform():
         # Static implementation
-        
+
 # After
 class PlatformDetectionService:
     def __init__(self, file_system=None):
         self.file_system = file_system or RealFileSystem()
-        
+
     def get_platform(self):
         # Instance method implementation using self.file_system
 ```
@@ -191,7 +191,7 @@ class PlatformDetectionService:
 class AudioRecordingInterface:
     def record_audio(self, duration):
         pass
-        
+
 class TranscriptionInterface:
     def transcribe_audio(self, audio_path):
         pass
@@ -224,11 +224,11 @@ class ApplicationService:
 class AudioCaptureService:
     def capture_audio(self, duration, rate, channels):
         # Only handles the audio capture logic
-        
+
 class AudioFileService:
     def save_audio_to_file(self, audio_data, output_path):
         # Only handles saving audio to file
-        
+
 class AudioUIService:
     def display_recording_countdown(self):
         # Only handles UI interactions
@@ -258,12 +258,12 @@ class AudioRecorder(ABC):
     @abstractmethod
     def record(self, duration):
         pass
-        
+
 # Implement concrete classes
 class WhisperAudioRecorder(AudioRecorder):
     def record(self, duration):
         # Implementation
-        
+
 # Use dependency injection
 class ApplicationService:
     def __init__(self, recorder: AudioRecorder):
@@ -288,18 +288,18 @@ class ApplicationService:
 class ConfigurationService:
     def __init__(self, env_provider=os.environ):
         self.env = env_provider
-        
+
     def get_audio_input_dir(self):
         return self.env.get("AUDIO_INPUT_DIR", "input")
-        
+
     def get_whisper_model(self):
         return self.env.get("WHISPER_MODEL", "tiny")
-        
+
 # Use in services
 class TranscriptionService:
     def __init__(self, config_service):
         self.config = config_service
-        
+
     def _get_model_size(self):
         return self.config.get_whisper_model()
 ```
@@ -323,18 +323,18 @@ class TranscriptionService:
 class TranscriptionEnginePlugin:
     def get_name(self):
         pass
-        
+
     def transcribe(self, audio_path):
         pass
-        
+
 # Plugin registry
 class PluginRegistry:
     def __init__(self):
         self.plugins = {}
-        
+
     def register_plugin(self, name, plugin):
         self.plugins[name] = plugin
-        
+
     def get_plugin(self, name):
         return self.plugins.get(name)
 ```

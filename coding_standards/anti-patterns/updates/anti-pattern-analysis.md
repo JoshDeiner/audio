@@ -10,7 +10,7 @@ The audio transcription tool is generally well-structured with a service-oriente
 
 **Example**: In `TranscriptionService._save_transcription_to_file()`, both IOError/OSError and generic Exception are caught and both raise `FileOperationError` with similar messages, creating redundancy.
 
-**Recommendation**: 
+**Recommendation**:
 - Standardize error handling across all services
 - Create more specific exception types for different error scenarios
 - Consider using a context manager pattern for resource management
@@ -28,7 +28,7 @@ def save_with_context(self, output_file, transcription):
 
 **Example**: In `ApplicationService.__init__()`, the service directly instantiates `AudioRecordingService` and `TranscriptionService`.
 
-**Recommendation**: 
+**Recommendation**:
 - Implement dependency injection to allow for better testability
 - Consider using a service locator or factory pattern
 
@@ -54,11 +54,11 @@ class AudioUI:
     @staticmethod
     def display_recording_countdown():
         # UI code here
-        
+
 class AudioRecordingService:
     def __init__(self, ui_service=None):
         self.ui = ui_service or AudioUI()
-        
+
     def record_audio(self):
         self.ui.display_recording_countdown()
         # Recording logic
@@ -78,7 +78,7 @@ class TranscriptionServiceInterface(ABC):
     @abstractmethod
     def transcribe_audio(self, audio_file_path, model_size=None):
         pass
-        
+
 class WhisperTranscriptionService(TranscriptionServiceInterface):
     def transcribe_audio(self, audio_file_path, model_size=None):
         # Implementation
@@ -96,13 +96,13 @@ class WhisperTranscriptionService(TranscriptionServiceInterface):
 ```python
 class PlatformDetectionService:
     _instance = None
-    
+
     @classmethod
     def get_instance(cls):
         if cls._instance is None:
             cls._instance = cls()
         return cls._instance
-        
+
     def get_platform(self):
         # Instance method implementation
 ```
@@ -172,13 +172,13 @@ def _record_and_save_audio(self, output_path, duration, rate, chunk, channels, f
         # Initialize PyAudio
         audio = pyaudio.PyAudio()
         stack.callback(audio.terminate)
-        
+
         # Open audio stream
-        stream = audio.open(format=format_type, channels=channels, rate=rate, 
+        stream = audio.open(format=format_type, channels=channels, rate=rate,
                            input=True, frames_per_buffer=chunk)
         stack.callback(stream.close)
         stack.callback(stream.stop_stream)
-        
+
         # Rest of the implementation
 ```
 
@@ -197,11 +197,11 @@ def _record_and_save_audio(self, output_path, duration, rate, chunk, channels, f
 class ConfigService:
     def get_whisper_model(self):
         return os.environ.get("WHISPER_MODEL", "tiny")
-        
+
 class TranscriptionService:
     def __init__(self, config_service=None):
         self.config = config_service or ConfigService()
-        
+
     def _get_whisper_model_config(self, model_size=None):
         if not model_size:
             model_size = self.config.get_whisper_model()
@@ -238,15 +238,15 @@ def transcribe_audio(self, audio_file_path, correlation_id=None):
 def sanitize_path(self, path):
     if not path:
         return ""
-    
+
     # Prevent path traversal
     path = os.path.abspath(os.path.normpath(os.path.expanduser(path)))
-    
+
     # Ensure path is within allowed directories
     allowed_dirs = [os.path.abspath("input"), os.path.abspath("output")]
     if not any(path.startswith(allowed_dir) for allowed_dir in allowed_dirs):
         raise SecurityError("Path is outside of allowed directories")
-        
+
     return path
 ```
 
@@ -268,7 +268,7 @@ class TranscriptionEngine(ABC):
 class WhisperTranscriptionEngine(TranscriptionEngine):
     def transcribe(self, audio_path):
         # Whisper-specific implementation
-        
+
 class GoogleTranscriptionEngine(TranscriptionEngine):
     def transcribe(self, audio_path):
         # Google Speech-to-Text implementation
@@ -276,7 +276,7 @@ class GoogleTranscriptionEngine(TranscriptionEngine):
 class TranscriptionService:
     def __init__(self, engine=None):
         self.engine = engine or WhisperTranscriptionEngine()
-        
+
     def transcribe_audio(self, audio_file_path):
         return self.engine.transcribe(audio_file_path)
 ```
@@ -295,16 +295,16 @@ class ApplicationService:
     async def run_async(self, duration=5):
         print("Recording audio...")
         audio_path = await self._record_audio_async(duration)
-        
+
         print("Transcribing audio...")
         transcription = await self._transcribe_audio_async(audio_path)
-        
+
         return audio_path, transcription
-        
+
     async def _record_audio_async(self, duration):
         # Run in executor to avoid blocking
         return await asyncio.to_thread(
-            self.recording_service.record_audio, 
+            self.recording_service.record_audio,
             duration=duration
         )
 ```
@@ -322,11 +322,11 @@ class HealthService:
     def check_microphone(self):
         # Check if microphone is available
         pass
-        
+
     def check_whisper_model(self):
         # Check if model is available
         pass
-        
+
     def get_health_status(self):
         return {
             "microphone": self.check_microphone(),
@@ -345,7 +345,7 @@ class FeatureFlags:
     @staticmethod
     def is_enabled(feature_name):
         return os.environ.get(f"FEATURE_{feature_name.upper()}", "false").lower() == "true"
-        
+
 # Usage
 if FeatureFlags.is_enabled("advanced_transcription"):
     # Use advanced transcription features
@@ -385,20 +385,20 @@ import configparser
 class ConfigurationService:
     def __init__(self, config_file=None):
         self.config = configparser.ConfigParser()
-        
+
         # Load default configuration
         self.config.read("default_config.ini")
-        
+
         # Override with environment-specific configuration
         if config_file:
             self.config.read(config_file)
-            
+
         # Override with environment variables
         self._override_from_env()
-        
+
     def _override_from_env(self):
         # Implementation
-        
+
     def get(self, section, key, default=None):
         try:
             return self.config.get(section, key)

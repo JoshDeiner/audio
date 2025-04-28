@@ -166,11 +166,17 @@ class TranscriptionService(ITranscriptionService):
         # Set up transcription parameters with improved accuracy settings
         transcription_options = {
             "beam_size": 8,  # Increased from 5 for better accuracy
-            "best_of": 5,    # Consider more candidates
-            "temperature": [0.0, 0.2, 0.4, 0.6, 0.8],  # Multiple temperature sampling for robustness
+            "best_of": 5,  # Consider more candidates
+            "temperature": [
+                0.0,
+                0.2,
+                0.4,
+                0.6,
+                0.8,
+            ],  # Multiple temperature sampling for robustness
             "compression_ratio_threshold": 2.4,  # Default is 2.4
             "condition_on_previous_text": True,  # Use previous segments to improve context
-            "word_timestamps": True,     # Generate word-level timestamps for better precision
+            "word_timestamps": True,  # Generate word-level timestamps for better precision
         }
 
         # If language is specified, use it to skip language detection
