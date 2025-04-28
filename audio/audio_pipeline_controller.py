@@ -69,7 +69,7 @@ class AudioPipelineController:
             ```python
             # Using the simplified AppServices container
             from dependency_injection.app_services import AppServices
-            
+
             services = AppServices()
             config = {
                 "model": "small",
@@ -83,7 +83,7 @@ class AudioPipelineController:
                 services.file_service,
                 services.audio_service
             )
-            
+
             # Alternative simplified constructor
             controller = AudioPipelineController.from_services(config, services)
             ```
@@ -96,15 +96,17 @@ class AudioPipelineController:
 
         # Ensure directories exist
         self._ensure_directories()
-        
+
     @classmethod
-    def from_services(cls, config: Dict[str, Any], services: AppServices) -> 'AudioPipelineController':
+    def from_services(
+        cls, config: Dict[str, Any], services: AppServices
+    ) -> "AudioPipelineController":
         """Create a controller using the AppServices container.
-        
+
         Args:
             config: Configuration dictionary with pipeline options
             services: AppServices container with all required services
-            
+
         Returns:
             An initialized AudioPipelineController instance
         """
@@ -113,7 +115,7 @@ class AudioPipelineController:
             services.config_manager,
             services.transcription_service,
             services.file_service,
-            services.audio_service
+            services.audio_service,
         )
 
     def _ensure_directories(self) -> None:

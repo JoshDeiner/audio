@@ -6,10 +6,10 @@ This document provides instructions for migrating to the simplified dependency i
 
 This project now supports two approaches to dependency injection:
 
-1. **Enterprise DI (Original)**: Full-featured DI with interface/implementation separation, 
+1. **Enterprise DI (Original)**: Full-featured DI with interface/implementation separation,
    complex container, and formal lifecycle management. Suitable for large teams and complex applications.
 
-2. **Simplified DI (New)**: Streamlined approach with direct service initialization, 
+2. **Simplified DI (New)**: Streamlined approach with direct service initialization,
    optional dependencies, and minimal configuration. Suitable for prototyping and smaller applications.
 
 ## How to Migrate to Simplified DI
@@ -61,7 +61,7 @@ class MyController:
         self.config = config
         self.service1 = service1
         self.service2 = service2
-        
+
     @classmethod
     def from_services(cls, config, services):
         # Factory method for easy creation from AppServices
@@ -105,14 +105,14 @@ The simplified DI system makes testing even easier:
 def test_my_controller():
     # Create AppServices with mock implementations
     services = AppServices()
-    
+
     # Register mock services
     services.register_instance(Service1, MockService1())
     services.register_instance(Service2, MockService2())
-    
+
     # Create controller with mock services
     controller = MyController.from_services({}, services)
-    
+
     # Test methods
     result = controller.do_something()
     assert result == "expected result"
@@ -135,5 +135,5 @@ Consider using or returning to the enterprise DI approach when:
 3. Multiple deployment contexts require different implementations
 4. Formal testing requirements emerge
 
-For prototyping and small projects, the simplified DI approach provides most benefits 
+For prototyping and small projects, the simplified DI approach provides most benefits
 with significantly less overhead.

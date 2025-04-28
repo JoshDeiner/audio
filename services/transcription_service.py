@@ -14,7 +14,9 @@ from services.exceptions import (
     TranscriptionError,
 )
 from services.file_service import FileService
-from services.implementations.configuration_manager_impl import ConfigurationManager
+from services.implementations.configuration_manager_impl import (
+    ConfigurationManager,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,9 +25,9 @@ class TranscriptionService:
     """Service for transcribing audio using faster-whisper."""
 
     def __init__(
-        self, 
+        self,
         file_service: Optional[FileService] = None,
-        config_manager: Optional[ConfigurationManager] = None
+        config_manager: Optional[ConfigurationManager] = None,
     ) -> None:
         """Initialize the transcription service with optional dependencies.
 

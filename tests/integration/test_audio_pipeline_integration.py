@@ -24,7 +24,7 @@ from services.text_to_speech_service import TextToSpeechService
 def app_services():
     """Create AppServices container for tests with a clean configuration."""
     services = AppServices({})
-    
+
     # Return the services container
     return services
 

@@ -24,7 +24,7 @@ from services.text_to_speech_service import TextToSpeechService
 def app_services():
     """Create AppServices container for tests with a clean configuration."""
     services = AppServices({})
-    
+
     # Return the services container
     return services
 
@@ -123,9 +123,7 @@ def test_cli_text_to_speech(
 
 
 @pytest.mark.integration
-def test_direct_transcription_service(
-    tmp_path: Path, app_services
-) -> None:
+def test_direct_transcription_service(tmp_path: Path, app_services) -> None:
     """Test direct use of the transcription service with test audio file using simplified DI."""
     # Create a test audio file using TextToSpeechService
     test_text = "This is a test for direct transcription service."
