@@ -17,7 +17,6 @@ from library.bin.dependency_injection.container import (
 )
 
 # Import interfaces
-from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.configuration_manager_interface import (
     IConfigurationManager,
 )
@@ -33,7 +32,7 @@ from services.service_provider import ServiceProvider
 
 # Sample 1: Basic DI setup and service resolution
 def basic_di_example():
-    """Basic example of setting up DI and resolving services."""
+    """Set up DI and resolve services."""
     # Initialize the container
     container = DIContainer()
 
@@ -62,7 +61,7 @@ def basic_di_example():
 async def controller_example(
     service_provider: ServiceProvider, args: Dict[str, str]
 ):
-    """Example of using DI with a controller."""
+    """Use DI with a controller."""
     # Get the required services
     config_manager = service_provider.get_config_manager()
     transcription_service = service_provider.get_transcription_service()
@@ -85,7 +84,7 @@ async def controller_example(
 
 # Sample 3: Service registration
 def service_registration_example():
-    """Example of registering services with different lifetimes."""
+    """Register services with different lifetimes."""
     container = DIContainer()
 
     # Register a singleton service (one instance for the entire application)
@@ -125,7 +124,7 @@ def service_registration_example():
 
 # Sample 4: Scoped services
 def scoped_services_example(service_provider: ServiceProvider):
-    """Example of using scoped services."""
+    """Use scoped services."""
     # Root provider has its own set of scoped services
     root_scoped_service = service_provider.get(ITranscriptionService)
 
@@ -152,39 +151,56 @@ def scoped_services_example(service_provider: ServiceProvider):
 
 # Sample mock implementations for the examples
 class MockConfigManager:
+    """Configuration manager mock implementation."""
+
     def __init__(self):
+        """Initialize the mock config manager."""
         self.config = {"mock": True}
 
     def get(self, key, default=None):
+        """Get configuration value by key."""
         return self.config.get(key, default)
 
 
 class MockFileService:
+    """File service mock implementation."""
+
     def __init__(self):
+        """Initialize the mock file service."""
         pass
 
     def read_text(self, file_path):
+        """Read text from a file."""
         return f"Mock content from {file_path}"
 
 
 class MockTranscriptionService:
+    """Transcription service mock implementation."""
+
     def __init__(self, file_service: IFileService = None):
+        """Initialize the mock transcription service."""
         self.file_service = file_service
 
     def transcribe_audio(self, audio_path, model_size=None, language=None):
+        """Transcribe audio file."""
         return f"Mock transcription of {audio_path}"
 
 
 class MockPlatformService:
+    """Platform service mock implementation."""
+
     def __init__(self, config_manager: IConfigurationManager):
+        """Initialize the mock platform service."""
         self.config_manager = config_manager
 
     def get_platform(self):
+        """Get the platform information."""
         return "mock-platform"
 
 
 # Entry point
 async def main():
+    """Run the DI examples."""
     print("DI Sample 1: Basic DI Example")
     service_provider = basic_di_example()
     print()

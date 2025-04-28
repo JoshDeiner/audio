@@ -71,7 +71,7 @@ class AppServices:
         self.text_to_speech_service = TextToSpeechService()
 
     def get(self, service_type: Type[T]) -> T:
-        """Simple service location for testing/overrides.
+        """To locate for testing/overrides.
 
         Args:
             service_type: Type of service to resolve

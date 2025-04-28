@@ -4,10 +4,8 @@ This module provides a bootstrapper for configuring the dependency injection
 container with all application services.
 """
 
-import importlib
 import logging
-import os
-from typing import Any, Dict, List, Optional, Type, TypeVar, cast
+from typing import Any, Dict, Optional, Type, TypeVar
 
 from library.bin.dependency_injection.container import (
     DIContainer,
@@ -17,7 +15,6 @@ from library.bin.dependency_injection.module_loader import (
     auto_register_services,
 )
 from library.bin.dependency_injection.plugin_provider import PluginProvider
-from plugins.plugin_manager import PluginManager
 from services.implementations.audio_service_impl import AudioRecordingService
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,

@@ -1,6 +1,5 @@
 """File service interface for audio transcription tool."""
 
-import os
 from abc import ABC, abstractmethod
 from typing import Optional, Tuple, Union
 

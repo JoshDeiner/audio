@@ -5,7 +5,7 @@ completely replacing the ServiceFactory singleton with proper dependency injecti
 """
 
 import logging
-from typing import Any, Dict, Optional, Type, TypeVar, cast
+from typing import Any, Optional, Type, TypeVar
 
 from library.bin.dependency_injection.container import (
     DIContainer,
@@ -97,7 +97,7 @@ class ServiceProvider:
         return self.scope.resolve(IPlatformDetectionService)
 
     def get(self, service_type: Type[T]) -> T:
-        """Generic method to get any registered service by interface.
+        """To get any registration by interface.
 
         Args:
             service_type: The interface type to resolve

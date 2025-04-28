@@ -7,7 +7,7 @@ registries or dependency injection requirements.
 import importlib
 import logging
 import os
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional
 
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,

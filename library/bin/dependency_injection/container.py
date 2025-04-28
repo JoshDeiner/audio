@@ -12,7 +12,6 @@ from typing import (
     Dict,
     List,
     Optional,
-    Set,
     Type,
     TypeVar,
     cast,
@@ -223,7 +222,7 @@ class DIContainer:
             raise KeyError(f"No service of type {key} is registered")
 
         def factory_func(**kwargs: Any) -> TFactory:
-            """Factory function for creating service instances with overrides.
+            """Must create service instances with overrides.
 
             Args:
                 **kwargs: Override values for dependencies
