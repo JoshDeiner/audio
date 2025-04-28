@@ -1,4 +1,4 @@
-"""Transcription service for audio transcription tool."""
+"""Simplified transcription service for audio transcription tool."""
 
 import logging
 import os
@@ -8,13 +8,13 @@ from typing import Dict, Optional
 from colorama import Fore, Style
 from faster_whisper import WhisperModel
 
-from config.configuration_manager import ConfigurationManager
 from services.exceptions import (
     FileOperationError,
     SecurityError,
     TranscriptionError,
 )
 from services.file_service import FileService
+from services.implementations.configuration_manager_impl import ConfigurationManager
 
 logger = logging.getLogger(__name__)
 
@@ -23,15 +23,19 @@ class TranscriptionService:
     """Service for transcribing audio using faster-whisper."""
 
     def __init__(
-        self, config_manager: Optional[ConfigurationManager] = None
+        self, 
+        file_service: Optional[FileService] = None,
+        config_manager: Optional[ConfigurationManager] = None
     ) -> None:
-        """Initialize the transcription service.
+        """Initialize the transcription service with optional dependencies.
 
         Args:
+            file_service: Optional file service for file operations
             config_manager: Optional configuration manager instance
         """
-        self.file_service = FileService()
-        self.config_manager = config_manager or ConfigurationManager
+        # Use provided services or create new instances
+        self.file_service = file_service or FileService()
+        self.config_manager = config_manager or ConfigurationManager()
 
     def transcribe_audio(
         self,

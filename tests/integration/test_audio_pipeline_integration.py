@@ -1,4 +1,4 @@
-"""Integration tests for audio pipeline controller."""
+"""Integration tests for audio pipeline controller using simplified DI."""
 
 import os
 import subprocess
@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from audio.audio_pipeline_controller import AudioPipelineController
+from dependency_injection.app_services import AppServices
 from services.implementations.audio_service_impl import AudioRecordingService
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,
@@ -20,42 +21,20 @@ from services.text_to_speech_service import TextToSpeechService
 
 
 @pytest.fixture
-def temp_config_manager():
-    """Create a temporary configuration manager."""
-    return ConfigurationManager({})
-
-
-@pytest.fixture
-def platform_service():
-    """Create a platform detection service."""
-    from services.implementations.platform_service_impl import (
-        PlatformDetectionService,
-    )
-
-    return PlatformDetectionService()
-
-
-@pytest.fixture
-def file_service():
-    """Create a file service."""
-    return FileService()
-
-
-@pytest.fixture
-def audio_service(platform_service, file_service):
-    """Create an audio recording service with dependencies."""
-    return AudioRecordingService(platform_service, file_service)
+def app_services():
+    """Create AppServices container for tests with a clean configuration."""
+    services = AppServices({})
+    
+    # Return the services container
+    return services
 
 
 @pytest.mark.integration
 def test_audio_in_pipeline_prints_transcription(
     tmp_path: Path,
-    temp_config_manager,
-    platform_service,
-    file_service,
-    audio_service,
+    app_services,
 ) -> None:
-    """Test audio-in pipeline transcribes and prints results through direct API calls."""
+    """Test audio-in pipeline transcribes and prints results using simplified DI."""
     # Create a test output file to check
     output_file = tmp_path / "transcription_test.wav"
 
@@ -64,8 +43,8 @@ def test_audio_in_pipeline_prints_transcription(
     os.environ["AUDIO_OUTPUT_DIR"] = str(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
-    # Create transcription service
-    transcription_service = TranscriptionService(file_service)
+    # Update app_services configuration
+    app_services.config["AUDIO_OUTPUT_DIR"] = str(output_dir)
 
     # Create configuration for AudioPipelineController
     config = {
@@ -74,14 +53,8 @@ def test_audio_in_pipeline_prints_transcription(
         "play_audio": False,
     }
 
-    # Create controller directly
-    controller = AudioPipelineController(
-        config,
-        temp_config_manager,
-        transcription_service,
-        file_service,
-        audio_service,
-    )
+    # Create controller using factory method with AppServices
+    controller = AudioPipelineController.from_services(config, app_services)
 
     # Run the pipeline directly
     import asyncio
@@ -96,23 +69,17 @@ def test_audio_in_pipeline_prints_transcription(
 @pytest.mark.integration
 def test_audio_out_pipeline_uses_default_text(
     tmp_path: Path,
-    temp_config_manager,
-    platform_service,
-    file_service,
-    audio_service,
+    app_services,
 ) -> None:
-    """Test audio-out pipeline with default text."""
+    """Test audio-out pipeline with default text using simplified DI."""
     # Set output directory
     output_dir = tmp_path / "output"
     os.environ["AUDIO_OUTPUT_DIR"] = str(output_dir)
-    temp_config_manager.set("AUDIO_OUTPUT_DIR", str(output_dir))
+    app_services.config["AUDIO_OUTPUT_DIR"] = str(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     # Set a specific output file
     output_file = tmp_path / "output.wav"
-
-    # Create transcription service
-    transcription_service = TranscriptionService(file_service)
 
     # Create configuration for AudioPipelineController
     config = {
@@ -121,14 +88,8 @@ def test_audio_out_pipeline_uses_default_text(
         "play_audio": False,
     }
 
-    # Create controller directly
-    controller = AudioPipelineController(
-        config,
-        temp_config_manager,
-        transcription_service,
-        file_service,
-        audio_service,
-    )
+    # Create controller using factory method
+    controller = AudioPipelineController.from_services(config, app_services)
 
     # Run the pipeline directly
     import asyncio
@@ -143,23 +104,17 @@ def test_audio_out_pipeline_uses_default_text(
 @pytest.mark.integration
 def test_audio_out_pipeline_uses_custom_text_and_output(
     tmp_path: Path,
-    temp_config_manager,
-    platform_service,
-    file_service,
-    audio_service,
+    app_services,
 ) -> None:
-    """Test audio-out pipeline with custom text and output path."""
+    """Test audio-out pipeline with custom text and output path using simplified DI."""
     # Set output directory
     output_dir = tmp_path / "output"
     os.environ["AUDIO_OUTPUT_DIR"] = str(output_dir)
-    temp_config_manager.set("AUDIO_OUTPUT_DIR", str(output_dir))
+    app_services.config["AUDIO_OUTPUT_DIR"] = str(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     # Set a specific output file
     output_file = tmp_path / "custom.wav"
-
-    # Create transcription service
-    transcription_service = TranscriptionService(file_service)
 
     # Create configuration for AudioPipelineController
     config = {
@@ -168,14 +123,8 @@ def test_audio_out_pipeline_uses_custom_text_and_output(
         "play_audio": False,
     }
 
-    # Create controller directly
-    controller = AudioPipelineController(
-        config,
-        temp_config_manager,
-        transcription_service,
-        file_service,
-        audio_service,
-    )
+    # Create controller using factory method
+    controller = AudioPipelineController.from_services(config, app_services)
 
     # Run the pipeline directly
     import asyncio
@@ -190,23 +139,17 @@ def test_audio_out_pipeline_uses_custom_text_and_output(
 @pytest.mark.integration
 def test_audio_out_pipeline_with_play_flag(
     tmp_path: Path,
-    temp_config_manager,
-    platform_service,
-    file_service,
-    audio_service,
+    app_services,
 ) -> None:
-    """Test audio-out pipeline with play flag."""
+    """Test audio-out pipeline with play flag using simplified DI."""
     # Set output directory
     output_dir = tmp_path / "output"
     os.environ["AUDIO_OUTPUT_DIR"] = str(output_dir)
-    temp_config_manager.set("AUDIO_OUTPUT_DIR", str(output_dir))
+    app_services.config["AUDIO_OUTPUT_DIR"] = str(output_dir)
     os.makedirs(output_dir, exist_ok=True)
 
     # Set a specific output file
     output_file = tmp_path / "play.wav"
-
-    # Create transcription service
-    transcription_service = TranscriptionService(file_service)
 
     # Create configuration for AudioPipelineController
     config = {
@@ -215,14 +158,8 @@ def test_audio_out_pipeline_with_play_flag(
         "play_audio": True,  # Enable play flag
     }
 
-    # Create controller directly
-    controller = AudioPipelineController(
-        config,
-        temp_config_manager,
-        transcription_service,
-        file_service,
-        audio_service,
-    )
+    # Create controller using factory method
+    controller = AudioPipelineController.from_services(config, app_services)
 
     # Run the pipeline directly with play enabled but redirecting stderr to check for message
     import asyncio

@@ -1,119 +1,139 @@
 # Dependency Injection Migration Guide
 
-This document provides instructions for migrating to the new dependency injection pattern.
+This document provides instructions for migrating to the simplified dependency injection pattern.
 
-## How to Migrate
+## Simplified vs. Enterprise DI
 
-To use the new dependency injection system, follow these steps:
+This project now supports two approaches to dependency injection:
 
-### Step 1: Update Your Main Entry Point
+1. **Enterprise DI (Original)**: Full-featured DI with interface/implementation separation, 
+   complex container, and formal lifecycle management. Suitable for large teams and complex applications.
 
-Replace your existing main entry point with the DI-enabled version:
+2. **Simplified DI (New)**: Streamlined approach with direct service initialization, 
+   optional dependencies, and minimal configuration. Suitable for prototyping and smaller applications.
 
-```bash
-# Use the DI-enabled main entry point
-python -m audio.__main__di
+## How to Migrate to Simplified DI
+
+To use the simplified dependency injection system, follow these steps:
+
+### Step 1: Use the Simplified AppServices Container
+
+```python
+from dependency_injection.app_services import AppServices
+
+# Create services with optional configuration
+config = {"WHISPER_MODEL": "tiny", "DEBUG": True}
+services = AppServices(config)
+
+# Access services directly
+file_service = services.file_service
+transcription_service = services.transcription_service
 ```
 
-The DI-enabled main entry point will:
-1. Bootstrap the DI container
-2. Register all services with their implementations
-3. Resolve dependencies automatically
-4. Use the Application class as the composition root
+### Step 2: Create New Services with Optional Dependencies
 
-### Step 2: Create New Services
+When creating new services, make dependencies optional with default instantiation:
 
-When creating new services:
-
-1. Define an interface in `services/interfaces/`
-2. Implement the service in `services/implementations/`
-3. Register the service in `dependency_injection/bootstrap_updated.py`
-
-Example interface:
 ```python
-from abc import ABC, abstractmethod
-
-class IMyService(ABC):
-    @abstractmethod
-    def do_something(self) -> str:
-        pass
-```
-
-Example implementation:
-```python
-from dependency_injection.module_loader import Injectable
-from services.interfaces.my_service_interface import IMyService
-
-@Injectable(interface=IMyService)
-class MyService(IMyService):
-    def __init__(self, dependency: IDependency) -> None:
-        self.dependency = dependency
+class MyService:
+    def __init__(self, dependency=None):
+        # Use provided dependency or create a new instance
+        self.dependency = dependency or Dependency()
 
     def do_something(self) -> str:
         return f"Did something with {self.dependency.name}"
 ```
 
-### Step 3: Update Controllers and Components
+### Step 3: Use Services in Controllers
 
-Update your controllers to use constructor injection:
+Use constructor injection with direct service access:
 
 ```python
+from dependency_injection.app_services import AppServices
+
 class MyController:
     def __init__(
         self,
-        config: Dict[str, Any],
-        service1: IService1,
-        service2: IService2
-    ) -> None:
+        config,
+        service1,
+        service2
+    ):
         self.config = config
         self.service1 = service1
         self.service2 = service2
+        
+    @classmethod
+    def from_services(cls, config, services):
+        # Factory method for easy creation from AppServices
+        return cls(
+            config,
+            services.service1,
+            services.service2
+        )
 ```
 
-### Step 4: Resolve Dependencies
+### Step 4: For Legacy Code Using the Old DI System
 
-Use the ServiceProvider to get services:
+Use the migration adapter to help transitioning:
 
 ```python
-from services.service_provider import ServiceProvider
+from dependency_injection.migration import create_adapter
+from dependency_injection.app_services import AppServices
 
-# Create a service provider
-service_provider = ServiceProvider(container)
+# Create AppServices
+services = AppServices()
 
-# Get services
-service1 = service_provider.get(IService1)
-service2 = service_provider.get(IService2)
+# Create an adapter that makes AppServices look like the old DIContainer
+container_adapter = create_adapter(services)
+
+# Legacy code can continue to use 'container_adapter' instead of 'container'
 ```
 
-## Key Files
+## Key Files for Simplified DI
 
-- `/audio/application_enhanced.py` - Enhanced application with DI
-- `/audio/__main__di.py` - DI-enabled main entry point
-- `/audio/utilities/argument_parser_di.py` - DI-enabled argument parser
-- `/dependency_injection/bootstrap_updated.py` - Updated bootstrap with all services
-- `/services/service_provider_enhanced.py` - Enhanced service provider
+- `/dependency_injection/app_services.py` - Core simplified service container
+- `/audio/application.py` - Updated application using simplified DI
+- `/plugins/simple_plugin_loader.py` - Simplified plugin loading system
+- `/dependency_injection/migration.py` - Utilities for transitioning from complex to simplified DI
+- `/samples/simplified_di_usage.py` - Sample code showing simplified DI usage
 
-## Testing with DI
+## Testing with Simplified DI
 
-The DI system makes testing much easier:
+The simplified DI system makes testing even easier:
 
 ```python
 def test_my_controller():
-    # Create mock dependencies
-    mock_service1 = MockService1()
-    mock_service2 = MockService2()
-
-    # Create controller with mock dependencies
-    controller = MyController({}, mock_service1, mock_service2)
-
+    # Create AppServices with mock implementations
+    services = AppServices()
+    
+    # Register mock services
+    services.register_instance(Service1, MockService1())
+    services.register_instance(Service2, MockService2())
+    
+    # Create controller with mock services
+    controller = MyController.from_services({}, services)
+    
     # Test methods
     result = controller.do_something()
     assert result == "expected result"
 ```
 
-## Benefits
+## Benefits of Simplified DI
 
-1. **Testability**: Easy to replace real implementations with mocks
-2. **Modularity**: Components are decoupled from their dependencies
-3. **Maintainability**: Dependencies are explicit in constructor signatures
-4. **Flexibility**: Implementation can be changed without affecting clients
+1. **Faster Development**: Fewer files to modify when making changes
+2. **Easier Onboarding**: Simpler architecture for new developers to understand
+3. **Maintained Testability**: Still supports mocking and testing
+4. **Reduced Complexity**: Less boilerplate code
+5. **Future Flexibility**: Can evolve to enterprise patterns as needed
+
+## When to Use Enterprise DI
+
+Consider using or returning to the enterprise DI approach when:
+
+1. The team size grows beyond 3-5 developers
+2. The codebase exceeds ~10k lines of code
+3. Multiple deployment contexts require different implementations
+4. Formal testing requirements emerge
+
+For prototyping and small projects, the simplified DI approach provides most benefits 
+with significantly less overhead.

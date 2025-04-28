@@ -14,6 +14,7 @@ import os
 import time
 from typing import Any, Dict, List, Optional
 
+from dependency_injection.app_services import AppServices
 from services.audio_playback_service import AudioPlaybackService
 from services.exceptions import (
     AudioRecordingError,
@@ -66,9 +67,10 @@ class AudioPipelineController:
 
         Example:
             ```python
-            # Using the DI container
-            from dependency_injection import container
-
+            # Using the simplified AppServices container
+            from dependency_injection.app_services import AppServices
+            
+            services = AppServices()
             config = {
                 "model": "small",
                 "language": "en",
@@ -76,11 +78,14 @@ class AudioPipelineController:
             }
             controller = AudioPipelineController(
                 config,
-                container.resolve(IConfigurationManager),
-                container.resolve(ITranscriptionService),
-                container.resolve(IFileService),
-                container.resolve(IAudioRecordingService)
+                services.config_manager,
+                services.transcription_service,
+                services.file_service,
+                services.audio_service
             )
+            
+            # Alternative simplified constructor
+            controller = AudioPipelineController.from_services(config, services)
             ```
         """
         self.config = config
@@ -91,6 +96,25 @@ class AudioPipelineController:
 
         # Ensure directories exist
         self._ensure_directories()
+        
+    @classmethod
+    def from_services(cls, config: Dict[str, Any], services: AppServices) -> 'AudioPipelineController':
+        """Create a controller using the AppServices container.
+        
+        Args:
+            config: Configuration dictionary with pipeline options
+            services: AppServices container with all required services
+            
+        Returns:
+            An initialized AudioPipelineController instance
+        """
+        return cls(
+            config,
+            services.config_manager,
+            services.transcription_service,
+            services.file_service,
+            services.audio_service
+        )
 
     def _ensure_directories(self) -> None:
         """Ensure required directories exist for audio I/O.

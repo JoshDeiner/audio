@@ -1,6 +1,6 @@
-"""Application entry point with dependency injection support.
+"""Application entry point with simplified dependency injection support.
 
-This module provides the main application class that bootstraps the DI container
+This module provides the main application class that uses the simplified DI approach
 and serves as the composition root for the application.
 """
 
@@ -10,33 +10,22 @@ from typing import Any, Dict, Optional
 
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
-from dependency_injection.bootstrap import bootstrap_application
-from dependency_injection.container import DIContainer, ServiceLifetime
+from dependency_injection.app_services import AppServices
 from services.exceptions import AudioServiceError
-from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.configuration_manager_interface import (
-    IConfigurationManager,
-)
-from services.interfaces.file_service_interface import IFileService
-from services.interfaces.transcription_service_interface import (
-    ITranscriptionService,
-)
-from services.service_provider import ServiceProvider
 
 logger = logging.getLogger(__name__)
 
 
 class Application:
-    """Main application class with dependency injection support.
+    """Main application class with simplified dependency injection support.
 
     This class serves as the composition root for the application,
-    bootstrapping the DI container and coordinating service usage.
+    using the simplified DI container for service management.
     """
 
     def __init__(self) -> None:
         """Initialize the application."""
-        self.container = DIContainer()
-        self.service_provider: Optional[ServiceProvider] = None
+        self.services: Optional[AppServices] = None
 
     async def initialize(
         self, config: Optional[Dict[str, Any]] = None
@@ -46,17 +35,9 @@ class Application:
         Args:
             config: Optional application configuration
         """
-        # Bootstrap the DI container
-        from dependency_injection.bootstrap import (
-            bootstrap_application as bootstrap,
-        )
-
-        bootstrap(config)
-
-        # Create a service provider
-        self.service_provider = ServiceProvider(self.container)
-
-        logger.info("Application initialized")
+        # Initialize services with configuration
+        self.services = AppServices(config)
+        logger.info("Application initialized with simplified DI")
 
     async def run(self, args: Optional[Dict[str, Any]] = None) -> int:
         """Run the application with the given arguments.
@@ -67,7 +48,7 @@ class Application:
         Returns:
             Exit code (0 for success, non-zero for error)
         """
-        if not self.service_provider:
+        if not self.services:
             await self.initialize()
 
         try:
@@ -98,25 +79,17 @@ class Application:
         Args:
             args: Command line arguments
         """
-        if not self.service_provider:
+        if not self.services:
             raise RuntimeError("Application not initialized")
 
         try:
-            # Get required services from the DI container
-            config_manager = self.service_provider.get_config_manager()
-            transcription_service = (
-                self.service_provider.get_transcription_service()
-            )
-            file_service = self.service_provider.get_file_service()
-            audio_service = self.service_provider.get_audio_recording_service()
-
             # Create the controller with dependencies injected
             controller = AudioPipelineController(
                 args,
-                config_manager,
-                transcription_service,
-                file_service,
-                audio_service,
+                self.services.config_manager,
+                self.services.transcription_service,
+                self.services.file_service,
+                self.services.audio_service,
             )
 
             # Run the audio input pipeline
@@ -133,25 +106,17 @@ class Application:
         Args:
             args: Command line arguments
         """
-        if not self.service_provider:
+        if not self.services:
             raise RuntimeError("Application not initialized")
 
         try:
-            # Get required services from the DI container
-            config_manager = self.service_provider.get_config_manager()
-            transcription_service = (
-                self.service_provider.get_transcription_service()
-            )
-            file_service = self.service_provider.get_file_service()
-            audio_service = self.service_provider.get_audio_recording_service()
-
             # Create the controller with dependencies injected
             controller = AudioPipelineController(
                 args,
-                config_manager,
-                transcription_service,
-                file_service,
-                audio_service,
+                self.services.config_manager,
+                self.services.transcription_service,
+                self.services.file_service,
+                self.services.audio_service,
             )
 
             # Run the audio output pipeline
@@ -168,28 +133,20 @@ class Application:
         Args:
             args: Command line arguments
         """
-        if not self.service_provider:
+        if not self.services:
             raise RuntimeError("Application not initialized")
 
         try:
             # Parse max turns
             max_turns = int(args.get("turns", "5"))
 
-            # Get required services from the DI container
-            config_manager = self.service_provider.get_config_manager()
-            transcription_service = (
-                self.service_provider.get_transcription_service()
-            )
-            file_service = self.service_provider.get_file_service()
-            audio_service = self.service_provider.get_audio_recording_service()
-
             # Create the controller with dependencies injected
             controller = AudioPipelineController(
                 args,
-                config_manager,
-                transcription_service,
-                file_service,
-                audio_service,
+                self.services.config_manager,
+                self.services.transcription_service,
+                self.services.file_service,
+                self.services.audio_service,
             )
 
             # Run the conversation loop
