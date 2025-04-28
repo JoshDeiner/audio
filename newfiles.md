@@ -1,6 +1,3 @@
-On branch main
-Your branch is ahead of 'ssh/main' by 4 commits.
-  (use "git push" to publish your local commits)
 
 Changes not staged for commit:
   (use "git add <file>..." to update what will be committed)
@@ -19,8 +16,6 @@ Changes not staged for commit:
 
 Untracked files:
   (use "git add <file>..." to include in what will be committed)
-	README.md
-	README_MIGRATION.md
 	audio/__main___refactored.py
 	audio/__main__di.py
 	audio/application.py
@@ -28,15 +23,6 @@ Untracked files:
 	audio/audio_pipeline_controller_refactored.py
 	audio/utilities/argument_parser_di.py
 	dependency_injection/
-	dependency_injection_implementation.md
-	dependency_injection_issues.md
-	di.md
-	di_refactoring_results.md
-	documentation/README_DEPENDENCY_INJECTION.md
-	documentation/ugh.txt
-	input/
-	newfiles.md
-	output/
 	plugins/plugin_manager_refactored.py
 	samples/
 	services/implementations/
