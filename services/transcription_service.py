@@ -14,7 +14,7 @@ from services.exceptions import (
     SecurityError,
     TranscriptionError,
 )
-from services.file_service_refactored import FileService
+from services.file_service import FileService
 
 logger = logging.getLogger(__name__)
 

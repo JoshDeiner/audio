@@ -9,13 +9,10 @@ import logging
 import os
 from typing import Any, Dict, List, Optional, Type, TypeVar, cast
 
-from dependency_injection.container import (
-    DIContainer,
-    ServiceLifetime,
-)
+from dependency_injection.container import DIContainer, ServiceLifetime
 from dependency_injection.module_loader import auto_register_services
 from dependency_injection.plugin_provider import PluginProvider
-from plugins.plugin_manager_refactored import PluginManager
+from plugins.plugin_manager import PluginManager
 from services.implementations.audio_service_impl import AudioRecordingService
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,

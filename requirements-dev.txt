@@ -8,4 +8,4 @@ pytest==7.3.1
 pytest-cov==4.1.0
 types-colorama==0.4.15.12
 types-pyaudio==0.2.16.7
-types-python-dotenv==1.0.0.1
+# types-python-dotenv has compatibility issues

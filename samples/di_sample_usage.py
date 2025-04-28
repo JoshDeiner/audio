@@ -11,10 +11,7 @@ from audio.audio_pipeline_controller import AudioPipelineController
 
 # Import DI components
 from dependency_injection.bootstrap import bootstrap_application
-from dependency_injection.container import (
-    DIContainer,
-    ServiceLifetime,
-)
+from dependency_injection.container import DIContainer, ServiceLifetime
 
 # Import interfaces
 from services.interfaces.audio_service_interface import IAudioRecordingService

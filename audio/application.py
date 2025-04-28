@@ -11,10 +11,7 @@ from typing import Any, Dict, Optional
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
 from dependency_injection.bootstrap import bootstrap_application
-from dependency_injection.container import (
-    DIContainer,
-    ServiceLifetime,
-)
+from dependency_injection.container import DIContainer, ServiceLifetime
 from services.exceptions import AudioServiceError
 from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.configuration_manager_interface import (
@@ -54,7 +51,7 @@ class Application:
             bootstrap_application as bootstrap,
         )
 
-        bootstrap(self.container, config)
+        bootstrap(config)
 
         # Create a service provider
         self.service_provider = ServiceProvider(self.container)

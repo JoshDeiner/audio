@@ -9,7 +9,7 @@ from typing import Dict, List, Optional
 
 from plugins.audio_format_plugin import AudioFormatPlugin
 from plugins.output_plugin import OutputPlugin
-from plugins.plugin_manager_refactored import PluginManager
+from plugins.plugin_manager import PluginManager
 from plugins.preprocessing_plugin import PreprocessingPlugin
 from plugins.transcription_plugin import TranscriptionPlugin
 from services.interfaces.configuration_manager_interface import (
