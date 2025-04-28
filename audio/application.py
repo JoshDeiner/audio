@@ -50,7 +50,10 @@ class Application:
             config: Optional application configuration
         """
         # Bootstrap the DI container
-        from dependency_injection.bootstrap_updated import bootstrap_application as bootstrap_updated
+        from dependency_injection.bootstrap_updated import (
+            bootstrap_application as bootstrap_updated,
+        )
+
         bootstrap_updated(self.container, config)
 
         # Create a service provider
