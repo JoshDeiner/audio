@@ -59,7 +59,7 @@ transcription_service = container.resolve(ITranscriptionService)
 The service provider provides a convenient API for accessing services:
 
 ```python
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 # Create a service provider
 service_provider = ServiceProvider(container)

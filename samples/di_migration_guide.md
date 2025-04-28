@@ -134,7 +134,7 @@ transcription_service = factory.create_transcription_service()
 ```python
 # Using dependency injection
 from dependency_injection.bootstrap import bootstrap_application
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 # Bootstrap the application
 bootstrap_application()

@@ -75,7 +75,7 @@ class MyController:
 Use the ServiceProvider to get services:
 
 ```python
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 # Create a service provider
 service_provider = ServiceProvider(container)

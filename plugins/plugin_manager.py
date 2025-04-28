@@ -4,15 +4,18 @@ This module provides a high-level interface for managing and using plugins.
 """
 
 import logging
+import os
 from typing import Dict, List, Optional
 
-from config.configuration_manager import ConfigurationManager
 from plugins.audio_format_plugin import AudioFormatPlugin
 from plugins.output_plugin import OutputPlugin
 from plugins.plugin_base import Plugin, PluginRegistry
 from plugins.plugin_loader import PluginLoader
 from plugins.preprocessing_plugin import PreprocessingPlugin
 from plugins.transcription_plugin import TranscriptionPlugin
+from services.interfaces.configuration_manager_interface import (
+    IConfigurationManager,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -24,34 +27,32 @@ class PluginManager:
     and using plugins in the audio application.
     """
 
-    # Singleton instance
+    # Singleton instance - kept for compatibility but will be phased out
     _instance = None
 
-    def __new__(cls, *args, **kwargs):
-        """Implement singleton pattern for PluginManager.
+    @classmethod
+    def get_instance(cls) -> Optional["PluginManager"]:
+        """Get the singleton instance if it exists.
 
         Returns:
-            The singleton instance of PluginManager
+            The singleton instance or None if not initialized
         """
-        if cls._instance is None:
-            cls._instance = super(PluginManager, cls).__new__(cls)
-            cls._instance._initialized = False
         return cls._instance
 
-    def __init__(self, config_manager: Optional[ConfigurationManager] = None):
+    def __init__(self, config_manager: IConfigurationManager):
         """Initialize the plugin manager.
 
         Args:
-            config_manager: Optional configuration manager instance
+            config_manager: Configuration manager instance
         """
-        # Only initialize once (singleton pattern)
-        if self._initialized:
-            return
+        # Set singleton instance for backward compatibility
+        if PluginManager._instance is None:
+            PluginManager._instance = self
 
-        self.config_manager = config_manager or ConfigurationManager
-        self._discovered_plugins = {}
-        self._active_plugins = {}
-        self._initialized = True
+        self.config_manager = config_manager
+        self._discovered_plugins: Dict[str, List[str]] = {}
+        self._active_plugins: Dict[str, Plugin] = {}
+        self._initialized = False
 
     def initialize(self) -> Dict[str, List[str]]:
         """Initialize the plugin system.
@@ -59,6 +60,9 @@ class PluginManager:
         Returns:
             Dict mapping plugin types to lists of plugin IDs
         """
+        if self._initialized:
+            return self._discovered_plugins
+
         # Get plugin directories from configuration
         plugin_dirs = self._get_plugin_directories()
 
@@ -69,6 +73,7 @@ class PluginManager:
         self._load_default_plugins()
 
         logger.info("Plugin manager initialized")
+        self._initialized = True
         return self._discovered_plugins
 
     def _get_plugin_directories(self) -> List[str]:
@@ -80,8 +85,6 @@ class PluginManager:
         plugin_dirs = []
 
         # Add built-in plugins directory
-        import os
-
         import plugins
 
         builtin_dir = os.path.join(
@@ -237,7 +240,7 @@ class PluginManager:
         Returns:
             Dict mapping plugin types to lists of plugin IDs
         """
-        if not self._discovered_plugins:
+        if not self._initialized:
             self.initialize()
 
         if plugin_type:
@@ -255,3 +258,4 @@ class PluginManager:
                 logger.error(f"Error cleaning up plugin {key}: {e}")
 
         self._active_plugins = {}
+        self._initialized = False

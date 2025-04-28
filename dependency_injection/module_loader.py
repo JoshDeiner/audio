@@ -11,7 +11,7 @@ import os
 import pkgutil
 from typing import Any, Dict, Iterable, List, Optional, Set, Type, cast
 
-from dependency_injection.container_enhanced import (
+from dependency_injection.container import (
     DIContainer,
     ServiceLifetime,
 )

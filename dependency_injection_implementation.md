@@ -70,7 +70,7 @@ bootstrap_application()
 transcription_service = container.resolve(ITranscriptionService)
 
 # Using the service provider
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 # Create a service provider
 service_provider = ServiceProvider(container)

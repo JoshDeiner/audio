@@ -1,25 +1,16 @@
-"""Service provider for the audio application.
+"""Enhanced service provider for the audio application.
 
-This module provides a cleaner, interface-based approach to service creation and management,
-replacing the ServiceFactory singleton with proper dependency injection.
+This module provides a scoped, interface-based approach to service creation and management,
+completely replacing the ServiceFactory singleton with proper dependency injection.
 """
 
 import logging
 from typing import Any, Dict, Optional, Type, TypeVar, cast
 
-from dependency_injection import container
-from dependency_injection.container import DIContainer
-from plugins.plugin_manager import PluginManager
-from services.implementations.audio_service_impl import AudioRecordingService
-from services.implementations.configuration_manager_impl import (
-    ConfigurationManager,
-)
-from services.implementations.file_service_impl import FileService
-from services.implementations.platform_service_impl import (
-    PlatformDetectionService,
-)
-from services.implementations.transcription_service_impl import (
-    TranscriptionService,
+from dependency_injection.container import (
+    DIContainer,
+    Scope,
+    ServiceLifetime,
 )
 from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.configuration_manager_interface import (
@@ -42,30 +33,28 @@ class ServiceProvider:
     """Provider for creating and accessing service implementations.
 
     This class serves as a facade for the DIContainer, providing a clean API
-    for resolving service dependencies and managing service lifecycles.
+    for resolving service dependencies with proper scoping and lifecycle management.
     """
 
-    def __init__(self, di_container: Optional[DIContainer] = None) -> None:
+    def __init__(
+        self, di_container: DIContainer, parent_scope: Optional[Scope] = None
+    ) -> None:
         """Initialize the service provider.
 
         Args:
-            di_container: Optional dependency injection container. If None, the global container is used.
+            di_container: Dependency injection container
+            parent_scope: Optional parent scope for nested scoping
         """
-        self.container = di_container or container
+        self.container = di_container
+        self.scope = parent_scope or di_container.create_scope()
 
-    def configure(self, config: Optional[Dict[str, Any]] = None) -> None:
-        """Configure the service provider with application settings.
+    def create_scope(self) -> "ServiceProvider":
+        """Create a new scoped service provider.
 
-        Args:
-            config: Optional configuration dictionary
+        Returns:
+            A new service provider with its own scope
         """
-        # Configure the container
-        self.container.configure(config)
-
-        # Initialize the services
-        self.container.initialize_services()
-
-        logger.info("Service provider configured")
+        return ServiceProvider(self.container, self.container.create_scope())
 
     def get_config_manager(self) -> IConfigurationManager:
         """Get the configuration manager service.
@@ -73,7 +62,7 @@ class ServiceProvider:
         Returns:
             Configuration manager implementation
         """
-        return self.container.resolve(IConfigurationManager)
+        return self.scope.resolve(IConfigurationManager)
 
     def get_file_service(self) -> IFileService:
         """Get the file service.
@@ -81,7 +70,7 @@ class ServiceProvider:
         Returns:
             File service implementation
         """
-        return self.container.resolve(IFileService)
+        return self.scope.resolve(IFileService)
 
     def get_transcription_service(self) -> ITranscriptionService:
         """Get the transcription service.
@@ -89,7 +78,7 @@ class ServiceProvider:
         Returns:
             Transcription service implementation
         """
-        return self.container.resolve(ITranscriptionService)
+        return self.scope.resolve(ITranscriptionService)
 
     def get_audio_recording_service(self) -> IAudioRecordingService:
         """Get the audio recording service.
@@ -97,7 +86,7 @@ class ServiceProvider:
         Returns:
             Audio recording service implementation
         """
-        return self.container.resolve(IAudioRecordingService)
+        return self.scope.resolve(IAudioRecordingService)
 
     def get_platform_service(self) -> IPlatformDetectionService:
         """Get the platform detection service.
@@ -105,13 +94,13 @@ class ServiceProvider:
         Returns:
             Platform detection service implementation
         """
-        return self.container.resolve(IPlatformDetectionService)
+        return self.scope.resolve(IPlatformDetectionService)
 
-    def get(self, interface: Type[T]) -> T:
+    def get(self, service_type: Type[T]) -> T:
         """Generic method to get any registered service by interface.
 
         Args:
-            interface: The interface type to resolve
+            service_type: The interface type to resolve
 
         Returns:
             An instance of the registered implementation
@@ -119,18 +108,71 @@ class ServiceProvider:
         Raises:
             KeyError: If no implementation is registered for the interface
         """
-        return self.container.resolve(interface)
+        return self.scope.resolve(service_type)
 
-    def cleanup(self) -> None:
-        """Clean up and release all services."""
-        # Clean up plugin manager resources if needed
-        plugin_manager = PluginManager.get_instance()
-        if plugin_manager:
-            plugin_manager.cleanup()
+    def get_factory(self, service_type: Type[T]) -> Any:
+        """Get a factory function for creating service instances.
 
-        logger.info("Service provider cleaned up")
+        Args:
+            service_type: Type of service to create factory for
 
+        Returns:
+            Factory function that creates instances of the service
+        """
+        return self.container.factory(service_type)
 
-# Create a global service provider instance for convenience
-# This is not a singleton - applications can create their own instances if needed
-service_provider = ServiceProvider()
+    def register_instance(self, service_type: Type[T], instance: Any) -> None:
+        """Register an instance with the container.
+
+        Args:
+            service_type: Type of service to register
+            instance: Instance to register
+        """
+        self.container.register(
+            service_type,
+            implementation=instance,
+            lifetime=ServiceLifetime.SINGLETON,
+        )
+
+    def register_transient(
+        self, service_type: Type[T], implementation_type: Type
+    ) -> None:
+        """Register a transient service with the container.
+
+        Args:
+            service_type: Type of service to register
+            implementation_type: Implementation type to register
+        """
+        self.container.register(
+            service_type,
+            implementation_type,
+            lifetime=ServiceLifetime.TRANSIENT,
+        )
+
+    def register_scoped(
+        self, service_type: Type[T], implementation_type: Type
+    ) -> None:
+        """Register a scoped service with the container.
+
+        Args:
+            service_type: Type of service to register
+            implementation_type: Implementation type to register
+        """
+        self.container.register(
+            service_type, implementation_type, lifetime=ServiceLifetime.SCOPED
+        )
+
+    def register_singleton(
+        self, service_type: Type[T], implementation_type: Type
+    ) -> None:
+        """Register a singleton service with the container.
+
+        Args:
+            service_type: Type of service to register
+            implementation_type: Implementation type to register
+        """
+        self.container.register(
+            service_type,
+            implementation_type,
+            lifetime=ServiceLifetime.SINGLETON,
+        )

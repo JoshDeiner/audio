@@ -11,7 +11,7 @@ from audio.audio_pipeline_controller import AudioPipelineController
 
 # Import DI components
 from dependency_injection.bootstrap import bootstrap_application
-from dependency_injection.container_enhanced import (
+from dependency_injection.container import (
     DIContainer,
     ServiceLifetime,
 )
@@ -28,7 +28,7 @@ from services.interfaces.platform_service_interface import (
 from services.interfaces.transcription_service_interface import (
     ITranscriptionService,
 )
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 
 # Sample 1: Basic DI setup and service resolution

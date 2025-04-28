@@ -1,51 +1,121 @@
-"""Dependency injection container for the audio application.
+"""Enhanced dependency injection container for the audio application.
 
-This module provides a centralized dependency injection container
-for managing service instances and their dependencies.
+This module provides an improved dependency injection container with
+advanced features like scoped lifetimes, lazy resolution, and factory methods.
 """
 
+import inspect
 import logging
-from typing import Any, Dict, Optional, Type, TypeVar, cast
-
-from services.implementations.audio_service_impl import AudioRecordingService
-from services.implementations.configuration_manager_impl import (
-    ConfigurationManager,
-)
-from services.implementations.file_service_impl import FileService
-from services.implementations.platform_service_impl import (
-    PlatformDetectionService,
-)
-from services.implementations.transcription_service_impl import (
-    TranscriptionService,
-)
-from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.configuration_manager_interface import (
-    IConfigurationManager,
-)
-from services.interfaces.file_service_interface import IFileService
-from services.interfaces.platform_service_interface import (
-    IPlatformDetectionService,
-)
-from services.interfaces.transcription_service_interface import (
-    ITranscriptionService,
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Set,
+    Type,
+    TypeVar,
+    cast,
 )
 
 logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
+TFactory = TypeVar("TFactory")
+
+
+class ServiceLifetime:
+    """Service lifetime options for DI container registrations."""
+
+    SINGLETON = "singleton"  # One instance for the entire application
+    SCOPED = "scoped"  # One instance per scope/request
+    TRANSIENT = "transient"  # New instance each time resolved
+
+
+class ServiceRegistration:
+    """Registration details for a service in the DI container."""
+
+    def __init__(
+        self,
+        service_type: Type,
+        implementation_type: Optional[Type] = None,
+        implementation: Optional[Any] = None,
+        factory: Optional[Callable[..., Any]] = None,
+        lifetime: str = ServiceLifetime.SINGLETON,
+        dependencies: Optional[List[Type]] = None,
+    ) -> None:
+        """Initialize a service registration.
+
+        Args:
+            service_type: Interface or abstract type being registered
+            implementation_type: Concrete type implementing the service (optional)
+            implementation: Instance implementing the service (optional)
+            factory: Factory function to create the service (optional)
+            lifetime: Service lifetime (singleton, scoped, transient)
+            dependencies: List of dependency types required for initialization
+        """
+        self.service_type = service_type
+        self.implementation_type = implementation_type
+        self.implementation = implementation
+        self.factory = factory
+        self.lifetime = lifetime
+        self.dependencies = dependencies or []
+
+        # Validate registration
+        if not any([implementation_type, implementation, factory]):
+            raise ValueError(
+                f"Service {service_type} must have either an implementation "
+                "type, instance, or factory method"
+            )
+
+
+class Scope:
+    """A resolution scope for scoped services.
+
+    A scope maintains instances of scoped services for a specific
+    context or request, allowing services to be shared within
+    the scope but not between different scopes.
+    """
+
+    def __init__(self, container: "DIContainer") -> None:
+        """Initialize a scope with reference to its parent container.
+
+        Args:
+            container: Parent DI container
+        """
+        self.container = container
+        self.instances: Dict[str, Any] = {}
+
+    def resolve(self, service_type: Type[T]) -> T:
+        """Resolve a service from this scope.
+
+        Args:
+            service_type: Type of service to resolve
+
+        Returns:
+            An instance of the requested service
+
+        Raises:
+            KeyError: If service is not registered
+        """
+        return self.container.resolve(service_type, self)
 
 
 class DIContainer:
-    """Dependency injection container.
+    """Advanced dependency injection container.
 
-    This class manages the creation and resolution of service dependencies
-    throughout the application, ensuring proper initialization and lifecycle.
+    This container provides advanced DI features including:
+    - Support for different service lifetimes (singleton, scoped, transient)
+    - Auto-resolving dependencies through constructor injection
+    - Factory methods for complex instantiation
+    - Circular dependency detection
     """
 
     def __init__(self) -> None:
         """Initialize the dependency injection container."""
-        self._services: Dict[str, Any] = {}
-        self._config: Optional[Dict[str, Any]] = None
+        self._registrations: Dict[str, ServiceRegistration] = {}
+        self._singletons: Dict[str, Any] = {}
+        self._config: Dict[str, Any] = {}
 
     def configure(self, config: Optional[Dict[str, Any]] = None) -> None:
         """Configure the container with application settings.
@@ -53,64 +123,320 @@ class DIContainer:
         Args:
             config: Optional configuration dictionary
         """
-        self._config = config
+        self._config = config or {}
 
-    def register(self, interface: Type[T], implementation: Any) -> None:
-        """Register a service implementation for a given interface.
+    def register(
+        self,
+        service_type: Type[T],
+        implementation_type: Optional[Type] = None,
+        *,
+        lifetime: str = ServiceLifetime.SINGLETON,
+        implementation: Optional[Any] = None,
+        factory: Optional[Callable[..., Any]] = None,
+    ) -> None:
+        """Register a service with the container.
 
         Args:
-            interface: The interface type to register
-            implementation: The implementation instance to use
+            service_type: Interface or abstract type being registered
+            implementation_type: Concrete type implementing the service (optional)
+            lifetime: Service lifetime (singleton, scoped, transient)
+            implementation: Instance implementing the service (optional)
+            factory: Factory function to create the service (optional)
+
+        Example:
+            ```python
+            # Register a concrete type
+            container.register(IUserService, UserService)
+
+            # Register an instance (always singleton)
+            container.register(IConfig, config_instance)
+
+            # Register a factory
+            container.register(IDatabase, factory=lambda c:
+                Database(c.resolve(ISettings).connection_string))
+            ```
         """
-        self._services[interface.__name__] = implementation
-        logger.debug(f"Registered service: {interface.__name__}")
+        # If only implementation is provided, use singleton lifetime
+        if (
+            implementation is not None
+            and lifetime != ServiceLifetime.SINGLETON
+        ):
+            logger.warning(
+                f"Forcing singleton lifetime for {service_type.__name__} "
+                "because an implementation instance was provided"
+            )
+            lifetime = ServiceLifetime.SINGLETON
 
-    def resolve(self, interface: Type[T]) -> T:
-        """Resolve a service implementation for a given interface.
+        # Determine dependencies for implementation type
+        dependencies = []
+        if implementation_type and not implementation and not factory:
+            try:
+                dependencies = self._get_constructor_dependencies(
+                    implementation_type
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Failed to determine dependencies for {implementation_type}: {e}"
+                )
+
+        # Create registration
+        registration = ServiceRegistration(
+            service_type=service_type,
+            implementation_type=implementation_type,
+            implementation=implementation,
+            factory=factory,
+            lifetime=lifetime,
+            dependencies=dependencies,
+        )
+
+        # Store registration
+        key = service_type.__name__
+        self._registrations[key] = registration
+
+        # If this is a singleton with an instance already provided, store it
+        if (
+            lifetime == ServiceLifetime.SINGLETON
+            and implementation is not None
+        ):
+            self._singletons[key] = implementation
+
+        logger.debug(f"Registered service: {key} with lifetime {lifetime}")
+
+    def factory(self, service_type: Type[TFactory]) -> Callable[..., TFactory]:
+        """Get a factory function for a service type.
+
+        This creates a factory that can be used to create instances of the
+        registered service with optional arguments that override the resolved
+        dependencies.
 
         Args:
-            interface: The interface type to resolve
+            service_type: Type of service to create a factory for
 
         Returns:
-            An instance of the registered implementation
+            A factory function that creates instances of the service
 
         Raises:
-            KeyError: If no implementation is registered for the interface
+            KeyError: If service is not registered
         """
-        if interface.__name__ not in self._services:
-            raise KeyError(
-                f"No implementation registered for {interface.__name__}"
+        key = service_type.__name__
+        if key not in self._registrations:
+            raise KeyError(f"No service of type {key} is registered")
+
+        def factory_func(**kwargs: Any) -> TFactory:
+            """Factory function for creating service instances with overrides.
+
+            Args:
+                **kwargs: Override values for dependencies
+
+            Returns:
+                An instance of the requested service
+            """
+            return self._create_instance(
+                self._registrations[key], None, kwargs
             )
 
-        return cast(T, self._services[interface.__name__])
+        return factory_func
 
-    def initialize_services(self) -> None:
-        """Initialize all registered services in the container.
+    def create_scope(self) -> Scope:
+        """Create a new scope for scoped services.
 
-        This method sets up the default service implementations and their dependencies.
+        Returns:
+            A new scope for resolving scoped services
         """
-        # Create configuration manager first
-        config_manager = ConfigurationManager(self._config)
-        self.register(IConfigurationManager, config_manager)
+        return Scope(self)
 
-        # Create file service
-        file_service = FileService()
-        self.register(IFileService, file_service)
+    def resolve(
+        self, service_type: Type[T], scope: Optional[Scope] = None
+    ) -> T:
+        """Resolve a service instance.
 
-        # Create platform service
-        platform_service = PlatformDetectionService()
-        self.register(IPlatformDetectionService, platform_service)
+        Args:
+            service_type: Type of service to resolve
+            scope: Optional scope for resolving scoped services
 
-        # Create audio recording service with its dependencies
-        audio_service = AudioRecordingService(platform_service, file_service)
-        self.register(IAudioRecordingService, audio_service)
+        Returns:
+            An instance of the requested service
 
-        # Create transcription service with its dependencies
-        transcription_service = TranscriptionService(file_service)
-        self.register(ITranscriptionService, transcription_service)
+        Raises:
+            KeyError: If service is not registered
+        """
+        key = service_type.__name__
+        if key not in self._registrations:
+            raise KeyError(f"No service of type {key} is registered")
 
-        logger.info("All services initialized")
+        registration = self._registrations[key]
+
+        # Handle different service lifetimes
+        if registration.lifetime == ServiceLifetime.SINGLETON:
+            # For singletons, create once and reuse
+            if key not in self._singletons:
+                self._singletons[key] = self._create_instance(
+                    registration, scope
+                )
+            return cast(T, self._singletons[key])
+
+        elif registration.lifetime == ServiceLifetime.SCOPED:
+            # For scoped services, ensure we have a scope
+            if not scope:
+                raise ValueError(
+                    f"Cannot resolve scoped service {key} without a scope"
+                )
+
+            # Create once per scope
+            if key not in scope.instances:
+                scope.instances[key] = self._create_instance(
+                    registration, scope
+                )
+            return cast(T, scope.instances[key])
+
+        else:  # TRANSIENT
+            # Always create a new instance
+            return cast(T, self._create_instance(registration, scope))
+
+    def _create_instance(
+        self,
+        registration: ServiceRegistration,
+        scope: Optional[Scope] = None,
+        overrides: Optional[Dict[str, Any]] = None,
+    ) -> Any:
+        """Create an instance of a service.
+
+        Args:
+            registration: Service registration
+            scope: Optional scope for resolving dependencies
+            overrides: Optional dependency overrides
+
+        Returns:
+            An instance of the service
+
+        Raises:
+            ValueError: If instantiation fails
+        """
+        # If we already have an instance, return it
+        if registration.implementation is not None:
+            return registration.implementation
+
+        # If we have a factory, use it with resolved dependencies
+        if registration.factory is not None:
+            return registration.factory(self)
+
+        # Otherwise, create an instance of the implementation type
+        if registration.implementation_type is None:
+            raise ValueError(
+                f"Cannot create instance of {registration.service_type.__name__}: "
+                "no implementation type, instance, or factory provided"
+            )
+
+        # Resolve dependencies
+        args = {}
+        overrides = overrides or {}
+
+        # Get constructor signature to get parameter names
+        if registration.implementation_type:
+            signature = inspect.signature(
+                registration.implementation_type.__init__
+            )
+            param_names = [
+                name for name in signature.parameters.keys() if name != "self"
+            ]
+
+            # Match dependencies to parameter names
+            for i, dep_type in enumerate(registration.dependencies):
+                dep_name = dep_type.__name__
+                # Use the actual parameter name from the signature if possible
+                param_name = (
+                    param_names[i]
+                    if i < len(param_names)
+                    else dep_name.lower()
+                )
+
+                if dep_name in overrides:
+                    # Use override if provided
+                    args[param_name] = overrides[dep_name]
+                else:
+                    # Otherwise resolve from container
+                    try:
+                        args[param_name] = self.resolve(dep_type, scope)
+                    except KeyError:
+                        logger.warning(
+                            f"Failed to resolve dependency {dep_name} for "
+                            f"{registration.service_type.__name__}"
+                        )
+
+        # Create instance with resolved dependencies
+        try:
+            return registration.implementation_type(**args)
+        except Exception as e:
+            raise ValueError(
+                f"Failed to create instance of {registration.service_type.__name__}: {e}"
+            )
+
+    def _get_constructor_dependencies(
+        self, implementation_type: Type
+    ) -> List[Type]:
+        """Determine the dependencies required by a type's constructor.
+
+        Args:
+            implementation_type: Type to analyze
+
+        Returns:
+            List of dependency types
+
+        Raises:
+            ValueError: If constructor analysis fails
+        """
+        try:
+            # Get constructor signature
+            constructor = implementation_type.__init__
+            signature = inspect.signature(constructor)
+
+            # Extract parameter types from type hints
+            dependencies = []
+            for name, param in signature.parameters.items():
+                if name == "self":
+                    continue
+
+                # Get the parameter type
+                param_type = param.annotation
+                if param_type is not inspect.Parameter.empty and isinstance(
+                    param_type, type
+                ):
+                    dependencies.append(param_type)
+
+            return dependencies
+        except Exception as e:
+            raise ValueError(
+                f"Failed to analyze constructor for {implementation_type}: {e}"
+            )
+
+    def is_registered(self, service_type: Type) -> bool:
+        """Check if a service type is registered.
+
+        Args:
+            service_type: Type to check
+
+        Returns:
+            True if the type is registered, False otherwise
+        """
+        return service_type.__name__ in self._registrations
+
+    def remove_registration(self, service_type: Type) -> bool:
+        """Remove a service registration.
+
+        Args:
+            service_type: Type to remove
+
+        Returns:
+            True if removed, False if not found
+        """
+        key = service_type.__name__
+        if key in self._registrations:
+            del self._registrations[key]
+            if key in self._singletons:
+                del self._singletons[key]
+            return True
+        return False
 
 
-# Create a global container instance for the application
+# Create a global container instance
 container = DIContainer()

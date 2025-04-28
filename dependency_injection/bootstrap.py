@@ -9,7 +9,7 @@ import logging
 import os
 from typing import Any, Dict, List, Optional, Type, TypeVar, cast
 
-from dependency_injection.container_enhanced import (
+from dependency_injection.container import (
     DIContainer,
     ServiceLifetime,
 )

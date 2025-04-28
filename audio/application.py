@@ -11,7 +11,7 @@ from typing import Any, Dict, Optional
 from audio.audio_pipeline_controller import AudioPipelineController
 from audio.utilities.argument_parser import ArgumentParser
 from dependency_injection.bootstrap import bootstrap_application
-from dependency_injection.container_enhanced import (
+from dependency_injection.container import (
     DIContainer,
     ServiceLifetime,
 )
@@ -24,7 +24,7 @@ from services.interfaces.file_service_interface import IFileService
 from services.interfaces.transcription_service_interface import (
     ITranscriptionService,
 )
-from services.service_provider_enhanced import ServiceProvider
+from services.service_provider import ServiceProvider
 
 logger = logging.getLogger(__name__)
 
@@ -50,11 +50,11 @@ class Application:
             config: Optional application configuration
         """
         # Bootstrap the DI container
-        from dependency_injection.bootstrap_updated import (
-            bootstrap_application as bootstrap_updated,
+        from dependency_injection.bootstrap import (
+            bootstrap_application as bootstrap,
         )
 
-        bootstrap_updated(self.container, config)
+        bootstrap(self.container, config)
 
         # Create a service provider
         self.service_provider = ServiceProvider(self.container)

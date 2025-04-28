@@ -9,7 +9,7 @@ from typing import Any, Dict, Optional
 
 from dependency_injection.container import DIContainer
 from dependency_injection.plugin_provider import PluginProvider
-from plugins.plugin_manager_refactored import PluginManager
+from plugins.plugin_manager import PluginManager
 from services.implementations.audio_service_impl import AudioRecordingService
 from services.implementations.configuration_manager_impl import (
     ConfigurationManager,
