@@ -171,8 +171,9 @@ def test_text_file_input_pipeline(tmp_path: Path) -> None:
 
     # Initialize services
     config_manager = ConfigurationManager()
-    transcription_service = trans_service  # Reuse the already created instance
-    file_service = FileService()  # Reuse the already created instance
+    file_service = FileService()
+    # Use the non-DI version of TranscriptionService
+    transcription_service = TranscriptionService()
     audio_service = AudioRecordingService()
 
     # Create controller with dependencies injected

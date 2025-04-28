@@ -331,20 +331,29 @@ class DIContainer:
         args = {}
         overrides = overrides or {}
 
-        for dep_type in registration.dependencies:
-            dep_name = dep_type.__name__
-            if dep_name in overrides:
-                # Use override if provided
-                args[dep_name.lower()] = overrides[dep_name]
-            else:
-                # Otherwise resolve from container
-                try:
-                    args[dep_name.lower()] = self.resolve(dep_type, scope)
-                except KeyError:
-                    logger.warning(
-                        f"Failed to resolve dependency {dep_name} for "
-                        f"{registration.service_type.__name__}"
-                    )
+        # Get constructor signature to get parameter names
+        if registration.implementation_type:
+            signature = inspect.signature(registration.implementation_type.__init__)
+            param_names = [name for name in signature.parameters.keys() if name != 'self']
+            
+            # Match dependencies to parameter names
+            for i, dep_type in enumerate(registration.dependencies):
+                dep_name = dep_type.__name__
+                # Use the actual parameter name from the signature if possible
+                param_name = param_names[i] if i < len(param_names) else dep_name.lower()
+                
+                if dep_name in overrides:
+                    # Use override if provided
+                    args[param_name] = overrides[dep_name]
+                else:
+                    # Otherwise resolve from container
+                    try:
+                        args[param_name] = self.resolve(dep_type, scope)
+                    except KeyError:
+                        logger.warning(
+                            f"Failed to resolve dependency {dep_name} for "
+                            f"{registration.service_type.__name__}"
+                        )
 
         # Create instance with resolved dependencies
         try:
