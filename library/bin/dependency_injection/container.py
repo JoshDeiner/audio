@@ -6,16 +6,7 @@ advanced features like scoped lifetimes, lazy resolution, and factory methods.
 
 import inspect
 import logging
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    List,
-    Optional,
-    Type,
-    TypeVar,
-    cast,
-)
+from typing import Any, Callable, Dict, List, Optional, Type, TypeVar, cast
 
 logger = logging.getLogger(__name__)
 
