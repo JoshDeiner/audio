@@ -5,8 +5,9 @@ A comprehensive audio processing application for recording, transcription, and s
 ## Features
 
 - Audio recording with platform-specific optimizations
-- Transcription using whisper models
+- Transcription using Whisper models
 - Text-to-speech synthesis
+- Asynchronous state machine for conversation workflows
 - Pluggable architecture for extensibility
 - Dependency injection for improved testability and maintainability
 
@@ -87,73 +88,35 @@ The state machine transitions through four states:
 - **WAITING**: Optional pause between cycles
 - **STOPPED**: Final state when all cycles are complete
 
-## Architecture
+## Using Make Commands
 
-The application follows clean architecture principles with a focus on:
+The project includes a Makefile with several useful commands:
 
-1. **Dependency Injection**: All components receive their dependencies instead of creating them
-2. **Interface-Based Design**: Components depend on interfaces, not concrete implementations
-3. **Plugin System**: Extensible through plugins for transcription, audio formats, and more
-4. **Async Processing**: Uses asyncio for concurrent audio processing pipelines
+```bash
+# Show all available commands
+make help
 
-### Key Components
+# Setup the environment
+make setup
 
-- **Services**: Core functionality like file operations, transcription, recording
-- **Plugins**: Extensibility points for transcription, formatting, output
-- **Controllers**: Orchestrate service interactions for specific workflows
-- **State Machine**: Manages audio processing workflow states and transitions
-- **DI Container**: Manages component instantiation and dependencies
+# Update dependencies
+make update
+
+# Update and rebuild the project
+make update-all
+
+# Run tests
+make test
+```
 
 ## Documentation
 
-Detailed documentation is available in the `documentation` folder:
+For more detailed documentation, see the `documentation` directory:
 
-- [Dependency Injection](documentation/README_DEPENDENCY_INJECTION.md)
-- [Plugin System](documentation/plugins.md)
-- [Architecture](documentation/arch.md)
-- [State Machine](documentation/state_machine.md)
-
-## Development
-
-### Managing Dependencies
-
-```bash
-# Update dependencies in the virtual environment
-make update
-
-# Update dependencies and rebuild the project
-make update-all
-```
-
-The project provides two commands for keeping dependencies up-to-date:
-
-- `make update`: Updates all dependencies in requirements.txt to their latest versions
-- `make update-all`: Updates dependencies and reinstalls the project in development mode (if setup.py exists)
-
-### Running Tests
-
-```bash
-# Run all tests
-make test
-# or directly with pytest
-pytest
-
-# Run specific test categories
-make test-unit     # Unit tests only
-make test-integration  # Integration tests only
-```
-
-### Adding New Features
-
-When adding new features:
-
-1. Define interfaces in `services/interfaces`
-2. Implement in `services/implementations`
-3. Register with the DI container in `dependency_injection/bootstrap.py`
-
-### Plugin Development
-
-See the [Plugin System documentation](documentation/plugins.md) for details on creating plugins.
+- [Detailed README](documentation/README.md)
+- [State Machine Documentation](documentation/state_machine.md)
+- [Dependency Injection Guide](documentation/README_DEPENDENCY_INJECTION.md)
+- [Architecture Overview](documentation/arch.md)
 
 ## License
 

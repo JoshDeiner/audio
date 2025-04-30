@@ -1,4 +1,4 @@
-.PHONY: help setup docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model test test-unit test-integration audio-in audio-out conversation
+.PHONY: help setup update update-all docker-run local-run docker-build docker-stop clean test-dummy test-dummy-speech test-dummy-en test-file test-dir test-file-en test-dir-en test-file-model test-dir-model test-suite test-languages test-seed-sine test-seed-speech test-seed-multi test-seed-suite transcribe transcribe-en transcribe-model test test-unit test-integration audio-in audio-out conversation state-machine
 
 # Default Python interpreter and pip
 PYTHON := python3
@@ -10,6 +10,8 @@ help:
 	@echo ""
 	@echo "Available commands:"
 	@echo "  make setup              - Install dependencies and create virtual environment"
+	@echo "  make update             - Update dependencies in the virtual environment"
+	@echo "  make update-all         - Update dependencies and rebuild the project"
 	@echo "  make docker-run         - Run the application in Docker"
 	@echo "  make local-run          - Run the application locally"
 	@echo "  make docker-build       - Rebuild the Docker image"
@@ -20,6 +22,8 @@ help:
 	@echo "  make audio-in           - Run the audio-in pipeline (transcription)"
 	@echo "  make audio-out          - Run the audio-out pipeline (text-to-speech)"
 	@echo "  make conversation       - Run the conversation mode"
+	@echo "  make state-machine      - Run the async state machine"
+	@echo "  make state-machine CYCLES=3 DURATION=5 MODEL=tiny - Run with custom options"
 	@echo ""
 	@echo "Testing commands:"
 	@echo "  make test-dummy         - Create a dummy sine wave file and transcribe it"
@@ -53,6 +57,22 @@ setup:
 	$(PYTHON) -m venv $(VENV)
 	. $(VENV)/bin/activate && $(PIP) install -r requirements.txt
 	@echo "Setup complete. Use 'make local-run' to run the app locally"
+
+update:
+	@echo "Updating dependencies..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && $(PIP) install --upgrade -r requirements.txt
+	@echo "Dependencies updated successfully"
+
+update-all: update
+	@echo "Rebuilding project..."
+	@if [ -f "setup.py" ]; then \
+		. $(VENV)/bin/activate && $(PIP) install -e .; \
+	fi
+	@echo "Project rebuilt successfully. Run 'make test' to verify the update."
 
 docker-run:
 	@echo "Running app in Docker..."
@@ -107,6 +127,18 @@ conversation:
 		$(MAKE) setup; \
 	fi
 	. $(VENV)/bin/activate && $(PYTHON) -m audio conversation
+
+state-machine:
+	@echo "Starting async state machine..."
+	@if [ ! -d "$(VENV)" ]; then \
+		echo "Virtual environment not found. Running setup first..."; \
+		$(MAKE) setup; \
+	fi
+	. $(VENV)/bin/activate && LANGUAGE="" $(PYTHON) -m audio state-machine \
+		$(if $(CYCLES),--cycles $(CYCLES),) \
+		$(if $(DURATION),--duration $(DURATION),) \
+		$(if $(MODEL),--model $(MODEL),) \
+		$(if $(LANGUAGE),--language "$(LANGUAGE)",)
 
 # Testing commands for dummy files and transcription
 

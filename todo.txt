@@ -1,9 +1,8 @@
 try out eleven lab experiment
 
---
-login to claude
-make sure code still works
-library -> inversion of control setup?
+
+----
 
 
-make sure test can convert wav to text with higher degree of certainity
+work on architecture for box scenario
+

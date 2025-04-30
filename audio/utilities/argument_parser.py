@@ -61,6 +61,7 @@ class ArgumentParser(IArgumentParser):
         self._setup_audio_in_parser()
         self._setup_audio_out_parser()
         self._setup_conversation_parser()
+        self._setup_state_machine_parser()
 
     def _setup_audio_in_parser(self) -> None:
         """Set up the parser for the audio-in command."""
@@ -187,6 +188,38 @@ class ArgumentParser(IArgumentParser):
             "--language",
             "-l",
             help="Language code to use for conversation",
+        )
+        
+    def _setup_state_machine_parser(self) -> None:
+        """Set up the parser for the state-machine command."""
+        parser = self.subparsers.add_parser(
+            "state-machine", help="Run the async state machine for audio processing"
+        )
+
+        # State machine options
+        parser.add_argument(
+            "--cycles",
+            type=int,
+            default=1,
+            help="Number of listen/speak cycles to complete",
+        )
+        parser.add_argument(
+            "--duration",
+            "-t",
+            type=int,
+            default=5,
+            help="Recording duration per cycle in seconds",
+        )
+        parser.add_argument(
+            "--model",
+            "-m",
+            choices=["tiny", "base", "small", "medium", "large"],
+            help="Whisper model size for transcription",
+        )
+        parser.add_argument(
+            "--language",
+            "-l",
+            help="Language code to use for transcription",
         )
 
     def parse_arguments(
