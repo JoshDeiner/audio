@@ -1,6 +1,6 @@
 # Asynchronous State Machine
 
-The `AsyncAudioStateMachine` provides an asynchronous state-driven approach to audio processing workflows. It implements a cycle of listening (recording and transcribing), speaking (synthesizing and playing audio), and optional waiting phases. 
+The `AsyncAudioStateMachine` provides an asynchronous state-driven approach to audio processing workflows. It implements a cycle of listening (recording and transcribing), speaking (synthesizing and playing audio), and optional waiting phases.
 
 ## Balanced Cycles
 
@@ -91,7 +91,7 @@ class CustomStateMachine(AsyncAudioStateMachine):
     async def _handle_listening_state(self) -> None:
         # Custom listening implementation
         pass
-        
+
     async def _handle_speaking_state(self) -> None:
         # Custom speaking implementation
         pass

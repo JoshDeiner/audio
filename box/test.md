@@ -1,4 +1,4 @@
-Got it ? you want a **README** that contains only the **pseudo-code for the tests** (not the system, not the architecture).  
+Got it ? you want a **README** that contains only the **pseudo-code for the tests** (not the system, not the architecture).
 Here?s the correct version focused *only* on the **test pseudo-code**:
 
 ---
@@ -203,4 +203,3 @@ Assert:
 | Test Type | Goal |
 |:----------|:-----|
 | Integration tests | Validate full-cycle behavior and system resilience over multiple loops. |
-

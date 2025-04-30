@@ -31,5 +31,3 @@ Requirements:
 - Keep the structure simple but allow for easy future expansion (e.g., adding error handling, dynamic state transitions).
 - Do not implement the actual audio-in or audio-out functionality. Stub or mock them as needed (e.g., simulated sleep and dummy text).
 - Maintain clean separation between states and transitions.
-
-

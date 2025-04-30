@@ -158,7 +158,7 @@ class Application:
             logger.error(f"Audio service error: {e}")
             print(f"Error: {e}")
             raise
-            
+
     async def _handle_state_machine(self, args: Dict[str, Any]) -> None:
         """Handle the state-machine command.
 
@@ -170,9 +170,10 @@ class Application:
 
         try:
             # Import here to avoid circular imports
-            from audio.async_state_machine import AsyncAudioStateMachine
             import os
-            
+
+            from audio.async_state_machine import AsyncAudioStateMachine
+
             # Ensure required environment variables are set
             input_dir = self.services.config_manager.get("AUDIO_INPUT_DIR")
             if not input_dir:
@@ -181,39 +182,47 @@ class Application:
                 os.environ["AUDIO_INPUT_DIR"] = input_dir
                 self.services.config_manager.set("AUDIO_INPUT_DIR", input_dir)
                 logger.info(f"Set AUDIO_INPUT_DIR: {input_dir}")
-            
+
             output_dir = self.services.config_manager.get("AUDIO_OUTPUT_DIR")
             if not output_dir:
                 output_dir = os.path.join(os.getcwd(), "output")
                 os.makedirs(output_dir, exist_ok=True)
                 os.environ["AUDIO_OUTPUT_DIR"] = output_dir
-                self.services.config_manager.set("AUDIO_OUTPUT_DIR", output_dir)
+                self.services.config_manager.set(
+                    "AUDIO_OUTPUT_DIR", output_dir
+                )
                 logger.info(f"Set AUDIO_OUTPUT_DIR: {output_dir}")
-            
+
             # Parse cycles and validate
             try:
                 cycles = int(args.get("cycles", "2"))
                 if cycles <= 0:
-                    logger.warning(f"Invalid cycles value: {cycles}, must be > 0. Using default of 2.")
+                    logger.warning(
+                        f"Invalid cycles value: {cycles}, must be > 0. Using default of 2."
+                    )
                     cycles = 2
                 if cycles % 2 != 0:
                     original_cycles = cycles
                     cycles = cycles + (cycles % 2)
-                    logger.info(f"Adjusted cycles from {original_cycles} to {cycles} to ensure even number")
-                    print(f"Note: Adjusted requested {original_cycles} cycles to {cycles} for balanced listen/speak operation")
+                    logger.info(
+                        f"Adjusted cycles from {original_cycles} to {cycles} to ensure even number"
+                    )
+                    print(
+                        f"Note: Adjusted requested {original_cycles} cycles to {cycles} for balanced listen/speak operation"
+                    )
             except ValueError:
                 logger.warning("Invalid cycles parameter, using default of 2")
                 cycles = 2
-            
+
             # Create the state machine with dependencies injected
             state_machine = AsyncAudioStateMachine(
                 args,
                 self.services.audio_service,
                 self.services.transcription_service,
                 self.services.config_manager,
-                cycles=cycles
+                cycles=cycles,
             )
-            
+
             # Run the state machine
             print(f"\nStarting async state machine with {cycles} cycles...\n")
             await state_machine.run()

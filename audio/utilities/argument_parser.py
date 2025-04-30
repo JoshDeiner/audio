@@ -189,11 +189,12 @@ class ArgumentParser(IArgumentParser):
             "-l",
             help="Language code to use for conversation",
         )
-        
+
     def _setup_state_machine_parser(self) -> None:
         """Set up the parser for the state-machine command."""
         parser = self.subparsers.add_parser(
-            "state-machine", help="Run the async state machine for audio processing"
+            "state-machine",
+            help="Run the async state machine for audio processing",
         )
 
         # State machine options
