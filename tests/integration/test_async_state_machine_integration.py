@@ -2,6 +2,9 @@
 
 Tests the state machine through complete cycles with minimal mocking,
 focusing on the interaction between components.
+
+Author: Claude Code
+Created: 2025-04-30
 """
 
 import asyncio
@@ -11,8 +14,14 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from audio.async_state_machine import AsyncAudioStateMachine, MachineState
+from audio.async_state_machine import (
+    AsyncAudioStateMachine,
+    MachineState,
+    CycleConfigurationError,
+    StateMachineError,
+)
 from library.bin.dependency_injection.app_services import AppServices
+from services.exceptions import AudioServiceError
 from services.interfaces.audio_service_interface import IAudioRecordingService
 from services.interfaces.configuration_manager_interface import (
     IConfigurationManager,
@@ -291,7 +300,7 @@ class TestAsyncStateMachineIntegration:
         # Configure first call to succeed, second to fail
         mock_audio_service.record_audio.side_effect = [
             mock_audio_file,  # First call succeeds
-            Exception("Recording failed"),  # Second call fails
+            AudioServiceError("Recording failed", error_code="RECORDING_ERROR"),  # Second call fails with specific error
         ]
 
         mock_transcription_service.transcribe_audio.return_value = (
@@ -331,5 +340,5 @@ class TestAsyncStateMachineIntegration:
             # Last text result should be the error message
             assert (
                 state_machine.text_result
-                == "I couldn't understand what you said."
+                == state_machine.ERROR_MESSAGE
             )
