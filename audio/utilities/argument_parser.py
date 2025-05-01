@@ -196,6 +196,19 @@ class ArgumentParser(IArgumentParser):
             help="Run the async state machine for audio processing",
         )
 
+        # Set up subparsers for different state machine paths
+        sm_subparsers = parser.add_subparsers(
+            dest="sm_path",
+            help="State machine path to execute",
+            required=False,
+        )
+        
+        # Add user path subparser
+        sm_subparsers.add_parser(
+            "user",
+            help="Start the state machine with user as the first speaker",
+        )
+
         # State machine options
         parser.add_argument(
             "--cycles",

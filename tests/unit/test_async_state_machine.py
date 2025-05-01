@@ -5,9 +5,9 @@ that handles audio input and output cycles.
 
 Author: Claude Code
 Created: 2025-04-30
+Updated: 2025-05-01 - Added additional tests based on requirements in box/tests/sm.md
 """
 
-import asyncio
 import logging
 import os
 from unittest.mock import MagicMock, patch
@@ -18,7 +18,6 @@ from audio.async_state_machine import (
     AsyncAudioStateMachine,
     CycleConfigurationError,
     MachineState,
-    StateMachineError,
 )
 from services.exceptions import AudioServiceError
 from services.interfaces.audio_service_interface import IAudioRecordingService
@@ -477,3 +476,195 @@ class TestAsyncStateMachine:
 
                 # Should end in STOPPED state
                 assert state_machine.current_state == MachineState.STOPPED
+
+    # Additional tests based on requirements in box/tests/sm.md
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_even_cycle_completion(self, mock_services, test_config):
+        """Test that an even number of cycles completes successfully.
+
+        This test verifies that when provided an even number of cycles,
+        the state machine executes the full cycle count and ends in STOPPED state.
+        """
+        # Use a clearly even number of cycles
+        cycles = 4
+
+        # Instantiate the state machine with even cycles
+        state_machine = AsyncAudioStateMachine(
+            config=test_config,
+            audio_service=mock_services["audio_service"],
+            transcription_service=mock_services["transcription_service"],
+            config_manager=mock_services["config_manager"],
+            cycles=cycles,
+        )
+
+        # Mock all the async calls and track state transitions
+        with (
+            patch.object(state_machine, "_handle_listening_state") as mock_listening,
+            patch.object(state_machine, "_handle_speaking_state") as mock_speaking,
+            patch.object(state_machine, "_handle_waiting_state") as mock_waiting,
+        ):
+            # Configure state transitions for testing
+            async def listening_side_effect():
+                state_machine.text_result = "Hello, world."
+                state_machine.current_state = MachineState.SPEAKING
+
+            async def speaking_side_effect():
+                state_machine.cycles_completed += 1
+                if state_machine.cycles_completed >= state_machine.cycles_target:
+                    state_machine.current_state = MachineState.STOPPED
+                else:
+                    state_machine.current_state = MachineState.WAITING
+
+            async def waiting_side_effect():
+                state_machine.current_state = MachineState.LISTENING
+
+            mock_listening.side_effect = listening_side_effect
+            mock_speaking.side_effect = speaking_side_effect
+            mock_waiting.side_effect = waiting_side_effect
+
+            # Run the state machine
+            await state_machine.run()
+
+            # Verify expected calls and state transitions
+            assert mock_listening.call_count == cycles  # Four listening cycles
+            assert mock_speaking.call_count == cycles  # Four speaking cycles
+            assert mock_waiting.call_count == cycles - 1  # Three waiting cycles
+            assert state_machine.cycles_completed == cycles
+            assert state_machine.current_state == MachineState.STOPPED
+
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_default_cycles(self, mock_services, test_config):
+        """Test that the default number of cycles is used when none is specified.
+
+        This test verifies that when no cycles parameter is provided, the state
+        machine uses the DEFAULT_CYCLES constant (which is 2).
+        """
+        # Instantiate the state machine without specifying cycles
+        state_machine = AsyncAudioStateMachine(
+            config=test_config,
+            audio_service=mock_services["audio_service"],
+            transcription_service=mock_services["transcription_service"],
+            config_manager=mock_services["config_manager"],
+            # No cycles specified, should use DEFAULT_CYCLES (2)
+        )
+
+        # Verify the default was used
+        assert state_machine.cycles_target == AsyncAudioStateMachine.DEFAULT_CYCLES
+
+        # Mock all the async calls
+        with (
+            patch.object(state_machine, "_handle_listening_state") as mock_listening,
+            patch.object(state_machine, "_handle_speaking_state") as mock_speaking,
+            patch.object(state_machine, "_handle_waiting_state") as mock_waiting,
+        ):
+            # Configure state transitions for testing
+            async def listening_side_effect():
+                state_machine.text_result = "Hello, world."
+                state_machine.current_state = MachineState.SPEAKING
+
+            async def speaking_side_effect():
+                state_machine.cycles_completed += 1
+                if state_machine.cycles_completed >= state_machine.cycles_target:
+                    state_machine.current_state = MachineState.STOPPED
+                else:
+                    state_machine.current_state = MachineState.WAITING
+
+            async def waiting_side_effect():
+                state_machine.current_state = MachineState.LISTENING
+
+            mock_listening.side_effect = listening_side_effect
+            mock_speaking.side_effect = speaking_side_effect
+            mock_waiting.side_effect = waiting_side_effect
+
+            # Run the state machine
+            await state_machine.run()
+
+            # Verify expected calls and state transitions for DEFAULT_CYCLES (2)
+            assert mock_listening.call_count == 2  # Two listening cycles
+            assert mock_speaking.call_count == 2  # Two speaking cycles
+            assert mock_waiting.call_count == 1  # One waiting cycle
+            assert state_machine.cycles_completed == 2
+            assert state_machine.current_state == MachineState.STOPPED
+
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_state_action_attempts(self, mock_services, test_config):
+        """Test that each state attempts to perform its expected actions.
+
+        This test verifies that the LISTENING state attempts recording and
+        transcription, and the SPEAKING state attempts synthesis and playback.
+        """
+        # Instantiate the state machine with 2 cycles
+        state_machine = AsyncAudioStateMachine(
+            config=test_config,
+            audio_service=mock_services["audio_service"],
+            transcription_service=mock_services["transcription_service"],
+            config_manager=mock_services["config_manager"],
+            cycles=2,
+        )
+
+        # Mock the Text-to-Speech and AudioPlayback services
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ) as mock_synthesize,
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+            ) as mock_play,
+        ):
+            # Run the state machine
+            await state_machine.run()
+
+            # Verify recording and transcription were attempted
+            mock_services["audio_service"].record_audio.assert_called()
+            mock_services["transcription_service"].transcribe_audio.assert_called()
+
+            # Verify synthesis and playback were attempted
+            mock_synthesize.assert_called()
+            mock_play.assert_called()
+
+            # Verify the state machine completed successfully
+            assert state_machine.cycles_completed == 2
+            assert state_machine.current_state == MachineState.STOPPED
+
+    @pytest.mark.unit
+    @pytest.mark.asyncio
+    async def test_parameter_passing(self, mock_services, test_config):
+        """Test that parameters from config are correctly passed to services.
+
+        This test verifies that parameters like duration, model, and language
+        are correctly passed from the config to the appropriate service methods.
+        """
+        # Create test config with specific parameters
+        custom_config = {
+            "duration": 10,  # seconds of audio to record
+            "model": "medium",  # specific model size
+            "language": "fr",  # French language
+            "wait_duration": 0.05,  # shorter wait time for faster tests
+        }
+
+        # Instantiate the state machine with custom config
+        state_machine = AsyncAudioStateMachine(
+            config=custom_config,
+            audio_service=mock_services["audio_service"],
+            transcription_service=mock_services["transcription_service"],
+            config_manager=mock_services["config_manager"],
+            cycles=2,
+        )
+
+        # Run LISTENING state logic to test parameter passing
+        await state_machine._handle_listening_state()
+
+        # Verify audio service was called with correct duration
+        mock_services["audio_service"].record_audio.assert_called_once_with(
+            duration=custom_config["duration"]
+        )
+
+        # Verify transcription service was called with correct model and language
+        mock_services["transcription_service"].transcribe_audio.assert_called_once()
+        call_args = mock_services["transcription_service"].transcribe_audio.call_args
+        assert call_args[1]["model_size"] == custom_config["model"]
+        assert call_args[1]["language"] == custom_config["language"]

@@ -78,6 +78,7 @@ class AsyncAudioStateMachine:
         transcription_service: ITranscriptionService,
         config_manager: IConfigurationManager,
         cycles: int = DEFAULT_CYCLES,
+        start_with_user: bool = False,
     ) -> None:
         """Initialize the state machine.
 
@@ -87,6 +88,7 @@ class AsyncAudioStateMachine:
             transcription_service: Service for audio transcription
             config_manager: Configuration manager
             cycles: Number of listen/speak cycles to complete (must be even and > 0)
+            start_with_user: Whether to start with user speaking (True) or system speaking (False)
 
         Raises:
             CycleConfigurationError: If cycles is not a valid number
@@ -97,10 +99,11 @@ class AsyncAudioStateMachine:
                 "Number of cycles must be greater than zero"
             )
 
-        # Ensure even number of cycles for balanced listen/speak
-        if cycles % 2 != 0:
+        # If we're starting with the user, we don't need to enforce even cycles
+        # as the pattern would be: User speaks, System responds, etc.
+        if not start_with_user and cycles % 2 != 0:
             logger.warning(
-                f"Requested {cycles} cycles, but cycles must be even for balanced listen/speak"
+                f"Requested {cycles} cycles, but cycles must be even for balanced listen/speak when starting with system"
             )
             # Round up to the next even number
             cycles = cycles + (cycles % 2)
@@ -111,11 +114,16 @@ class AsyncAudioStateMachine:
         self.transcription_service = transcription_service
         self.config_manager = config_manager
         self.cycles_target = cycles
+        self.start_with_user = start_with_user
 
-        # Initialize state machine state
-        self.current_state = MachineState.LISTENING
+        # Initialize state machine state based on start mode
+        self.current_state = MachineState.LISTENING if start_with_user else MachineState.SPEAKING
         self.cycles_completed = 0
         self.text_result = ""
+
+        # If starting with system speaking, set a default message
+        if not start_with_user:
+            self.text_result = "Hello, I'm listening. What would you like to say?"
 
         # Set up environment variables needed for audio recording
         self._setup_environment()
@@ -185,11 +193,18 @@ class AsyncAudioStateMachine:
 
             # Transcribe the audio
             logger.info("Transcribing audio...")
+            # Ensure language is a valid Whisper language code (e.g., 'en' instead of 'en_US.UTF-8')
+            language = self.config.get("language")
+            if language and '.' in language:
+                # Extract just the language code part (e.g., 'en' from 'en_US.UTF-8')
+                language = language.split('_')[0]
+                logger.info(f"Converted locale language '{self.config.get('language')}' to Whisper language code '{language}'")
+            
             self.text_result = await asyncio.to_thread(
                 self.transcription_service.transcribe_audio,
                 audio_path,
                 model_size=self.config.get("model"),
-                language=self.config.get("language"),
+                language=language,
             )
 
             logger.info(f"Transcription: {self.text_result}")

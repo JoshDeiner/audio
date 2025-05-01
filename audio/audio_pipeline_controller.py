@@ -256,11 +256,18 @@ class AudioPipelineController:
         # Transcribe the audio - use a thread pool for CPU-intensive work
         try:
             # Run the transcription operation in a thread pool
+            # Ensure language is a valid Whisper language code (e.g., 'en' instead of 'en_US.UTF-8')
+            language = self.config.get("language")
+            if language and '.' in language:
+                # Extract just the language code part (e.g., 'en' from 'en_US.UTF-8')
+                language = language.split('_')[0]
+                logger.info(f"Converted locale language '{self.config.get('language')}' to Whisper language code '{language}'")
+            
             transcription = await asyncio.to_thread(
                 self.transcription_service.transcribe_audio,
                 audio_path,
                 model_size=self.config.get("model"),
-                language=self.config.get("language"),
+                language=language,
             )
         except Exception as e:
             error_msg = f"Failed to transcribe audio: {e}"

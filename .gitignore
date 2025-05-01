@@ -48,3 +48,5 @@ todo.txt
 .env
 dummy_speech.wav
 
+
+**/.claude/settings.local.json

@@ -3,4 +3,8 @@ try out eleven lab experiment
 
 ----
 
-find out how to run multiple claude sessions at once for the same git project
+make sure state machine can go backwards
+
+make sure state machine can test backwards
+
+
