@@ -32,10 +32,12 @@ class MockPlugin(Plugin):
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:
+        """Initialize the plugin with the given configuration manager."""
         self.initialized = True
         self.config_manager = config_manager
 
     def cleanup(self) -> None:
+        """Clean up resources used by the plugin."""
         self.initialized = False
 
 
@@ -55,22 +57,28 @@ class MockTranscriptionPlugin(TranscriptionPlugin):
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:
+        """Initialize the plugin with the given configuration manager."""
         self.initialized = True
         self.config_manager = config_manager
 
     def cleanup(self) -> None:
+        """Clean up resources used by the plugin."""
         self.initialized = False
 
     def transcribe(self, audio_path, language=None, options=None) -> str:
+        """Transcribe audio from the given file path."""
         return "Mock transcription result"
 
     def supports_language(self, language_code) -> bool:
+        """Check if the plugin supports the given language code."""
         return language_code in ["en", "fr"]
 
     def get_supported_languages(self) -> Dict[str, str]:
+        """Return a dictionary of supported language codes and names."""
         return {"en": "English", "fr": "French"}
 
     def get_model_info(self) -> Dict:
+        """Return information about the transcription model."""
         return {"name": "mock_model", "type": "test"}
 
 
@@ -90,25 +98,32 @@ class MockAudioFormatPlugin(AudioFormatPlugin):
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:
+        """Initialize the plugin with the given configuration manager."""
         self.initialized = True
         self.config_manager = config_manager
 
     def cleanup(self) -> None:
+        """Clean up resources used by the plugin."""
         self.initialized = False
 
     def get_supported_extensions(self):
+        """Return the list of file extensions supported by this plugin."""
         return [".mock"]
 
     def validate_file(self, file_path):
+        """Validate whether the given file is in the correct format."""
         return file_path.endswith(".mock")
 
     def read_file(self, file_path):
+        """Read audio data from the specified file."""
         return np.array([0.0, 0.1, 0.2]), 16000
 
     def write_file(self, file_path, audio_data, sample_rate, **kwargs):
+        """Write audio data to the specified file."""
         return file_path
 
     def get_format_info(self):
+        """Return information about the audio format handled by this plugin."""
         return {"format": "mock"}
 
 
@@ -128,19 +143,24 @@ class MockOutputPlugin(OutputPlugin):
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:
+        """Initialize the plugin with the given configuration manager."""
         self.initialized = True
         self.config_manager = config_manager
 
     def cleanup(self) -> None:
+        """Clean up resources used by the plugin."""
         self.initialized = False
 
     def handle_transcription(self, transcription, metadata=None):
+        """Process a transcription result."""
         return True
 
     def supports_batch(self):
+        """Indicate whether this plugin supports batch processing."""
         return True
 
     def handle_batch(self, items):
+        """Process a batch of transcription items."""
         return {k: True for k in items}
 
 
@@ -160,19 +180,24 @@ class MockPreprocessingPlugin(PreprocessingPlugin):
         return "1.0.0"
 
     def initialize(self, config_manager=None) -> None:
+        """Initialize the plugin with the given configuration manager."""
         self.initialized = True
         self.config_manager = config_manager
 
     def cleanup(self) -> None:
+        """Clean up resources used by the plugin."""
         self.initialized = False
 
     def process_audio(self, audio_data, sample_rate, options=None):
+        """Process audio data with preprocessing steps."""
         return audio_data, sample_rate
 
     def get_default_options(self):
+        """Return default processing options for this plugin."""
         return {"option1": "value1"}
 
     def get_processing_info(self):
+        """Return information about the preprocessing capabilities."""
         return {"type": "mock_processor"}
 
 

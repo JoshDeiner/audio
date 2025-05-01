@@ -4,7 +4,6 @@ This module tests the complete audio recording and transcription pipeline
 to ensure it works correctly with the improved confidence settings.
 """
 
-import asyncio
 import logging
 import os
 from unittest.mock import patch
