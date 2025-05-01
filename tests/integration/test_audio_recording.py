@@ -6,6 +6,7 @@ to ensure it works correctly with the improved confidence settings.
 
 import logging
 import os
+import shutil
 from unittest.mock import patch
 
 import pytest
@@ -53,8 +54,6 @@ class TestAudioRecording:
                 os.path.dirname(__file__), "..", "assets", "test_audio.wav"
             )
             if os.path.exists(dummy_wav_path):
-                import shutil
-
                 shutil.copy(dummy_wav_path, test_file)
             else:
                 # Create an empty WAV file as fallback
@@ -102,15 +101,15 @@ class TestAudioRecording:
                 assert isinstance(transcription, str)
                 assert len(transcription) > 0
 
-                logger.info(f"Transcription result: {transcription}")
+                logger.info("Transcription result: %s", transcription)
 
                 # Check that output file was created
                 assert os.path.exists(config["output_path"])
 
             except AudioRecordingError as e:
-                pytest.fail(f"Audio recording failed: {e}")
+                pytest.fail("Audio recording failed: %s" % e)
             except Exception as e:
-                pytest.fail(f"Unexpected error: {e}")
+                pytest.fail("Unexpected error: %s" % e)
 
     @pytest.mark.asyncio
     async def test_audio_pipeline_quality_validation(
@@ -151,6 +150,6 @@ class TestAudioRecording:
                 ), "Transcription should not be None"
 
             except AudioRecordingError as e:
-                pytest.fail(f"Audio recording failed: {e}")
+                pytest.fail("Audio recording failed: %s" % e)
             except Exception as e:
-                pytest.fail(f"Unexpected error: {e}")
+                pytest.fail("Unexpected error: %s" % e)
