@@ -117,13 +117,19 @@ class AsyncAudioStateMachine:
         self.start_with_user = start_with_user
 
         # Initialize state machine state based on start mode
-        self.current_state = MachineState.LISTENING if start_with_user else MachineState.SPEAKING
+        self.current_state = (
+            MachineState.LISTENING
+            if start_with_user
+            else MachineState.SPEAKING
+        )
         self.cycles_completed = 0
         self.text_result = ""
 
         # If starting with system speaking, set a default message
         if not start_with_user:
-            self.text_result = "Hello, I'm listening. What would you like to say?"
+            self.text_result = (
+                "Hello, I'm listening. What would you like to say?"
+            )
 
         # Set up environment variables needed for audio recording
         self._setup_environment()
@@ -195,11 +201,13 @@ class AsyncAudioStateMachine:
             logger.info("Transcribing audio...")
             # Ensure language is a valid Whisper language code (e.g., 'en' instead of 'en_US.UTF-8')
             language = self.config.get("language")
-            if language and '.' in language:
+            if language and "." in language:
                 # Extract just the language code part (e.g., 'en' from 'en_US.UTF-8')
-                language = language.split('_')[0]
-                logger.info(f"Converted locale language '{self.config.get('language')}' to Whisper language code '{language}'")
-            
+                language = language.split("_")[0]
+                logger.info(
+                    f"Converted locale language '{self.config.get('language')}' to Whisper language code '{language}'"
+                )
+
             self.text_result = await asyncio.to_thread(
                 self.transcription_service.transcribe_audio,
                 audio_path,

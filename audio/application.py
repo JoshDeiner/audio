@@ -216,7 +216,7 @@ class Application:
 
             # Check if user path is specified
             start_with_user = args.get("sm_path") == "user"
-            
+
             # Create the state machine with dependencies injected
             state_machine = AsyncAudioStateMachine(
                 args,
@@ -229,10 +229,14 @@ class Application:
 
             # Run the state machine
             if start_with_user:
-                print(f"\nStarting async state machine with user as first speaker, {cycles} cycles...\n")
+                print(
+                    f"\nStarting async state machine with user as first speaker, {cycles} cycles...\n"
+                )
             else:
-                print(f"\nStarting async state machine with {cycles} cycles...\n")
-            
+                print(
+                    f"\nStarting async state machine with {cycles} cycles...\n"
+                )
+
             await state_machine.run()
             print("\nState machine completed successfully.\n")
         except AudioServiceError as e:

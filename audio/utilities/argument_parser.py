@@ -202,7 +202,7 @@ class ArgumentParser(IArgumentParser):
             help="State machine path to execute",
             required=False,
         )
-        
+
         # Add user path subparser
         sm_subparsers.add_parser(
             "user",

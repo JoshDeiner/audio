@@ -500,9 +500,15 @@ class TestAsyncStateMachine:
 
         # Mock all the async calls and track state transitions
         with (
-            patch.object(state_machine, "_handle_listening_state") as mock_listening,
-            patch.object(state_machine, "_handle_speaking_state") as mock_speaking,
-            patch.object(state_machine, "_handle_waiting_state") as mock_waiting,
+            patch.object(
+                state_machine, "_handle_listening_state"
+            ) as mock_listening,
+            patch.object(
+                state_machine, "_handle_speaking_state"
+            ) as mock_speaking,
+            patch.object(
+                state_machine, "_handle_waiting_state"
+            ) as mock_waiting,
         ):
             # Configure state transitions for testing
             async def listening_side_effect():
@@ -511,7 +517,10 @@ class TestAsyncStateMachine:
 
             async def speaking_side_effect():
                 state_machine.cycles_completed += 1
-                if state_machine.cycles_completed >= state_machine.cycles_target:
+                if (
+                    state_machine.cycles_completed
+                    >= state_machine.cycles_target
+                ):
                     state_machine.current_state = MachineState.STOPPED
                 else:
                     state_machine.current_state = MachineState.WAITING
@@ -529,7 +538,9 @@ class TestAsyncStateMachine:
             # Verify expected calls and state transitions
             assert mock_listening.call_count == cycles  # Four listening cycles
             assert mock_speaking.call_count == cycles  # Four speaking cycles
-            assert mock_waiting.call_count == cycles - 1  # Three waiting cycles
+            assert (
+                mock_waiting.call_count == cycles - 1
+            )  # Three waiting cycles
             assert state_machine.cycles_completed == cycles
             assert state_machine.current_state == MachineState.STOPPED
 
@@ -551,13 +562,22 @@ class TestAsyncStateMachine:
         )
 
         # Verify the default was used
-        assert state_machine.cycles_target == AsyncAudioStateMachine.DEFAULT_CYCLES
+        assert (
+            state_machine.cycles_target
+            == AsyncAudioStateMachine.DEFAULT_CYCLES
+        )
 
         # Mock all the async calls
         with (
-            patch.object(state_machine, "_handle_listening_state") as mock_listening,
-            patch.object(state_machine, "_handle_speaking_state") as mock_speaking,
-            patch.object(state_machine, "_handle_waiting_state") as mock_waiting,
+            patch.object(
+                state_machine, "_handle_listening_state"
+            ) as mock_listening,
+            patch.object(
+                state_machine, "_handle_speaking_state"
+            ) as mock_speaking,
+            patch.object(
+                state_machine, "_handle_waiting_state"
+            ) as mock_waiting,
         ):
             # Configure state transitions for testing
             async def listening_side_effect():
@@ -566,7 +586,10 @@ class TestAsyncStateMachine:
 
             async def speaking_side_effect():
                 state_machine.cycles_completed += 1
-                if state_machine.cycles_completed >= state_machine.cycles_target:
+                if (
+                    state_machine.cycles_completed
+                    >= state_machine.cycles_target
+                ):
                     state_machine.current_state = MachineState.STOPPED
                 else:
                     state_machine.current_state = MachineState.WAITING
@@ -620,7 +643,9 @@ class TestAsyncStateMachine:
 
             # Verify recording and transcription were attempted
             mock_services["audio_service"].record_audio.assert_called()
-            mock_services["transcription_service"].transcribe_audio.assert_called()
+            mock_services[
+                "transcription_service"
+            ].transcribe_audio.assert_called()
 
             # Verify synthesis and playback were attempted
             mock_synthesize.assert_called()
@@ -664,7 +689,11 @@ class TestAsyncStateMachine:
         )
 
         # Verify transcription service was called with correct model and language
-        mock_services["transcription_service"].transcribe_audio.assert_called_once()
-        call_args = mock_services["transcription_service"].transcribe_audio.call_args
+        mock_services[
+            "transcription_service"
+        ].transcribe_audio.assert_called_once()
+        call_args = mock_services[
+            "transcription_service"
+        ].transcribe_audio.call_args
         assert call_args[1]["model_size"] == custom_config["model"]
         assert call_args[1]["language"] == custom_config["language"]
