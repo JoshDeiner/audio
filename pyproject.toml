@@ -31,7 +31,7 @@ skip = ["env", "venv", ".venv"]
 
 [tool.flake8]
 max-line-length = 79
-extend-ignore = "E203"
+extend-ignore = "E203, D202"
 exclude = [
     ".git",
     "__pycache__",
