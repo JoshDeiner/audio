@@ -70,4 +70,4 @@ This test ensures that the state machine can handle a full cycle of machine-to-u
 - **Event Simulation**: Simulate events that trigger state transitions to test the state machine's responsiveness.
 - **Error Handling**: Test how the state machine behaves when unexpected events occur or when services fail.
 
-By implementing these tests and strategies, you can ensure that your state machine behaves as expected throughout its various states and transitions. 
+By implementing these tests and strategies, you can ensure that your state machine behaves as expected throughout its various states and transitions.
