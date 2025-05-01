@@ -101,7 +101,10 @@ class TestAsyncStateMachine:
         assert state_machine.DEFAULT_DURATION == 5
         assert state_machine.DEFAULT_CYCLES == 2
         assert state_machine.DEFAULT_WAIT_DURATION == 0.1
-        assert state_machine.ERROR_MESSAGE == "I couldn't understand what you said."
+        assert (
+            state_machine.ERROR_MESSAGE
+            == "I couldn't understand what you said."
+        )
 
     # Test: Invalid Cycle Configuration
     @pytest.mark.unit
@@ -118,7 +121,9 @@ class TestAsyncStateMachine:
             )
 
         # Check error message
-        assert "Number of cycles must be greater than zero" in str(excinfo.value)
+        assert "Number of cycles must be greater than zero" in str(
+            excinfo.value
+        )
 
     # Test: Odd Cycle Adjustment
     @pytest.mark.unit
@@ -219,8 +224,8 @@ class TestAsyncStateMachine:
         )
 
         # Make the recording service raise an AudioServiceError
-        mock_services["audio_service"].record_audio.side_effect = AudioServiceError(
-            "Recording failed", error_code="RECORDING_ERROR"
+        mock_services["audio_service"].record_audio.side_effect = (
+            AudioServiceError("Recording failed", error_code="RECORDING_ERROR")
         )
 
         # Run LISTENING state logic
@@ -249,12 +254,15 @@ class TestAsyncStateMachine:
         state_machine.current_state = MachineState.SPEAKING
 
         # Mock the Text-to-Speech and AudioPlayback services
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Run the speaking state logic
             await state_machine._handle_speaking_state()
@@ -283,12 +291,15 @@ class TestAsyncStateMachine:
         state_machine.cycles_completed = 1  # Already completed one cycle
 
         # Mock the Text-to-Speech and AudioPlayback services
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Run the speaking state logic for the second cycle
             await state_machine._handle_speaking_state()
@@ -343,7 +354,9 @@ class TestAsyncStateMachine:
         # Mock TTS to raise an exception
         with patch(
             "services.text_to_speech_service.TextToSpeechService.synthesize",
-            side_effect=AudioServiceError("Synthesis failed", error_code="SYNTHESIS_ERROR"),
+            side_effect=AudioServiceError(
+                "Synthesis failed", error_code="SYNTHESIS_ERROR"
+            ),
         ):
             # Run the speaking state logic
             await state_machine._handle_speaking_state()
@@ -355,7 +368,9 @@ class TestAsyncStateMachine:
     # Test: Run Method with State Transitions
     @pytest.mark.unit
     @pytest.mark.asyncio
-    async def test_run_method_with_state_machine(self, mock_services, test_config):
+    async def test_run_method_with_state_machine(
+        self, mock_services, test_config
+    ):
         """Test the run method with proper state machine transitions."""
         # Instantiate the state machine with 2 cycles
         state_machine = AsyncAudioStateMachine(
@@ -367,13 +382,17 @@ class TestAsyncStateMachine:
         )
 
         # Mock all the async calls
-        with patch.object(
-            state_machine, "_handle_listening_state"
-        ) as mock_listening, patch.object(
-            state_machine, "_handle_speaking_state"
-        ) as mock_speaking, patch.object(
-            state_machine, "_handle_waiting_state"
-        ) as mock_waiting:
+        with (
+            patch.object(
+                state_machine, "_handle_listening_state"
+            ) as mock_listening,
+            patch.object(
+                state_machine, "_handle_speaking_state"
+            ) as mock_speaking,
+            patch.object(
+                state_machine, "_handle_waiting_state"
+            ) as mock_waiting,
+        ):
             # Configure state transitions for testing
             async def listening_side_effect():
                 state_machine.text_result = "Hello, world."
@@ -422,34 +441,38 @@ class TestAsyncStateMachine:
         # Set an invalid state (this would not happen in normal operation)
         # We can't actually create an invalid MachineState enum value,
         # so we'll patch the match-case to simulate the default case
-        with patch.object(
-            state_machine, "_handle_listening_state"
-        ) as mock_listening, patch.object(
-            state_machine, "_handle_speaking_state"
-        ) as mock_speaking, patch.object(
-            state_machine, "_handle_waiting_state"
-        ) as mock_waiting:
-            
+        with (
+            patch.object(
+                state_machine, "_handle_listening_state"
+            ) as mock_listening,
+            patch.object(
+                state_machine, "_handle_speaking_state"
+            ) as mock_speaking,
+            patch.object(
+                state_machine, "_handle_waiting_state"
+            ) as mock_waiting,
+        ):
+
             # Force the state machine to hit the default case
             # by not handling any known states
             mock_listening.side_effect = Exception("Not called")
             mock_speaking.side_effect = Exception("Not called")
             mock_waiting.side_effect = Exception("Not called")
-            
+
             # Need to create a custom run method that simulates an unknown state
             async def custom_run():
                 # Simulate an unknown state by not matching any case
                 state_machine.current_state = MachineState.LISTENING
                 # Override the match-case behavior
                 state_machine.current_state = MachineState.STOPPED
-                
+
             with patch.object(state_machine, "run", custom_run):
                 await state_machine.run()
-                
+
                 # Verify none of the handlers were called
                 mock_listening.assert_not_called()
                 mock_speaking.assert_not_called()
                 mock_waiting.assert_not_called()
-                
+
                 # Should end in STOPPED state
                 assert state_machine.current_state == MachineState.STOPPED

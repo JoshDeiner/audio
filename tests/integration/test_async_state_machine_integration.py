@@ -16,8 +16,8 @@ import pytest
 
 from audio.async_state_machine import (
     AsyncAudioStateMachine,
-    MachineState,
     CycleConfigurationError,
+    MachineState,
     StateMachineError,
 )
 from library.bin.dependency_injection.app_services import AppServices
@@ -118,12 +118,15 @@ class TestAsyncStateMachineIntegration:
         )
 
         # Mock TTS and audio playback to prevent actual audio output
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Run the complete state machine
             await state_machine.run()
@@ -190,12 +193,15 @@ class TestAsyncStateMachineIntegration:
         state_machine._handle_waiting_state = track_waiting
 
         # Mock TTS and audio playback
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Run the complete state machine
             await state_machine.run()
@@ -257,12 +263,15 @@ class TestAsyncStateMachineIntegration:
         state_machine._handle_speaking_state = delayed_speaking
 
         # Mock TTS and playback services
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Measure execution time
             start_time = asyncio.get_event_loop().time()
@@ -300,7 +309,9 @@ class TestAsyncStateMachineIntegration:
         # Configure first call to succeed, second to fail
         mock_audio_service.record_audio.side_effect = [
             mock_audio_file,  # First call succeeds
-            AudioServiceError("Recording failed", error_code="RECORDING_ERROR"),  # Second call fails with specific error
+            AudioServiceError(
+                "Recording failed", error_code="RECORDING_ERROR"
+            ),  # Second call fails with specific error
         ]
 
         mock_transcription_service.transcribe_audio.return_value = (
@@ -317,12 +328,15 @@ class TestAsyncStateMachineIntegration:
         )
 
         # Mock TTS and audio playback
-        with patch(
-            "services.text_to_speech_service.TextToSpeechService.synthesize",
-            return_value=b"mock audio data",
-        ), patch(
-            "services.audio_playback_service.AudioPlaybackService.play",
-            return_value=None,
+        with (
+            patch(
+                "services.text_to_speech_service.TextToSpeechService.synthesize",
+                return_value=b"mock audio data",
+            ),
+            patch(
+                "services.audio_playback_service.AudioPlaybackService.play",
+                return_value=None,
+            ),
         ):
             # Run the state machine
             await state_machine.run()
@@ -338,7 +352,4 @@ class TestAsyncStateMachineIntegration:
             assert state_machine.current_state == MachineState.STOPPED
 
             # Last text result should be the error message
-            assert (
-                state_machine.text_result
-                == state_machine.ERROR_MESSAGE
-            )
+            assert state_machine.text_result == state_machine.ERROR_MESSAGE

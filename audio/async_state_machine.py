@@ -93,7 +93,9 @@ class AsyncAudioStateMachine:
         """
         # Guard clause: Validate that cycles is a positive number
         if cycles <= 0:
-            raise CycleConfigurationError("Number of cycles must be greater than zero")
+            raise CycleConfigurationError(
+                "Number of cycles must be greater than zero"
+            )
 
         # Ensure even number of cycles for balanced listen/speak
         if cycles % 2 != 0:
@@ -172,7 +174,9 @@ class AsyncAudioStateMachine:
         try:
             # Record audio from microphone
             logger.info("Recording audio...")
-            recording_duration = self.config.get("duration", self.DEFAULT_DURATION)
+            recording_duration = self.config.get(
+                "duration", self.DEFAULT_DURATION
+            )
 
             audio_path = await asyncio.to_thread(
                 self.audio_service.record_audio,
@@ -248,7 +252,9 @@ class AsyncAudioStateMachine:
         This provides a natural break in the conversation flow.
         """
         # Pause for a short duration
-        wait_duration = self.config.get("wait_duration", self.DEFAULT_WAIT_DURATION)
+        wait_duration = self.config.get(
+            "wait_duration", self.DEFAULT_WAIT_DURATION
+        )
         await asyncio.sleep(wait_duration)
 
         # Transition to LISTENING state
