@@ -21,7 +21,7 @@ from services.text_to_speech_service import TextToSpeechService
 
 
 @pytest.fixture
-def app_services():
+def app_services() -> AppServices:
     """Create AppServices container for tests with a clean configuration."""
     services = AppServices({})
 
@@ -30,7 +30,7 @@ def app_services():
 
 
 @pytest.mark.integration
-def test_full_audio_pipeline(app_services) -> None:
+def test_full_audio_pipeline(app_services: AppServices) -> None:
     """Test complete audio pipeline using simplified DI.
 
     Tests requirements:
@@ -59,31 +59,31 @@ def test_full_audio_pipeline(app_services) -> None:
     )
 
     # Step 3: Compare the original and transcribed text
-    print(f"Original: {test_text}")
-    print(f"Transcribed: {transcribed_text}")
+    print("Original: %s" % test_text)
+    print("Transcribed: %s" % transcribed_text)
 
     # Calculate similarity
     similarity = difflib.SequenceMatcher(
         None, test_text.lower(), transcribed_text.lower()
     ).ratio()
-    print(f"Similarity: {similarity:.2f}")
+    print("Similarity: %.2f" % similarity)
 
     # Clean up the temporary file
     os.unlink(temp_audio_file)
 
     # We consider texts similar if they're at least 50% similar
     assert similarity > 0.5, (
-        f"Transcription differs too much from original text.\n"
-        f"Original: {test_text}\n"
-        f"Transcribed: {transcribed_text}\n"
-        f"Similarity: {similarity:.2f}"
-    )
+        "Transcription differs too much from original text.\n"
+        "Original: %s\n"
+        "Transcribed: %s\n"
+        "Similarity: %.2f"
+    ) % (test_text, transcribed_text, similarity)
 
 
 @pytest.mark.integration
 def test_cli_text_to_speech(
     tmp_path: Path,
-    app_services,
+    app_services: AppServices,
 ) -> None:
     """Test the text-to-speech functionality using simplified DI."""
     # Setup temporary directories
@@ -118,12 +118,12 @@ def test_cli_text_to_speech(
     # Verify audio file was created
     assert (
         audio_output_file.exists()
-    ), f"Audio file not created: {audio_output_file}"
+    ), "Audio file not created: %s" % audio_output_file
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
 
 @pytest.mark.integration
-def test_direct_transcription_service(tmp_path: Path, app_services) -> None:
+def test_direct_transcription_service(tmp_path: Path, app_services: AppServices) -> None:
     """Test direct use of the transcription service with test audio file using simplified DI."""
     # Create a test audio file using TextToSpeechService
     test_text = "This is a test for direct transcription service."
@@ -141,7 +141,7 @@ def test_direct_transcription_service(tmp_path: Path, app_services) -> None:
             audio_file_path=str(test_audio_file), model_size="tiny"
         )
 
-        print(f"Transcribed text: {transcribed_text}")
+        print("Transcribed text: %s" % transcribed_text)
 
         # Verify we got some transcription
         assert transcribed_text, "No transcription text returned"
@@ -151,7 +151,7 @@ def test_direct_transcription_service(tmp_path: Path, app_services) -> None:
         similarity = difflib.SequenceMatcher(
             None, test_text.lower(), transcribed_text.lower()
         ).ratio()
-        print(f"Similarity: {similarity:.2f}")
+        print("Similarity: %.2f" % similarity)
 
         # We expect at least some similarity
         assert (
@@ -159,13 +159,13 @@ def test_direct_transcription_service(tmp_path: Path, app_services) -> None:
         ), "Transcription has very low similarity to original text"
 
     except Exception as e:
-        pytest.fail(f"Transcription service failed: {e}")
+        pytest.fail("Transcription service failed: %s" % e)
 
 
 @pytest.mark.integration
 def test_text_file_input_pipeline(
     tmp_path: Path,
-    app_services,
+    app_services: AppServices,
 ) -> None:
     """Test complete audio pipeline using a text file as input via the controller with simplified DI.
 
@@ -208,7 +208,7 @@ def test_text_file_input_pipeline(
     # Verify audio file was created
     assert (
         audio_output_file.exists()
-    ), f"Audio file not created: {audio_output_file}"
+    ), "Audio file not created: %s" % audio_output_file
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file using transcription service from app_services
@@ -217,28 +217,28 @@ def test_text_file_input_pipeline(
     )
 
     # Compare original and transcribed text
-    print(f"Original text: {test_text}")
-    print(f"Transcribed text: {transcribed_text}")
+    print("Original text: %s" % test_text)
+    print("Transcribed text: %s" % transcribed_text)
 
     # Calculate similarity
     similarity = difflib.SequenceMatcher(
         None, test_text.lower(), transcribed_text.lower()
     ).ratio()
-    print(f"Similarity: {similarity:.2f}")
+    print("Similarity: %.2f" % similarity)
 
     # We consider texts similar if they're at least 50% similar
     assert similarity > 0.5, (
-        f"Transcription differs too much from original text.\n"
-        f"Original: {test_text}\n"
-        f"Transcribed: {transcribed_text}\n"
-        f"Similarity: {similarity:.2f}"
-    )
+        "Transcription differs too much from original text.\n"
+        "Original: %s\n"
+        "Transcribed: %s\n"
+        "Similarity: %.2f"
+    ) % (test_text, transcribed_text, similarity)
 
 
 @pytest.mark.integration
 def test_cli_text_file_input(
     tmp_path: Path,
-    app_services,
+    app_services: AppServices,
 ) -> None:
     """Test complete audio pipeline using a text file as input via API calls with simplified DI.
 
@@ -280,7 +280,7 @@ def test_cli_text_file_input(
     # Verify audio file was created
     assert (
         audio_output_file.exists()
-    ), f"Audio file not created: {audio_output_file}"
+    ), "Audio file not created: %s" % audio_output_file
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file using the transcription service from app_services
@@ -289,19 +289,19 @@ def test_cli_text_file_input(
     )
 
     # Compare original and transcribed text
-    print(f"Original text: {test_text}")
-    print(f"Transcribed text: {transcribed_text}")
+    print("Original text: %s" % test_text)
+    print("Transcribed text: %s" % transcribed_text)
 
     # Calculate similarity
     similarity = difflib.SequenceMatcher(
         None, test_text.lower(), transcribed_text.lower()
     ).ratio()
-    print(f"Similarity: {similarity:.2f}")
+    print("Similarity: %.2f" % similarity)
 
     # We consider texts similar if they're at least 50% similar
     assert similarity > 0.5, (
-        f"Transcription differs too much from original text.\n"
-        f"Original: {test_text}\n"
-        f"Transcribed: {transcribed_text}\n"
-        f"Similarity: {similarity:.2f}"
-    )
+        "Transcription differs too much from original text.\n"
+        "Original: %s\n"
+        "Transcribed: %s\n"
+        "Similarity: %.2f"
+    ) % (test_text, transcribed_text, similarity)
