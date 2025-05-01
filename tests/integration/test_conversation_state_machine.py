@@ -18,7 +18,9 @@ from audio.async_state_machine import AsyncAudioStateMachine, MachineState
 from library.bin.dependency_injection.app_services import AppServices
 from services.exceptions import AudioServiceError
 from services.interfaces.audio_service_interface import IAudioRecordingService
-from services.interfaces.transcription_service_interface import ITranscriptionService
+from services.interfaces.transcription_service_interface import (
+    ITranscriptionService,
+)
 
 # Setup test logging
 logging.basicConfig(level=logging.INFO)
@@ -67,6 +69,7 @@ class TestConversationStateMachine:
             )
             if os.path.exists(dummy_wav_path):
                 import shutil
+
                 shutil.copy(dummy_wav_path, test_file)
             else:
                 # Create an empty WAV file as fallback
@@ -83,7 +86,7 @@ class TestConversationStateMachine:
         self, setup_environment, test_config, mock_audio_file
     ):
         """Test a complete conversation loop with machine initiating first message.
-        
+
         This test verifies the state machine:
         1. Starts with machine-generated message (audio_out)
         2. Captures user's response (audio_in)
@@ -98,11 +101,13 @@ class TestConversationStateMachine:
 
         # Configure mock behavior
         mock_audio_service.record_audio.return_value = mock_audio_file
-        mock_transcription_service.transcribe_audio.return_value = "Hello, this is a test user response"
+        mock_transcription_service.transcribe_audio.return_value = (
+            "Hello, this is a test user response"
+        )
 
         # Create a custom state machine that starts with SPEAKING state (audio_out)
         # instead of the default LISTENING state (audio_in)
-        
+
         # Create state machine with just enough cycles for one complete loop
         state_machine = AsyncAudioStateMachine(
             config=test_config,
@@ -111,19 +116,19 @@ class TestConversationStateMachine:
             config_manager=services.config_manager,
             cycles=2,  # One full cycle: machine speaks -> user responds -> machine speaks again
         )
-        
+
         # Modify the initial state to be SPEAKING (audio_out) instead of LISTENING (audio_in)
         state_machine.current_state = MachineState.SPEAKING
-        
+
         # Create variables to track the conversation flow
         state_sequence = []
         machine_responses = []
         user_inputs = []
-        
+
         # Store the original handler methods
         original_speaking = state_machine._handle_speaking_state
         original_listening = state_machine._handle_listening_state
-        
+
         # Create wrapper for speaking state to capture machine outputs
         async def track_speaking_state():
             state_sequence.append("SPEAKING")
@@ -131,7 +136,7 @@ class TestConversationStateMachine:
             response = f"Machine speaking: {state_machine.text_result}"
             machine_responses.append(response)
             await original_speaking()
-        
+
         # Create wrapper for listening state to capture user inputs
         async def track_listening_state():
             state_sequence.append("LISTENING")
@@ -139,7 +144,7 @@ class TestConversationStateMachine:
             # Capture the text result after transcription
             user_input = f"User said: {state_machine.text_result}"
             user_inputs.append(user_input)
-        
+
         # Replace the original methods with our tracking wrappers
         state_machine._handle_speaking_state = track_speaking_state
         state_machine._handle_listening_state = track_listening_state
@@ -160,22 +165,24 @@ class TestConversationStateMachine:
 
             # Verify machine initiated first (SPEAKING state first)
             assert state_sequence[0] == "SPEAKING"
-            
+
             # Verify expected state transitions for a full loop
             assert state_sequence == ["SPEAKING", "LISTENING", "SPEAKING"]
-            
+
             # Verify both services were called appropriately
             assert mock_audio_service.record_audio.call_count == 1
             assert mock_transcription_service.transcribe_audio.call_count == 1
-            
+
             # Verify the machine responded to user input in the second response
             assert len(machine_responses) == 2
-            assert "Hello, this is a test user response" in machine_responses[1]
-            
+            assert (
+                "Hello, this is a test user response" in machine_responses[1]
+            )
+
             # Verify user input was captured correctly
             assert len(user_inputs) == 1
             assert "Hello, this is a test user response" in user_inputs[0]
-            
+
             # Assert final state
             assert state_machine.cycles_completed == 2
             assert state_machine.current_state == MachineState.STOPPED
@@ -197,7 +204,7 @@ class TestConversationStateMachine:
         mock_audio_service.record_audio.side_effect = AudioServiceError(
             "Mock recording error", error_code="TEST_ERROR"
         )
-        
+
         # Create state machine starting with SPEAKING state
         state_machine = AsyncAudioStateMachine(
             config=test_config,
@@ -206,7 +213,7 @@ class TestConversationStateMachine:
             config_manager=services.config_manager,
             cycles=2,
         )
-        
+
         # Modify the initial state to be SPEAKING
         state_machine.current_state = MachineState.SPEAKING
 
@@ -226,13 +233,13 @@ class TestConversationStateMachine:
 
             # Verify audio service was called
             assert mock_audio_service.record_audio.call_count == 1
-            
+
             # Verify transcription was not called (due to audio error)
             assert mock_transcription_service.transcribe_audio.call_count == 0
-            
+
             # Verify state machine completed despite error
             assert state_machine.cycles_completed == 2
             assert state_machine.current_state == MachineState.STOPPED
-            
+
             # Verify error message was stored
             assert state_machine.text_result == state_machine.ERROR_MESSAGE

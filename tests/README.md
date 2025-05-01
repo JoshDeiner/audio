@@ -13,7 +13,7 @@ python -m pytest tests/
 # Run only integration tests
 python -m pytest tests/integration/
 
-# Run only unit tests 
+# Run only unit tests
 python -m pytest tests/unit/
 
 # Run with verbose output
