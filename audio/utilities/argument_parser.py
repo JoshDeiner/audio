@@ -10,8 +10,7 @@ Created: 2025-04-27
 """
 import argparse
 import logging
-import sys
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Dict, Optional, Sequence, Tuple
 
 from library.bin.dependency_injection.module_loader import Injectable
 

@@ -59,7 +59,6 @@ async def transcribe_audio_file(input_file: str) -> str:
 
 async def demonstrate_manual_service_override() -> None:
     """Override a service for testing or customization."""
-
     # Create a custom FileService implementation
     class CustomFileService(FileService):
         def validate_audio_file(self, file_path: str) -> bool:
