@@ -3,7 +3,4 @@ try out eleven lab experiment
 
 ----
 
-
-think on other test cases
-
-fix linter issues
+find out how to run multiple claude sessions at once for the same git project

@@ -19,24 +19,62 @@ This guide explains how to test the audio transcription tool using various metho
    WHISPER_DEVICE=auto
    ```
 
-## Automated Unit Tests
+## Automated Tests
 
-Run the pytest unit tests to verify WAV-to-text transcription functionality:
+### Running All Tests
+
+To run all tests:
 
 ```bash
-python -m pytest tests/test_transcription.py -v
+python -m pytest
 ```
 
-This test:
-- Reads a sample WAV file (`input/dummy_speech.wav`)
-- Converts it to text using the Whisper model
-- Verifies the transcription exists and has more than 5 characters
-- Confirms that an output text file was created with matching content
+### Unit Tests
+
+Run the unit tests to verify individual components:
+
+```bash
+python -m pytest tests/unit/
+```
+
+These tests verify:
+- State machine functionality
+- Plugin system
+- Transcription service
+
+### Integration Tests
+
+Run the integration tests to verify component interactions:
+
+```bash
+python -m pytest tests/integration/
+```
+
+These tests verify:
+- Audio pipeline integration
+- Async state machine integration
+- Transcription service integration
+- Conversation flow integration
+
+### State Machine Conversation Tests
+
+Test the conversation state machine specifically:
+
+```bash
+python -m pytest tests/integration/test_conversation_state_machine.py -v
+```
+
+This test verifies:
+- Machine initiates the conversation with audio output
+- User's response is captured and processed
+- Machine responds to the user's input
+- Complete conversation loop occurs with correct state transitions
 
 ### Test Options
 
 - `-v`: Verbose mode - shows detailed test progress
 - `--capture=no`: Shows print output during test execution
+- `-k "test_name"`: Run specific tests that match the given name
 
 ### Sample Test Output
 
@@ -44,11 +82,12 @@ This test:
 ============================= test session starts ==============================
 platform linux -- Python 3.11.2, pytest-7.3.1, pluggy-1.5.0
 rootdir: /home/jd01/audio
-collected 1 item
+collected 2 items
 
-tests/test_transcription.py::TestTranscription::test_file_transcription PASSED [100%]
+tests/integration/test_conversation_state_machine.py::TestConversationStateMachine::test_conversation_loop_machine_initiates PASSED [ 50%]
+tests/integration/test_conversation_state_machine.py::TestConversationStateMachine::test_conversation_loop_with_audio_service_error PASSED [100%]
 
-============================== 1 passed in 4.64s ===============================
+============================== 2 passed in 2.14s ===============================
 ```
 
 ## Testing Options

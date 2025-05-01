@@ -106,6 +106,39 @@ The state machine works with other application components:
 - Uses `TextToSpeechService` for text-to-speech
 - Uses `AudioPlaybackService` for audio playback
 
+## Conversation Loop Testing
+
+The state machine can be configured to simulate a conversation flow starting with either:
+
+- **User-initiated**: Starting with the default LISTENING state (user speaks first)
+- **Machine-initiated**: Starting with the SPEAKING state (machine speaks first)
+
+For testing machine-initiated conversations, modify the initial state:
+
+```python
+# Create state machine
+state_machine = AsyncAudioStateMachine(
+    config=config,
+    audio_service=audio_service,
+    transcription_service=transcription_service,
+    config_manager=config_manager,
+    cycles=2  # One complete conversation cycle
+)
+
+# Change initial state from LISTENING to SPEAKING
+state_machine.current_state = MachineState.SPEAKING
+
+# Run the state machine
+await state_machine.run()
+```
+
+This enables testing complete conversation loops where:
+1. Machine generates the first message (SPEAKING state)
+2. User responds (LISTENING state)
+3. Machine responds to user input (SPEAKING state again)
+
+The integration test at `tests/integration/test_conversation_state_machine.py` demonstrates this pattern.
+
 ## Error Handling
 
 The state machine includes error handling to ensure robust operation:

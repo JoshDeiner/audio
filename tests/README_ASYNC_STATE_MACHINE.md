@@ -28,7 +28,7 @@ pytest
 To run only the async state machine tests:
 
 ```bash
-pytest tests/unit/test_async_state_machine.py tests/integration/test_async_state_machine_integration.py
+pytest tests/unit/test_async_state_machine.py tests/integration/test_async_state_machine_integration.py tests/integration/test_conversation_state_machine.py
 ```
 
 To run only unit tests:
@@ -40,7 +40,13 @@ pytest tests/unit/test_async_state_machine.py
 To run only integration tests:
 
 ```bash
-pytest tests/integration/test_async_state_machine_integration.py
+pytest tests/integration/test_async_state_machine_integration.py tests/integration/test_conversation_state_machine.py
+```
+
+To run only conversation state machine tests:
+
+```bash
+pytest tests/integration/test_conversation_state_machine.py
 ```
 
 ## Unit Tests Overview
@@ -63,6 +69,8 @@ Integration tests focus on end-to-end functionality and interaction between comp
 2. **State Transition Sequence** - Verifies states are visited in the correct order
 3. **Async Timing Behavior** - Tests proper async behavior and delays
 4. **Error Handling in Cycles** - Tests recovery from errors in second audio input
+5. **Machine-Initiated Conversation** - Tests conversation flow starting with the machine speaking first
+6. **Error Handling in Conversation** - Tests recovery from errors in machine-initiated conversation
 
 ## Test Coverage
 
