@@ -224,8 +224,10 @@ class TestAsyncStateMachine:
         )
 
         # Make the recording service raise an AudioServiceError
-        mock_services["audio_service"].record_audio.side_effect = (
-            AudioServiceError("Recording failed", error_code="RECORDING_ERROR")
+        mock_services[
+            "audio_service"
+        ].record_audio.side_effect = AudioServiceError(
+            "Recording failed", error_code="RECORDING_ERROR"
         )
 
         # Run LISTENING state logic
@@ -452,7 +454,6 @@ class TestAsyncStateMachine:
                 state_machine, "_handle_waiting_state"
             ) as mock_waiting,
         ):
-
             # Force the state machine to hit the default case
             # by not handling any known states
             mock_listening.side_effect = Exception("Not called")
