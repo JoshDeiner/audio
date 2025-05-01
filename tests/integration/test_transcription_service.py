@@ -116,14 +116,16 @@ def test_cli_text_to_speech(
     audio_path = asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert (
-        audio_output_file.exists()
-    ), "Audio file not created: %s" % audio_output_file
+    assert audio_output_file.exists(), (
+        "Audio file not created: %s" % audio_output_file
+    )
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
 
 @pytest.mark.integration
-def test_direct_transcription_service(tmp_path: Path, app_services: AppServices) -> None:
+def test_direct_transcription_service(
+    tmp_path: Path, app_services: AppServices
+) -> None:
     """Test direct use of the transcription service with test audio file using simplified DI."""
     # Create a test audio file using TextToSpeechService
     test_text = "This is a test for direct transcription service."
@@ -206,9 +208,9 @@ def test_text_file_input_pipeline(
     asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert (
-        audio_output_file.exists()
-    ), "Audio file not created: %s" % audio_output_file
+    assert audio_output_file.exists(), (
+        "Audio file not created: %s" % audio_output_file
+    )
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file using transcription service from app_services
@@ -278,9 +280,9 @@ def test_cli_text_file_input(
     audio_path = asyncio.run(controller.handle_audio_out())
 
     # Verify audio file was created
-    assert (
-        audio_output_file.exists()
-    ), "Audio file not created: %s" % audio_output_file
+    assert audio_output_file.exists(), (
+        "Audio file not created: %s" % audio_output_file
+    )
     assert audio_output_file.stat().st_size > 0, "Audio file is empty"
 
     # Step 2: Transcribe the generated audio file using the transcription service from app_services
